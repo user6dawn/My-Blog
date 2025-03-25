@@ -1,18 +1,7 @@
 // pages/index.js
-import supabase from './lib/supabase';
+import supabase from '../lib/supabase';
 
-interface Blog {
-  id: string;
-  title: string;
-  content: string;
-  created_at: string;
-}
-
-interface HomeProps {
-  blogs: Blog[];
-}
-
-export default function Home({ blogs }: HomeProps) {
+export default function Home({ blogs }) {
   return (
     <div>
       <h1>Welcome to My Blog</h1>
