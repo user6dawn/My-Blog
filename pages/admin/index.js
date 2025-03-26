@@ -1,26 +1,58 @@
 import { useState } from "react";
-import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/router";
+import { supabase } from "../../lib/supabase";
 
-export default function Admin() {
+export default function AdminLogin() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const signIn = async (e) => {
+  // ✅ Handle Login
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) alert(error.message);
-    else router.push("/admin/dashboard");
+    setLoading(true);
+    setErrorMessage("");
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setErrorMessage(error.message);
+    } else {
+      router.push("/admin/dashboard"); // ✅ Redirect to dashboard after login
+    }
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 max-w-md">
       <h1 className="text-2xl font-bold mb-4">Admin Login</h1>
-      <form onSubmit={signIn} className="space-y-4">
-        <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} className="border p-2 w-full" />
-        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} className="border p-2 w-full" />
-        <button type="submit" className="bg-blue-500 text-white p-2 w-full">Login</button>
+      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+      <form onSubmit={handleLogin} className="space-y-4">
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-2 border"
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-2 border"
+          required
+        />
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded w-full" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
       </form>
     </div>
   );
