@@ -1,33 +1,34 @@
-// pages/index.js
-import supabase from '../lib/supabase';
+import { supabase } from "../lib/supabase";
+import Link from "next/link";
 
-export default function Home({ blogs }) {
-  return (
-    <div>
-      <h1>Welcome to My Blog</h1>
-      <div>
-        {blogs.map((blog) => (
-          <div key={blog.id}>
-            <h2>{blog.title}</h2>
-            <p>{blog.content}</p>
-            <small>{new Date(blog.created_at).toLocaleString()}</small>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+export async function getServerSideProps() {
+  try {
+    const { data, error } = await supabase.from("posts").select("*").order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return { props: { posts: data || [] } };
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return { props: { posts: [] } }; 
+  }
 }
 
-export async function getStaticProps() {
-  const { data: blogs, error } = await supabase
-    .from('blogs')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  return {
-    props: {
-      blogs,
-    },
-    revalidate: 60, // revalidate every minute
-  };
+export default function Home({ posts }) {
+  return (
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Blog Posts</h1>
+      {posts.length === 0 ? (
+        <p>No posts available.</p>
+      ) : (
+        posts.map((post) => (
+          <div key={post.id} className="mb-4 border-b pb-4">
+            <h2 className="text-2xl font-semibold">{post.title}</h2>
+            <p>{post.content.slice(0, 100)}...</p>
+            <Link href={`/post/${post.id}`} className="text-blue-500">Read More</Link>
+          </div>
+        ))
+      )}
+    </div>
+  );
 }
