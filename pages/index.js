@@ -2,11 +2,11 @@ import { supabase } from "../lib/supabase";
 import { useState } from "react";
 import Link from "next/link";
 
-// ✅ Fetch posts from Supabase (Server-side)
+// ✅ Fetch posts from Supabase on the server
 export async function getServerSideProps() {
   try {
     const { data, error } = await supabase
-      .from("posts") // ✅ Fetching from "posts" table
+      .from("posts") // ✅ Ensure this matches your table name
       .select("*")
       .order("created_at", { ascending: false });
 
@@ -26,7 +26,7 @@ export default function Home({ initialPosts }) {
   // ✅ Handle Like Functionality
   const likePost = async (id, currentLikes) => {
     const { data, error } = await supabase
-      .from("posts") 
+      .from("blogs") // ✅ Ensure this matches your table name
       .update({ likes: currentLikes + 1 })
       .eq("id", id)
       .select();
@@ -61,32 +61,17 @@ export default function Home({ initialPosts }) {
         <p>No posts available.</p>
       ) : (
         posts.map((post) => (
-          <div key={post.id} className="mb-6 border-b pb-4">
-            
-            {/* ✅ Show Blog Image (If Exists) */}
-            {post.image_url && (
-              <img
-                src={post.image_url}
-                alt={post.title}
-                className="w-full h-auto rounded-md my-3"
-              />
-            )}
-
-            {/* ✅ Blog Title and Content */}
+          <div key={post.id} className="mb-4 border-b pb-4">
             <h2 className="text-2xl font-semibold">{post.title}</h2>
             <p>{post.content.slice(0, 100)}...</p>
-
-            {/* ✅ Read More Button */}
-            <Link href={`/post/${post.id}`} className="text-blue-500">
-              Read More
-            </Link>
+            <Link href={`/post/${post.id}`} className="text-blue-500">Read More</Link>
 
             {/* ✅ Like Button */}
             <button
-              onClick={() => likePost(post.id, post.likes || 0)}
+              onClick={() => likePost(post.id, post.likes)}
               className="bg-blue-500 text-white px-3 py-1 rounded ml-4"
             >
-              👍 {post.likes || 0} Likes
+              👍 {post.likes} Likes
             </button>
 
             {/* ✅ Share Button */}

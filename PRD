@@ -1,0 +1,21 @@
+PRD
+
+a blog site with a home screen that calls the supabase db "posts" table and displays the content of the table on the home screen of the page
+it has a like and share button at the bottom. 
+
+homepage - brief of the blog containing the title of the blog, an image, detail brief and like and share button
+blog details - title  of blog, image and details and like and share button 
+admin index - login
+admin dashboard - 3 entry fields, title, details and the upload image.
+
+
+fetched and where:
+-title from the db
+-details form the db
+-image from the db
+-email and password from the db for the admin page
+
+post and where(everything is from the admin js folder):
+-title to the db
+-details to the db
+-image from the db

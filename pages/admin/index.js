@@ -1,57 +1,90 @@
+import { supabase } from "../../lib/supabase";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { supabase } from "../../lib/supabase";
 
-export default function AdminLogin() {
+export default function Admin() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [image, setImage] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
-  // ✅ Handle Login
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMessage("");
+  // ✅ Upload Image to Supabase Storage
+  const uploadImage = async (file) => {
+    setUploading(true);
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = `blog-images/${fileName}`;
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.storage
+      .from("blog-images")
+      .upload(filePath, file);
 
-    setLoading(false);
+    setUploading(false);
 
     if (error) {
-      setErrorMessage(error.message);
-    } else {
-      router.push("/admin/dashboard"); // ✅ Redirect to dashboard after login
+      console.error("Image upload error:", error);
+      alert("Error uploading image");
+      return null;
     }
+
+    // ✅ Get Public URL of Uploaded Image
+    const { data: imageData } = supabase.storage
+      .from("blog-images")
+      .getPublicUrl(filePath);
+
+    return imageData.publicUrl;
+  };
+
+  // ✅ Handle Blog Post Submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    let imageUrl = null;
+    if (image) {
+      imageUrl = await uploadImage(image);
+    }
+
+    const { data, error } = await supabase.from("posts").insert([
+      { title, content, image_url: imageUrl }
+    ]);
+
+    if (error) {
+      console.error("Error adding post:", error);
+      alert("Error adding post");
+      return;
+    }
+
+    router.push("/");
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-md">
-      <h1 className="text-2xl font-bold mb-4">Admin Login</h1>
-      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-      <form onSubmit={handleLogin} className="space-y-4">
+    <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Add New Blog Post</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full p-2 border"
+          required
+        />
+        <textarea
+          placeholder="Content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
           className="w-full p-2 border"
           required
         />
         <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImage(e.target.files[0])}
           className="w-full p-2 border"
-          required
         />
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded w-full" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+          {uploading ? "Uploading..." : "Add Post"}
         </button>
       </form>
     </div>

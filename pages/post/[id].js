@@ -105,11 +105,4 @@ export default function BlogPost({ initialPost }) {
       </Link>
     </div>
   );
-}{post.image_url && (
-  <img
-    src={post.image_url}
-    alt={post.title}
-    className="w-full h-auto rounded-md my-3"
-  />
-)}
-
+}
