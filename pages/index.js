@@ -6,7 +6,7 @@ import Link from "next/link";
 export async function getServerSideProps() {
   try {
     const { data, error } = await supabase
-      .from("posts") // ✅ Ensure this matches your table name
+      .from("posts") // ✅ Correct table name
       .select("*")
       .order("created_at", { ascending: false });
 
@@ -22,11 +22,12 @@ export async function getServerSideProps() {
 // ✅ Home Page Component
 export default function Home({ initialPosts }) {
   const [posts, setPosts] = useState(initialPosts);
+  const [isSharing, setIsSharing] = useState(false); // ✅ Prevent multiple shares
 
   // ✅ Handle Like Functionality
   const likePost = async (id, currentLikes) => {
     const { data, error } = await supabase
-      .from("blogs") // ✅ Ensure this matches your table name
+      .from("posts") // ✅ Fixed table name
       .update({ likes: currentLikes + 1 })
       .eq("id", id)
       .select();
@@ -38,18 +39,28 @@ export default function Home({ initialPosts }) {
     }
   };
 
-  // ✅ Handle Share Functionality
+  // ✅ Handle Share Functionality (Fixed)
   const sharePost = async (title, id) => {
     const url = `${window.location.origin}/post/${id}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, url });
-        console.log("Blog shared successfully!");
-      } catch (error) {
-        console.error("Error sharing:", error);
-      }
-    } else {
+    
+    if (!navigator.share) {
       alert("Sharing is not supported in your browser.");
+      return;
+    }
+
+    if (isSharing) {
+      console.warn("A share action is already in progress.");
+      return;
+    }
+
+    try {
+      setIsSharing(true);
+      await navigator.share({ title, url });
+      console.log("Blog shared successfully!");
+    } catch (error) {
+      console.error("Error sharing:", error);
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -71,15 +82,16 @@ export default function Home({ initialPosts }) {
               onClick={() => likePost(post.id, post.likes)}
               className="bg-blue-500 text-white px-3 py-1 rounded ml-4"
             >
-              👍 {post.likes} Likes
+              👍 {post.likes || 0} Likes
             </button>
 
             {/* ✅ Share Button */}
             <button
               onClick={() => sharePost(post.title, post.id)}
-              className="bg-green-500 text-white px-3 py-1 rounded ml-2"
+              disabled={isSharing} // ✅ Prevent multiple shares
+              className={`bg-green-500 text-white px-3 py-1 rounded ml-2 ${isSharing ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              🔗 Share
+              {isSharing ? "Sharing..." : "🔗 Share"}
             </button>
           </div>
         ))
