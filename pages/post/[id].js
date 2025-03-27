@@ -1,7 +1,7 @@
 import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // ✅ Fetch individual post data
 export async function getServerSideProps({ params }) {
@@ -27,6 +27,15 @@ export async function getServerSideProps({ params }) {
 export default function BlogPost({ initialPost }) {
   const router = useRouter();
   const [post, setPost] = useState(initialPost);
+  const [liked, setLiked] = useState(false);
+
+  // ✅ Load liked state from localStorage
+  useEffect(() => {
+    if (post) {
+      const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || {};
+      setLiked(likedPosts[post.id] || false);
+    }
+  }, [post]);
 
   if (!post) {
     return (
@@ -37,18 +46,25 @@ export default function BlogPost({ initialPost }) {
     );
   }
 
-  // ✅ Handle Like Functionality
+  // ✅ Handle Like Functionality (Limit to One Like per User)
   const likePost = async () => {
-    const { data, error } = await supabase
+    if (liked) return; // ✅ Prevent multiple likes
+
+    const { error } = await supabase
       .from("posts")
       .update({ likes: post.likes + 1 })
-      .eq("id", post.id)
-      .select();
+      .eq("id", post.id);
 
     if (error) {
       console.error("Error liking post:", error);
     } else {
       setPost({ ...post, likes: post.likes + 1 });
+      setLiked(true);
+
+      // ✅ Store liked state in localStorage
+      const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || {};
+      likedPosts[post.id] = true;
+      localStorage.setItem("likedPosts", JSON.stringify(likedPosts));
     }
   };
 
@@ -86,7 +102,10 @@ export default function BlogPost({ initialPost }) {
       <div className="mt-6 flex gap-4">
         <button
           onClick={likePost}
-          className="bg-blue-500 text-white px-3 py-1 rounded"
+          disabled={liked} // ✅ Disable after clicking
+          className={`px-3 py-1 rounded ${
+            liked ? "bg-gray-400 text-white cursor-not-allowed" : "bg-blue-500 text-white"
+          }`}
         >
           👍 {post.likes} Likes
         </button>

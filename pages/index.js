@@ -1,13 +1,13 @@
 import { supabase } from "../lib/supabase";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 // ✅ Fetch posts from Supabase on the server
 export async function getServerSideProps() {
   try {
     const { data, error } = await supabase
-      .from("posts") // ✅ Correct table name
-      .select("*")
+      .from("posts") 
+      .select("id, title, content, image_url, likes, created_at") 
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -22,24 +22,35 @@ export async function getServerSideProps() {
 // ✅ Home Page Component
 export default function Home({ initialPosts }) {
   const [posts, setPosts] = useState(initialPosts);
-  const [isSharing, setIsSharing] = useState(false); // ✅ Prevent multiple shares
+  const [isSharing, setIsSharing] = useState(false);
+  const [likedPosts, setLikedPosts] = useState({}); // ✅ Track liked posts in state
 
-  // ✅ Handle Like Functionality
+  useEffect(() => {
+    // ✅ Load liked posts from localStorage to prevent multiple likes
+    const storedLikes = JSON.parse(localStorage.getItem("likedPosts")) || {};
+    setLikedPosts(storedLikes);
+  }, []);
+
+  // ✅ Handle Like Functionality (Prevent Multiple Likes)
   const likePost = async (id, currentLikes) => {
-    const { data, error } = await supabase
-      .from("posts") // ✅ Fixed table name
+    if (likedPosts[id]) return; // ✅ Prevent liking again
+
+    const { error } = await supabase
+      .from("posts")
       .update({ likes: currentLikes + 1 })
-      .eq("id", id)
-      .select();
+      .eq("id", id);
 
     if (error) {
       console.error("Error liking post:", error);
     } else {
       setPosts(posts.map(post => post.id === id ? { ...post, likes: currentLikes + 1 } : post));
+      const updatedLikes = { ...likedPosts, [id]: true };
+      setLikedPosts(updatedLikes);
+      localStorage.setItem("likedPosts", JSON.stringify(updatedLikes)); // ✅ Store in localStorage
     }
   };
 
-  // ✅ Handle Share Functionality (Fixed)
+  // ✅ Handle Share Functionality
   const sharePost = async (title, id) => {
     const url = `${window.location.origin}/post/${id}`;
     
@@ -72,15 +83,27 @@ export default function Home({ initialPosts }) {
         <p>No posts available.</p>
       ) : (
         posts.map((post) => (
-          <div key={post.id} className="mb-4 border-b pb-4">
+          <div key={post.id} className="mb-6 border-b pb-6">
+            {/* ✅ Display Blog Image */}
+            {post.image_url && (
+              <img 
+                src={post.image_url} 
+                alt={post.title} 
+                className="w-full h-64 object-cover mb-3 rounded" 
+              />
+            )}
+
             <h2 className="text-2xl font-semibold">{post.title}</h2>
             <p>{post.content.slice(0, 100)}...</p>
             <Link href={`/post/${post.id}`} className="text-blue-500">Read More</Link>
 
-            {/* ✅ Like Button */}
+            {/* ✅ Like Button (Only Click Once) */}
             <button
               onClick={() => likePost(post.id, post.likes)}
-              className="bg-blue-500 text-white px-3 py-1 rounded ml-4"
+              disabled={likedPosts[post.id]} // ✅ Disable after clicking once
+              className={`px-3 py-1 rounded ml-4 ${
+                likedPosts[post.id] ? "bg-gray-400 text-white cursor-not-allowed" : "bg-blue-500 text-white"
+              }`}
             >
               👍 {post.likes || 0} Likes
             </button>
@@ -88,7 +111,7 @@ export default function Home({ initialPosts }) {
             {/* ✅ Share Button */}
             <button
               onClick={() => sharePost(post.title, post.id)}
-              disabled={isSharing} // ✅ Prevent multiple shares
+              disabled={isSharing} 
               className={`bg-green-500 text-white px-3 py-1 rounded ml-2 ${isSharing ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               {isSharing ? "Sharing..." : "🔗 Share"}
@@ -99,3 +122,4 @@ export default function Home({ initialPosts }) {
     </div>
   );
 }
+  

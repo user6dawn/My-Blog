@@ -27,24 +27,22 @@ export default function Dashboard() {
   const uploadImage = async (file) => {
     try {
       setUploading(true);
-      
-      // Extract file extension (e.g., .png, .jpg)
-      const fileExt = file.name.split(".").pop(); 
-      const fileName = `${Date.now()}.${fileExt}`;  // Unique filename
-      const filePath = `blog-images/${fileName}`;   // Storage path
-  
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `blog-images/${fileName}`;
+
       // Upload to Supabase Storage
-      const { error } = await supabase.storage
+      const { data, error } = await supabase.storage
         .from("blog-images")
         .upload(filePath, file);
-  
+
       if (error) throw error;
-  
-      // ✅ Retrieve Public URL of Uploaded Image
-      const { data } = await supabase.storage.from("blog-images").getPublicUrl(filePath);
-  
+
+      // ✅ Retrieve Public URL
+      const { publicUrl } = supabase.storage.from("blog-images").getPublicUrl(filePath);
+
       setUploading(false);
-      return data.publicUrl; // Return public URL
+      return publicUrl; // Return public URL
     } catch (error) {
       setUploading(false);
       console.error("Image upload error:", error);
@@ -52,7 +50,51 @@ export default function Dashboard() {
       return null;
     }
   };
-  
+
+  // ✅ Handle Form Submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!title || !content) {
+      alert("Title and content are required!");
+      return;
+    }
+
+    setUploading(true);
+    let imageUrl = null;
+
+    // ✅ Upload image if selected
+    if (image) {
+      imageUrl = await uploadImage(image);
+      if (!imageUrl) {
+        setUploading(false);
+        return;
+      }
+    }
+
+    // ✅ Insert blog post into Supabase
+    const { error } = await supabase.from("posts").insert([
+      {
+        title,
+        content,
+        image_url: imageUrl, // Store image URL if available
+        likes: 0,
+        created_at: new Date(),
+      },
+    ]);
+
+    setUploading(false);
+
+    if (error) {
+      console.error("Error adding post:", error);
+      alert("Failed to add post");
+    } else {
+      alert("Post added successfully!");
+      setTitle("");
+      setContent("");
+      setImage(null);
+    }
+  };
 
   // ✅ Handle Logout
   const handleLogout = async () => {
