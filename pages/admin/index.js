@@ -1,92 +1,69 @@
-import { supabase } from "../../lib/supabase";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { supabase } from "../../lib/supabase";
 
-export default function Admin() {
+export default function AdminLogin() {
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [image, setImage] = useState(null);
-  const [uploading, setUploading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // ✅ Upload Image to Supabase Storage
-  const uploadImage = async (file) => {
-    setUploading(true);
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}.${fileExt}`;
-    const filePath = `blog-images/${fileName}`;
-
-    const { data, error } = await supabase.storage
-      .from("blog-images")
-      .upload(filePath, file);
-
-    setUploading(false);
-
-    if (error) {
-      console.error("Image upload error:", error);
-      alert("Error uploading image");
-      return null;
-    }
-
-    // ✅ Get Public URL of Uploaded Image
-    const { data: imageData } = supabase.storage
-      .from("blog-images")
-      .getPublicUrl(filePath);
-
-    return imageData.publicUrl;
-  };
-
-  // ✅ Handle Blog Post Submission
-  const handleSubmit = async (e) => {
+  // ✅ Handle User Login
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-    let imageUrl = null;
-    if (image) {
-      imageUrl = await uploadImage(image);
-    }
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    const { data, error } = await supabase.from("posts").insert([
-      { title, content, image_url: imageUrl }
-    ]);
+    setLoading(false);
 
     if (error) {
-      console.error("Error adding post:", error);
-      alert("Error adding post");
+      setError("Invalid email or password");
       return;
     }
 
-    router.push("/");
+    // ✅ Redirect to the dashboard if login is successful
+    router.push("/admin/dashboard");
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Add New Blog Post</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-2 border"
-          required
-        />
-        <textarea
-          placeholder="Content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="w-full p-2 border"
-          required
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImage(e.target.files[0])}
-          className="w-full p-2 border"
-        />
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-          {uploading ? "Uploading..." : "Add Post"}
-        </button>
-      </form>
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <div className="bg-white p-6 rounded shadow-md w-96">
+        <h2 className="text-2xl font-bold mb-4 text-center">Admin Login</h2>
+
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 rounded"
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

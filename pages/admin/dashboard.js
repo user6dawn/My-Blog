@@ -1,13 +1,27 @@
 import { supabase } from "../../lib/supabase";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
-export default function Admin() {
+export default function Dashboard() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [image, setImage] = useState(""); // ✅ Initialized as empty string to prevent SSR issues
+  const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // ✅ Check if the user is logged in
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push("/admin"); // Redirect to login if not authenticated
+      } else {
+        setUser(session.user);
+      }
+    };
+    checkUser();
+  }, []);
 
   // ✅ Handle Image Upload
   const uploadImage = async (file) => {
@@ -23,11 +37,10 @@ export default function Admin() {
 
       if (error) throw error;
 
-      // ✅ Correct way to get the public URL
-      const { publicUrl } = supabase.storage.from("blog-images").getPublicUrl(filePath);
-
+      // ✅ Retrieve public URL
+      const { data } = supabase.storage.from("blog-images").getPublicUrl(filePath);
       setUploading(false);
-      return publicUrl;
+      return data.publicUrl;
     } catch (error) {
       setUploading(false);
       console.error("Image upload error:", error);
@@ -45,9 +58,8 @@ export default function Admin() {
       imageUrl = await uploadImage(image);
     }
 
-    // ✅ Insert post into the database
     const { error } = await supabase.from("posts").insert([
-      { title, content, image_url: imageUrl }
+      { title, content, image_url: imageUrl },
     ]);
 
     if (error) {
@@ -56,19 +68,27 @@ export default function Admin() {
       return;
     }
 
-  //   router.push("/"); // ✅ Redirect to homepage after successful post creation
-  // };
+    setTitle("");
+    setContent("");
+    setImage(null);
+    alert("Blog post added successfully!");
+  };
 
-  // ✅ Ensure proper image selection handling
-  const handleImageChange = (e) => {
-    if (e.target.files.length > 0) {
-      setImage(e.target.files[0]);
-    }
+  // ✅ Handle Logout
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/admin"); // Redirect to login page after logout
   };
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Add New Blog Post</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded">
+          Logout
+        </button>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
@@ -88,7 +108,7 @@ export default function Admin() {
         <input
           type="file"
           accept="image/*"
-          onChange={handleImageChange} // ✅ Ensured correct file handling
+          onChange={(e) => setImage(e.target.files[0])}
           className="w-full p-2 border"
         />
         <button
@@ -101,5 +121,4 @@ export default function Admin() {
       </form>
     </div>
   );
-}
 }
