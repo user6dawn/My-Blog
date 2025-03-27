@@ -21,26 +21,30 @@ export default function Dashboard() {
       }
     };
     checkUser();
-  }, []);
+  }, [router]);
 
-  // ✅ Handle Image Upload
+  // ✅ Function to Upload Image and Return URL
   const uploadImage = async (file) => {
     try {
       setUploading(true);
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `blog-images/${fileName}`;
-
+      
+      // Extract file extension (e.g., .png, .jpg)
+      const fileExt = file.name.split(".").pop(); 
+      const fileName = `${Date.now()}.${fileExt}`;  // Unique filename
+      const filePath = `blog-images/${fileName}`;   // Storage path
+  
+      // Upload to Supabase Storage
       const { error } = await supabase.storage
         .from("blog-images")
         .upload(filePath, file);
-
+  
       if (error) throw error;
-
-      // ✅ Retrieve public URL
-      const { data } = supabase.storage.from("blog-images").getPublicUrl(filePath);
+  
+      // ✅ Retrieve Public URL of Uploaded Image
+      const { data } = await supabase.storage.from("blog-images").getPublicUrl(filePath);
+  
       setUploading(false);
-      return data.publicUrl;
+      return data.publicUrl; // Return public URL
     } catch (error) {
       setUploading(false);
       console.error("Image upload error:", error);
@@ -48,31 +52,7 @@ export default function Dashboard() {
       return null;
     }
   };
-
-  // ✅ Handle Blog Post Submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    let imageUrl = null;
-    if (image) {
-      imageUrl = await uploadImage(image);
-    }
-
-    const { error } = await supabase.from("posts").insert([
-      { title, content, image_url: imageUrl },
-    ]);
-
-    if (error) {
-      console.error("Error adding post:", error);
-      alert("Error adding post");
-      return;
-    }
-
-    setTitle("");
-    setContent("");
-    setImage(null);
-    alert("Blog post added successfully!");
-  };
+  
 
   // ✅ Handle Logout
   const handleLogout = async () => {
