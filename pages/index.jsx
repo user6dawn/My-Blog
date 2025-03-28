@@ -1,11 +1,9 @@
 import { supabase } from "../lib/supabase";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import BlogCard from "../components/BlogCard";
 
-<div>
-      <BlogCard title="Inline Styles in JSX" content="This is a blog post with inline styling!" />
-    </div>
+
+
 // ✅ Fetch posts from Supabase on the server
 export async function getServerSideProps() {
   try {
