@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { useState, useEffect } from "react";
+import BlogCard from "../components/BlogCard"; // ✅ Import BlogCard component
 
 export async function getServerSideProps() {
   try {
