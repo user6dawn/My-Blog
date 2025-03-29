@@ -1,291 +1,268 @@
-/* styles/global.css */
-
-
-
-  .image {
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-basis: auto;
-    background-color: black;
-    border-radius: 20px;
-
-  }
-
-  .title {
-    flex-grow: 0;
-    flex-shrink: 1;
-    font-weight: 700;
-    flex-basis: auto;
-    font-family: 'Poppins';
-    text-align: center;
-    text-decoration: none;
-    text-transform: none;
-    font-size: 30px;
-  }
-    .blog_title {
-    flex-grow: 0;
-    flex-shrink: 1;
-    font-weight: 700;
-    flex-basis: auto;
-    font-family: 'Poppins';
-    text-align: left;
-    text-decoration: none;
-    text-transform: none;
-    font-size: 16px;
-  }
-  .content {
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-basis: auto;
-    font-family: 'poppins';
-    font-weight: 300;
-    font-size: 12px;
-    text-decoration: none;
-    text-transform: none;
-    color: black;
-    
-  }
-
-  
-  
-  .card{
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-basis: auto;
-    background-color: rgb(249, 249, 249);
-    border: 1px solid rgba(0, 0, 0, 1);
-    border-radius: 20px;
-  }
-/* ✅ Blog Card (Desktop: Side-by-Side, Mobile: Stack) */
-.card {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  border: 1px solid #ddd;
+/* ✅ Page Container */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  
-  /* 📱 Mobile: Stack image and content */
-  flex-direction: row;
 }
 
-@media (max-width: 768px) {
-  .card {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
+/* ✅ Full-width Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'montserrat';
+  width: 100%;
+  background-color: #1a1a1a;
+  color: white;
+  padding: 15px 0;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  text-indent: 10px;
+
+}
+
+
+/* ✅ Navigation */
+.nav {
+  display: flex-end;
+  align-items: end;
+  gap: 20px;
+}
+
+.nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  padding: 5px 10px;
+  white-space: nowrap; /* Prevents text from wrapping */
+}
+
+.nav a:hover {
+  text-decoration: underline;
+}
+
+/* ✅ Full-width Footer */
+.footer {
+  font-family: 'montserrat';
+
+  width: 100%;
+  background-color: #1a1a1a;
+  color: white;
+  text-align: center;
+  padding: 15px 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  font-size: 14px;
+}
+
+/* ✅ Blog Card */
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* ✅ Blog Image */
 .image {
-  width: 420px;
-  height: 210px;
-  object-fit: cover;
+  width: 100%;
+  height: auto;
   border-radius: 10px;
 }
 
-@media (max-width: 768px) {
-  .image {
-    width: 100%;
-    height: auto;
-  }
-}
-
-/* ✅ Blog Content (Next to Image) */
+/* ✅ Blog Content */
 .content {
-  flex: 1;
-  
-}
-
-/* ✅ Blog Title */
-.blog_title {
-  font-size: 24px;
+  margin-top: 50px;
+  font-family: 'poppins';
+  padding: 10px;
+  text-align: center;
   font-weight: bold;
 }
 
-/* ✅ Blog Description */
+.titles {
+  font-family: 'poppins';
+  padding: 10px;
+  font-weight: bold;
+  justify-content: left;
+}
+
+.blog_title {
+  font-family: 'poppins';
+  font-size: 20px;
+  font-weight: bold;
+}
+
 .description {
-  color: gray;
-  margin-top: 10px;
+  font-family: 'poppins';
+  color: rgb(0, 0, 0);
+  line-height: 1.6;
 }
 
 /* ✅ Bottom Row (Read More + Buttons) */
 .bottomRow {
+  font-family: 'montserrat';
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   margin-top: 10px;
-    font-family: 'montserrat';
-
-  flex-wrap: wrap; /* Allow wrapping on smaller screens */
 }
 
-@media (max-width: 768px) {
-  .bottomRow {
-    flex-direction: row; /* ✅ Keeps buttons in one row */
-    justify-content: center;
-    gap: 10px;
-      font-family: 'montserrat';
-
-  }
-}
-
-/* ✅ Read More Link */
 .readmore {
-  color:black;
-  font-weight: bold;
-  cursor: pointer;
   font-family: 'montserrat';
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+  -webkit-text-fill-color: #1a1a1a;
+  text-decoration: underline;
+  margin-top: 10px;
 }
 
-/* ✅ Button Row (Always Side by Side) */
+/* ✅ Buttons Row */
 .buttonRow {
+  font-family: 'montserrat';
   display: flex;
   gap: 10px;
-  justify-content: flex-end; /* ✅ Aligns buttons to the right on desktop */
-  flex-wrap: wrap;
-  border-radius: 20px; /* ✅ Prevents overlap on mobile */
 }
 
-@media (max-width: 768px) {
-  .buttonRow {
-    justify-content: center; /* ✅ Centers buttons on mobile */
-  }
-}
-
-/* ✅ Like & Share Buttons */
-.liked, .share {
-  padding: 8px 12px;
+/* ✅ Like, Share & Comment Buttons */
+.liked, .share, .comment {
+  font-family: 'montserrat';
+  padding: 10px 20px;
+  border-radius: 5px;
   border: none;
   color: white;
   cursor: pointer;
-  font-family: 'montserrat';
-  
-
-  
-  white-space: nowrap; /* ✅ Prevents text from wrapping */
+  font-size: 16px;
 }
 
 .liked {
-    font-family: 'montserrat';
-    padding-left: 10px;
+  font-family: 'montserrat';
+  background-color: #ff5c5c;
+}
 
-  background-color: rgb(255, 0, 0);
+.liked:hover {
+  background-color: #e04b4b;
 }
 
 .liked:disabled {
-  background-color: rgb(196, 196, 196);
+  background-color: gray;
   cursor: not-allowed;
-  padding: 10px;
 }
 
 .share {
-  background-color: rgb(66, 42, 255);
+  font-family: 'montserrat';
+  background-color: #0070f3;
 }
 
-.sharing {
-  opacity: 0.5;
-  cursor: not-allowed;
+.share:hover {
+  background-color: #005bb5;
 }
 
-/* css for id page */
-/* ✅ Blog Details Page Card */
+.comment {
+  font-family: 'montserrat';
+  background-color: #ffa500;
+}
+
+.comment:hover {
+  background-color: #cc8400;
+}
+
+/* ✅ Blog Post Container */
 .detailsCard {
-  display: flex;
-  flex-direction: column; /* ✅ Stack items vertically */
-  align-items: center;
-  gap: 20px;
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 20px auto;
+  font-family: 'poppins';
   max-width: 800px;
+  margin: auto;
+  padding: 120px 20px 80px; /* Adjust padding for mobile */
   text-align: center;
 }
 
-/* ✅ Blog Image (Always on Top) */
+/* ✅ Blog Image */
 .detailsImage {
   width: 100%;
   height: auto;
   max-height: 500px;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 /* ✅ Blog Title */
 .detailsTitle {
-  font-size: 20px; 
-  font-family : 'poppins';
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20px 0;
 }
 
 /* ✅ Blog Description */
 .detailsDescription {
-  color: rgb(0, 0, 0);
+
+  font-size: 18px;
   line-height: 1.6;
-  text-align: justify;
-  font-family: 'poppins';
+  color: #333;
+  margin-bottom: 20px;
 }
 
-/* ✅ Buttons Row (Always at Bottom) */
-.detailsButtonRow {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-top: 20px;
-  flex-wrap: wrap;
-  
-}
-
-@media (max-width: 768px) {
-  .detailsButtonRow {
-    flex-direction: row; /* ✅ Keeps buttons side by side */
-    justify-content: center;
-    gap: 10px;
-  }
-}
-
-/* ✅ Go Back Home Button (Styled Like Read More) */
+/* ✅ Back Home Button */
 .backButton {
-  color: rgb(0, 0, 0);
-  font-weight: bold;
-  cursor: pointer;
-  border: none;
-  background: none;
-  text-decoration: underline;
   font-family: 'montserrat';
-}
 
-/* ✅ Like & Share Buttons */
-.liked, .share {
-  height: auto;
-  padding: 8px 12px;
-  border-radius: 5px;
-  border: none;
+  display: inline-block;
+  background-color: #0070f3;
   color: white;
-  font-family: 'montserrat';
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
   cursor: pointer;
-  white-space: nowrap;
-  /* ✅ Prevents text from wrapping */
+  text-decoration: none;
+  margin-bottom: 20px;
 }
 
-.liked {
-  background-color: rgb(255, 0, 0);
+.backButton:hover {
+  background-color: #959595;
 }
 
-.liked:disabled {
-  background-color: rgb(198, 198, 198);
-  cursor: not-allowed;
+/* ✅ Buttons Row */
+.detailsButtonRow {
+    font-family: 'montserrat';
+
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
 }
 
-.share {
-  background-color: rgb(39, 46, 254);
-}
+/* ✅ Responsive Design */
+@media (max-width: 768px) {
+  .nav {
+    flex-direction: column;
+    gap: 5px;
+  }
 
-.sharing {
-  opacity: 0.5;
-  cursor: not-allowed;
+  .footer, .header {
+    font-family: 'montserrat';
+
+    font-size: 16px;
+    padding: 10px 0;
+  }
+
+  .detailsCard {
+    padding: 120px 20px 80px; /* Adjust padding for mobile */
+  }
+
+  .detailsButtonRow {
+    flex-direction: row;
+    justify-content: center;
+  }
 }

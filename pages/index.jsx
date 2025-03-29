@@ -37,9 +37,7 @@ export default function Home({ initialPosts }) {
       .update({ likes: currentLikes + 1 })
       .eq("id", id);
 
-    if (error) {
-      console.error("Error liking post:", error);
-    } else {
+    if (!error) {
       setPosts(posts.map(post => post.id === id ? { ...post, likes: currentLikes + 1 } : post));
       const updatedLikes = { ...likedPosts, [id]: true };
       setLikedPosts(updatedLikes);
@@ -73,7 +71,19 @@ export default function Home({ initialPosts }) {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Blog Posts</h1>
+
+      {/* ✅ Header */}
+      <header className={styles.header}>
+        Healthy Daddy Living
+        <nav className={styles.nav}>
+          <Link href="/">Home</Link>
+          <Link href="/about">About</Link>
+          <Link href="/contact">Contact</Link>
+        </nav>
+        </header>
+      
+
+      <h1 className={styles.content}>Recent Posts</h1>
 
       {posts.length === 0 ? (
         <p className={styles.noPosts}>No posts available.</p>
@@ -85,16 +95,16 @@ export default function Home({ initialPosts }) {
               <img src={post.image_url} alt={post.title} className={styles.image} />
             )}
 
-            {/* ✅ Blog Content (Title & Description) */}
+            {/* ✅ Blog Content */}
             <div className={styles.content}>
               <h2 className={styles.blog_title}>{post.title}</h2>
-              <p className={styles.description}>{post.content.slice(0, 100)}...</p>
+              <p className={styles.description}>{post.content.slice(0, 200)}...</p>
 
               {/* ✅ Bottom Row (Read More + Buttons) */}
               <div className={styles.bottomRow}>
-                <p className={styles.readmore} color="black">
+                <button className={styles.readmore}>
                   <Link href={`/post/${post.id}`}>Read More...</Link>
-                </p>
+                </button>
 
                 {/* ✅ Buttons Row */}
                 <div className={styles.buttonRow}>
@@ -102,7 +112,7 @@ export default function Home({ initialPosts }) {
                   <button
                     onClick={() => likePost(post.id, post.likes)}
                     disabled={likedPosts[post.id]}
-                    className={likedPosts[post.id] ? styles.liking : styles.liked}
+                    className={likedPosts[post.id] ? styles.liked : styles.liked}
                   >
                     👍 {post.likes || 0} Likes
                   </button>
@@ -121,8 +131,12 @@ export default function Home({ initialPosts }) {
           </div>
         ))
       )}
+
+      {/* ✅ Footer */}
+      <footer className={styles.footer}>
+        © {new Date().getFullYear()} My Blog. All rights reserved.
+      </footer>
+
     </div>
   );
 }
-
-

@@ -43,7 +43,10 @@ export default function BlogPost({ post }) {
     if (!error) {
       setLikes(likes + 1);
       setLiked(true);
-      localStorage.setItem("likedPosts", JSON.stringify({ ...JSON.parse(localStorage.getItem("likedPosts") || "{}"), [post.id]: true }));
+      localStorage.setItem(
+        "likedPosts",
+        JSON.stringify({ ...JSON.parse(localStorage.getItem("likedPosts") || "{}"), [post.id]: true })
+      );
     }
   };
 
@@ -72,33 +75,52 @@ export default function BlogPost({ post }) {
   };
 
   return (
-    <div className={styles.detailsCard}>
-      {/* ✅ Blog Image (Top) */}
-      {post.image_url && (
-        <img src={post.image_url} alt={post.title} className={styles.detailsImage} />
-      )}
+    <div>
+      {/* ✅ Header */}
+      {/* ✅ Header */}
+      <header className={styles.header}>
+      Healthy Daddy Living
+        <nav className={styles.nav}>
+          <Link href="/">Home</Link>
+          <Link href="/about">About</Link>
+          <Link href="/contact">Contact</Link>
+        </nav>
+        </header>
 
-      {/* ✅ Blog Title */}
-      <h1 className={styles.detailsTitle}>{post.title}</h1>
+      {/* ✅ Blog Post Content */}
+      <div className={styles.detailsCard}>
+        {/* ✅ Blog Image (Top) */}
+        {post.image_url && (
+          <img src={post.image_url} alt={post.title} className={styles.detailsImage} />
+        )}
 
-      {/* ✅ Blog Description */}
-      <p className={styles.detailsDescription}>{post.content}</p>
+        {/* ✅ Blog Title */}
+        <h1 className={styles.detailsTitle}>{post.title}</h1>
 
-      {/* ✅ Go Back Home Button */}
-      <button onClick={() => router.push("/")} className={styles.backButton}>
-        Go Back Home
-      </button>
+        {/* ✅ Blog Description */}
+        <p className={styles.detailsDescription}>{post.content}</p>
 
-      {/* ✅ Buttons Row (Always at Bottom) */}
-      <div className={styles.detailsButtonRow}>
-        <button onClick={likePost} disabled={liked} className={liked ? styles.liked : styles.liked}>
-          👍 {likes} Likes
+        {/* ✅ Go Back Home Button */}
+        <button onClick={() => router.push("/")} className={styles.backButton}>
+          Go Back Home
         </button>
 
-        <button onClick={sharePost} disabled={isSharing} className={styles.share}>
-          {isSharing ? "Sharing..." : "🔗 Share"}
-        </button>
+        {/* ✅ Buttons Row (Always at Bottom) */}
+        <div className={styles.detailsButtonRow}>
+          <button onClick={likePost} disabled={liked} className={liked ? styles.liked : styles.liked}>
+            👍 {likes} Likes
+          </button>
+
+          <button onClick={sharePost} disabled={isSharing} className={styles.share}>
+            {isSharing ? "Sharing..." : "🔗 Share"}
+          </button>
+        </div>
       </div>
+
+      {/* ✅ Footer */}
+      <footer className={styles.footer}>
+        © {new Date().getFullYear()} My Blog. All rights reserved.
+      </footer>
     </div>
   );
 }
