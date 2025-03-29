@@ -92,7 +92,7 @@ export default function Home({ initialPosts }) {
 
               {/* ✅ Bottom Row (Read More + Buttons) */}
               <div className={styles.bottomRow}>
-                <p className={styles.readmore}>
+                <p className={styles.readmore} color="black">
                   <Link href={`/post/${post.id}`}>Read More...</Link>
                 </p>
 
