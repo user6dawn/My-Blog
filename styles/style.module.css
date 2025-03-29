@@ -76,30 +76,7 @@
     border: 1px solid rgba(0, 0, 0, 1);
     border-radius: 20px;
   }
-
-/* ✅ General Container */
-.container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 20px;
-}
-
-/* ✅ Page Title */
-.title {
-  font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-/* ✅ No Posts Message */
-.noPosts {
-  text-align: center;
-  font-size: 18px;
-  color: gray;
-}
-
-/* ✅ Blog Card */
+/* ✅ Blog Card (Desktop: Side-by-Side, Mobile: Stack) */
 .card {
   display: flex;
   align-items: center;
@@ -109,20 +86,37 @@
   border-radius: 10px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  
+  /* 📱 Mobile: Stack image and content */
+  flex-direction: row;
+}
+
+@media (max-width: 768px) {
+  .card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 }
 
 /* ✅ Blog Image */
 .image {
-  width: 480px;
-  height: 240px;
+  width: 420px;
+  height: 210px;
   object-fit: cover;
   border-radius: 10px;
 }
 
-/* ✅ Content (Left of Image) */
+@media (max-width: 768px) {
+  .image {
+    width: 100%;
+    height: auto;
+  }
+}
+
+/* ✅ Blog Content (Next to Image) */
 .content {
   flex: 1;
-  
 }
 
 /* ✅ Blog Title */
@@ -143,6 +137,15 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 10px;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+@media (max-width: 768px) {
+  .bottomRow {
+    flex-direction: row; /* ✅ Keeps buttons in one row */
+    justify-content: center;
+    gap: 10px;
+  }
 }
 
 /* ✅ Read More Link */
@@ -152,10 +155,18 @@
   cursor: pointer;
 }
 
-/* ✅ Button Row */
+/* ✅ Button Row (Always Side by Side) */
 .buttonRow {
   display: flex;
   gap: 10px;
+  justify-content: flex-end; /* ✅ Aligns buttons to the right on desktop */
+  flex-wrap: wrap; /* ✅ Prevents overlap on mobile */
+}
+
+@media (max-width: 768px) {
+  .buttonRow {
+    justify-content: center; /* ✅ Centers buttons on mobile */
+  }
 }
 
 /* ✅ Like & Share Buttons */
@@ -165,6 +176,7 @@
   border: none;
   color: white;
   cursor: pointer;
+  white-space: nowrap; /* ✅ Prevents text from wrapping */
 }
 
 .liked {
