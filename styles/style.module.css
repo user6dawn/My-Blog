@@ -1,0 +1,76 @@
+/* styles/global.css */
+
+
+  .button{
+    color: black;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    border: 2px solid black;
+    border-radius: 20px;
+    width: 40px;
+  }
+
+  .image {
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    background-color: black;
+    border-radius: 20px;
+  }
+
+  .title {
+    flex-grow: 0;
+    flex-shrink: 1;
+    font-weight: 700;
+    flex-basis: auto;
+    font-family: 'Poppins';
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    font-size: 30px;
+  }
+    .blog_title {
+    flex-grow: 0;
+    flex-shrink: 1;
+    font-weight: 700;
+    flex-basis: auto;
+    font-family: 'Poppins';
+    text-align: left;
+    text-decoration: none;
+    text-transform: none;
+    font-size: 16px;
+  }
+  .content {
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    font-family: 'poppins';
+    font-weight: 300;
+    font-size: 12px;
+    text-decoration: none;
+    text-transform: none;
+    color: black;
+    
+  }
+
+  .readmore {
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    font-family: 'poppins';
+    font-weight: normal;
+    font-size: 12px;
+    text-decoration: underline;
+    text-transform: none;
+    color: black;
+  }
+  
+  .card{
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    background-color: rgba(255, 254, 254, 1);
+    border: 1px solid rgba(0, 0, 0, 1);
+    border-radius: 20px;
+  }
