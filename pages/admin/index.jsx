@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../../lib/supabase";
+import styles from "./styles/style.module.css";
+
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -32,34 +34,30 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4 text-center">Admin Login</h2>
+    <div className="login-container">
+      <div className="login-box">
+        <h2 className={styles.detailsTitle}>Admin Login</h2>
 
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        {error && <p className="error-message">{error}</p>}
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className={styles.enteryField}>
           <input
-            type="email"
+            className={styles.email}
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border rounded"
             required
           />
+
           <input
-            type="password"
+            className={styles.password}
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border rounded"
             required
           />
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded"
-            disabled={loading}
-          >
+
+          <button className={styles.loginButton} disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>

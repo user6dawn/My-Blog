@@ -1,6 +1,8 @@
 import { supabase } from "../../lib/supabase";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import styles from "./styles/style.module.css";
+
 
 export default function Dashboard() {
   const router = useRouter();
@@ -99,43 +101,41 @@ export default function Dashboard() {
   // ✅ Handle Logout
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/admin"); // Redirect to login page after logout
+    router.push("/"); // Redirect to login page after logout
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded">
-          Logout
-        </button>
+    <div>
+      <div className={styles.detailsTitle}>
+        <h1 className={styles.detailsTitle}>Admin Dashboard <button onClick={handleLogout}>Logout</button> </h1>
+
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className={styles.enteryField}>
         <input
+        className={styles.enteryField}
           type="text"
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-2 border"
           required
         />
         <textarea
+        className={styles.content}
           placeholder="Content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full p-2 border"
           required
         />
         <input
+        className={styles.enteryField}
           type="file"
+          placeholder="image here, click"
           accept="image/*"
           onChange={(e) => setImage(e.target.files[0])}
-          className="w-full p-2 border"
         />
-        <button
+        <button className={styles.loginButton}
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded"
           disabled={uploading}
         >
           {uploading ? "Uploading..." : "Add Post"}
