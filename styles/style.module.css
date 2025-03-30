@@ -24,6 +24,7 @@
   z-index: 1000;
   display: flex;
   text-indent: 10px;
+  
 
 }
 
@@ -49,10 +50,9 @@
 /* ✅ Full-width Footer */
 .footer {
   font-family: 'montserrat';
-
   width: 100%;
   background-color: #1a1a1a;
-  color: white;
+  color: rgb(157, 157, 157);
   text-align: center;
   padding: 15px 0;
   position: fixed;
@@ -60,14 +60,15 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  font-size: 14px;
+  font-size: 10px;
+  box-shadow: #1a1a1a;
 }
 
 /* ✅ Blog Card */
 .card {
   display: flex;
   flex-direction: column;
-  border: 1px solid #ddd;
+  border: 1px solid #6b6464;
   padding: 15px;
   margin-bottom: 20px;
   border-radius: 10px;
@@ -83,7 +84,7 @@
 
 /* ✅ Blog Content */
 .content {
-  margin-top: 50px;
+  margin-top: 20px;
   font-family: 'poppins';
   padding: 10px;
   text-align: center;
@@ -105,6 +106,8 @@
 
 .description {
   font-family: 'poppins';
+  font-weight: 400;
+  font-weight: medium;
   color: rgb(0, 0, 0);
   line-height: 1.6;
 }
@@ -123,9 +126,13 @@
   font-family: 'montserrat';
   color: rgb(0, 0, 0);
   font-weight: bold;
+  color: black;
+  text-decoration:#1a1a1a;
+  padding: 10px 12px;
+  font-size: 10px;
+  border: none;
   -webkit-text-fill-color: #1a1a1a;
-  text-decoration: underline;
-  margin-top: 10px;
+
 }
 
 /* ✅ Buttons Row */
@@ -138,17 +145,20 @@
 /* ✅ Like, Share & Comment Buttons */
 .liked, .share, .comment {
   font-family: 'montserrat';
-  padding: 10px 20px;
+  padding: 10px 12px;
+  font-size: 10px;
   border-radius: 5px;
   border: none;
-  color: white;
+  color: rgb(255, 255, 255);
   cursor: pointer;
-  font-size: 16px;
+
 }
 
 .liked {
   font-family: 'montserrat';
   background-color: #ff5c5c;
+  font-size: 10px;
+
 }
 
 .liked:hover {
@@ -156,13 +166,15 @@
 }
 
 .liked:disabled {
-  background-color: gray;
+  background-color: rgba(198, 198, 198, 0.527);
   cursor: not-allowed;
+  border-radius: 1;
 }
 
 .share {
   font-family: 'montserrat';
   background-color: #0070f3;
+  font-size: 10px;
 }
 
 .share:hover {
@@ -207,7 +219,7 @@
 .detailsDescription {
 
   font-size: 18px;
-  line-height: 1.6;
+  line-height: 1.4;
   color: #333;
   margin-bottom: 20px;
 }
@@ -215,27 +227,25 @@
 /* ✅ Back Home Button */
 .backButton {
   font-family: 'montserrat';
-
   display: inline-block;
   background-color: #0070f3;
   color: white;
-  padding: 10px 20px;
+  padding: 10px 12px;
   border: none;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 12px;
   cursor: pointer;
   text-decoration: none;
-  margin-bottom: 20px;
 }
 
 .backButton:hover {
-  background-color: #959595;
+  color: #0070f3;
+  background-color: #ffffff;
 }
 
 /* ✅ Buttons Row */
 .detailsButtonRow {
     font-family: 'montserrat';
-
   display: flex;
   justify-content: center;
   gap: 10px;
@@ -264,4 +274,12 @@
     flex-direction: row;
     justify-content: center;
   }
+}
+.postdetails{
+  margin-top: 10px;
+  font-family: 'poppins';
+  padding-top: 10px;
+  text-align: center;
+  font-weight: bold;
+  
 }

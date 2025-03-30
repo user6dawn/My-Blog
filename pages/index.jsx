@@ -83,7 +83,7 @@ export default function Home({ initialPosts }) {
         </header>
       
 
-      <h1 className={styles.content}>Recent Posts</h1>
+      <h1 className={styles.postdetails}>Recent Posts</h1>
 
       {posts.length === 0 ? (
         <p className={styles.noPosts}>No posts available.</p>

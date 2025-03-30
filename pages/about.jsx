@@ -14,7 +14,7 @@ export default function About() {
         </nav>
         </header>
 
-      <div className={styles}>
+      <div className={styles.container}>
         <h1 className={styles.content}>About Us</h1>
 
         <div className={styles.content}>
