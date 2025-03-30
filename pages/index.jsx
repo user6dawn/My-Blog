@@ -74,7 +74,7 @@ export default function Home({ initialPosts }) {
 
       {/* ✅ Header */}
       <header className={styles.header}>
-        Healthy Daddy Living
+      The Balance Code Alliance
         <nav className={styles.nav}>
           <Link href="/">Home</Link>
           <Link href="/about">About</Link>
@@ -134,7 +134,7 @@ export default function Home({ initialPosts }) {
 
       {/* ✅ Footer */}
       <footer className={styles.footer}>
-        © {new Date().getFullYear()} My Blog. All rights reserved.
+        © {new Date().getFullYear()} All right reserved. Onyxe Nnaemeka Blog.
       </footer>
 
     </div>
