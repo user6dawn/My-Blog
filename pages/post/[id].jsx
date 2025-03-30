@@ -88,7 +88,7 @@ export default function BlogPost({ post }) {
         </header>
 
       {/* ✅ Blog Post Content */}
-      <div className={styles.detailsCard}>
+      <div className={styles.card}>
         {/* ✅ Blog Image (Top) */}
         {post.image_url && (
           <img src={post.image_url} alt={post.title} className={styles.detailsImage} />

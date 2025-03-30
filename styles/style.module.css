@@ -79,7 +79,8 @@
 .image {
   width: 100%;
   height: auto;
-  border-radius: 10px;
+  border-radius: 1px;
+  border-color: #1a1a1a;
 }
 
 /* ✅ Blog Content */
@@ -192,6 +193,7 @@
 
 /* ✅ Blog Post Container */
 .detailsCard {
+  border-color: #1a1a1a;
   font-family: 'poppins';
   max-width: 800px;
   margin: auto;
@@ -206,10 +208,12 @@
   max-height: 500px;
   object-fit: cover;
   border-radius: 8px;
+  
 }
 
 /* ✅ Blog Title */
 .detailsTitle {
+  font-family: 'poppins';
   font-size: 24px;
   font-weight: bold;
   margin: 20px 0;
@@ -218,6 +222,7 @@
 /* ✅ Blog Description */
 .detailsDescription {
 
+  font-family: 'poppins';
   font-size: 18px;
   line-height: 1.4;
   color: #333;
@@ -232,10 +237,8 @@
   color: white;
   padding: 10px 12px;
   border: none;
-  border-radius: 5px;
+  border-radius: px;
   font-size: 12px;
-  cursor: pointer;
-  text-decoration: none;
 }
 
 .backButton:hover {
@@ -266,7 +269,16 @@
     padding: 10px 0;
   }
 
-  .detailsCard {
+  .detailsCard {  
+
+    border: 1px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-color: #a63838;
     padding: 120px 20px 80px; /* Adjust padding for mobile */
   }
 
