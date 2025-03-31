@@ -15,6 +15,7 @@ export default function About() {
         </header>
 
       <div className={styles.container}>
+        <br /> <br /> 
         <h1 className={styles.contents}>About Us</h1>
 
         <div className={styles.contents}>
@@ -40,7 +41,7 @@ This is more than just a movement—it is a return to the foundation of life its
 
         </div >
 
-        <p className={styles.contents}>joint the movement today. <Link href="/contact" className={styles.contents}>Click me!</Link></p>
+        <p className={styles.contents}>joint the movement today. <Link href="/contact" className={styles.contents}>Click me!</Link></p> <br /> <br />
       </div>
 
       {/* ✅ Footer */}

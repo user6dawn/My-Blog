@@ -17,7 +17,7 @@ export default function Contact() {
         
 
       <div className={styles.contents}>
-        <br />  <br />  <br /> <br />
+        <br />  <br />  <br /> <br /> <br /> <br /> <br />
       <h1 className={styles.detailTitle}>Get in Touch</h1>
         <div >
         
