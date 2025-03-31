@@ -75,11 +75,13 @@ export default function BlogPost({ post }) {
   };
 
   return (
-    <div>
+    
+    <div >
       {/* ✅ Header */}
       {/* ✅ Header */}
+      
       <header className={styles.header}>
-      Healthy Daddy Living
+      The Balance Code Alliance
         <nav className={styles.nav}>
           <Link href="/">Home</Link>
           <Link href="/about">About</Link>
@@ -88,6 +90,7 @@ export default function BlogPost({ post }) {
         </header>
 
       {/* ✅ Blog Post Content */}
+      <br /><br /><br />
       <div className={styles.card}>
         {/* ✅ Blog Image (Top) */}
         {post.image_url && (
@@ -119,7 +122,7 @@ export default function BlogPost({ post }) {
 
       {/* ✅ Footer */}
       <footer className={styles.footer}>
-        © {new Date().getFullYear()} My Blog. All rights reserved.
+        © {new Date().getFullYear()} All right reserved. Onyxe Nnaemeka Blog.
       </footer>
     </div>
   );
