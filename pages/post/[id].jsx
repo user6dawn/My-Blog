@@ -119,11 +119,12 @@ export default function BlogPost({ post }) {
           </button>
         </div>
       </div>
+      <br /> <br /> <br />
 
       {/* ✅ Footer */}
       <footer className={styles.footer}>
         © {new Date().getFullYear()} All right reserved. Onyxe Nnaemeka Blog.
       </footer>
-    </div>
+    </div>    
   );
 }
