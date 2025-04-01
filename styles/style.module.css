@@ -510,6 +510,7 @@
   padding-top: 40px;
   text-align: center;
   font-weight: bold;
+  color: #0B132B;
 }
 
 /* styles for admin - KEPT */
@@ -589,10 +590,11 @@
 /* Small header subtitle */
 .headerSubtitleSmall {
   padding-left: 10px;
+
   font-size: 12px; /* Smaller size */
   font-weight: normal;
   color: rgb(216, 216, 216);
-  margin-top: 2px; /* Adjust spacing */
+  margin-top: 8px; /* Adjust spacing */
 }
 
 /* Adjust headerLeft to accommodate new text sizes */
