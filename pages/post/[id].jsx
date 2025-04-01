@@ -6,26 +6,45 @@ import styles from "../../styles/style.module.css";
 
 export async function getServerSideProps({ params }) {
   try {
-    const { data, error } = await supabase
+    // Get the post
+    const { data: postData, error: postError } = await supabase
       .from("posts")
       .select("id, title, content, image_url, likes, created_at")
       .eq("id", params.id)
       .single();
 
-    if (error) throw error;
+    if (postError) throw postError;
 
-    return { props: { post: data } };
+    // Get comments for this post
+    const { data: commentData, error: commentError } = await supabase
+      .from("comments")
+      .select("id, name, comment, created_at")
+      .eq("post_id", params.id)
+      .order("created_at", { ascending: false });
+
+    if (commentError) throw commentError;
+
+    return { 
+      props: { 
+        post: postData,
+        initialComments: commentData || []
+      } 
+    };
   } catch (error) {
-    console.error("Error fetching post:", error);
+    console.error("Error fetching data:", error);
     return { notFound: true };
   }
 }
 
-export default function BlogPost({ post }) {
+export default function BlogPost({ post, initialComments }) {
   const [likes, setLikes] = useState(post.likes || 0);
   const [liked, setLiked] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [comments, setComments] = useState(initialComments);
+  const [name, setName] = useState("");
+  const [comment, setComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const toggleNav = () => {
@@ -95,6 +114,35 @@ export default function BlogPost({ post }) {
     }
   };
 
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!name.trim() || !comment.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .insert([
+          {
+            post_id: post.id,
+            name: name.trim(),
+            comment: comment.trim()
+          }
+        ])
+        .select();
+
+      if (error) throw error;
+
+      setComments([data[0], ...comments]);
+      setName("");
+      setComment("");
+    } catch (error) {
+      console.error("Error submitting comment:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className={styles.bg}>
       <div className={styles.container}>
@@ -143,11 +191,11 @@ export default function BlogPost({ post }) {
 
           <div className={styles.detailsButtonRow}>
             <button onClick={likePost} disabled={liked} className={liked ? styles.liked : styles.liked}>
-              👍 {likes} Likes
+              👍 {likes}
             </button>
 
             <button onClick={sharePost} disabled={isSharing} className={styles.share}>
-              {isSharing ? "Sharing..." : "🔗 Share"}
+              {isSharing ? "Sharing..." : "🔗"}
             </button>
           </div>
 
@@ -155,6 +203,54 @@ export default function BlogPost({ post }) {
             Go Back Home
           </button>
         </div>
+
+        {/* Comment Section */}
+        <div className={styles.commentSection}>
+          <h2 className={styles.commentTitle}>Leave a Comment</h2>
+          <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your name"
+              className={styles.commentInput}
+              required
+            />
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Your comment"
+              className={styles.commentTextarea}
+              required
+            />
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className={styles.commentSubmit}
+            >
+              {isSubmitting ? "Posting..." : "Post Comment"}
+            </button>
+          </form>
+
+          {/* Comments List */}
+          <div className={styles.commentsList}>
+            <h2 className={styles.commentTitle}>Comments ({comments.length})</h2>
+            {comments.length === 0 ? (
+              <p className={styles.noComments}>No comments yet. Be the first to comment!</p>
+            ) : (
+              comments.map((comment) => (
+                <div key={comment.id} className={styles.commentItem}>
+                  <h3 className={styles.commentName}>{comment.name}</h3>
+                  <p className={styles.commentText}>{comment.comment}</p>
+                  <p className={styles.commentDate}>
+                    {new Date(comment.created_at).toLocaleString()}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+        <br /><br /><br />
 
         <footer className={styles.footer}>
           © {new Date().getFullYear()} All rights reserved. Onyxe Nnaemeka Blog.

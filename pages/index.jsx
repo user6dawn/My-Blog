@@ -140,9 +140,7 @@ export default function Home({ initialPosts }) {
                   <h2 className={styles.blog_title}>{post.title}</h2>
                   <p className={styles.description}>{post.content.slice(0, 200)}...</p>
                   <div className={styles.bottomRow}>
-                    <button className={styles.readmore}>
-                      <Link href={`/post/${post.id}`}>Read More...</Link>
-                    </button>
+                    
                     <div className={styles.buttonRow}>
                       <button
                         onClick={() => likePost(post.id, post.likes)}
@@ -150,7 +148,7 @@ export default function Home({ initialPosts }) {
                         className={likedPosts[post.id] ? styles.liked : styles.liked}
                         aria-label={`Like ${post.title}`}
                       >
-                        👍 {post.likes || 0} Likes
+                        👍{post.likes || 0}
                       </button>
                       <button
                         onClick={() => sharePost(post.title, post.id)}
@@ -158,9 +156,13 @@ export default function Home({ initialPosts }) {
                         className={isSharing ? styles.sharing : styles.share}
                         aria-label={`Share ${post.title}`}
                       >
-                        {isSharing ? "Sharing..." : "🔗 Share"}
+                        {isSharing ? "Sharing..." : "🔗"}
                       </button>
+                      <Link href={`/post/${post.id}`} className={styles.commentButton}>💬</Link>
                     </div>
+                    <button className={styles.readmore}>
+                      <Link href={`/post/${post.id}`} className={styles.readmore}>Read More...</Link>
+                    </button>
                   </div>
                 </div>
               </div>
