@@ -149,8 +149,8 @@ export default function BlogPost({ post, initialComments }) {
         {/* Header with Navigation */}
         <header className={styles.header}>
           <div className={styles.headerLeft}>
-            <span className={styles.headerTitleLarge}>The Balance Code</span>
-            <span className={styles.headerSubtitleSmall}>Alliance Network</span>
+            <span className={styles.headerTitleLarge}>The Balance Code Alliance</span>
+            <span className={styles.headerSubtitleSmall}>Restoring Order.  Unlocking Peace.  Empowering Lives</span>
           </div>
 
           <button 
@@ -197,11 +197,10 @@ export default function BlogPost({ post, initialComments }) {
             <button onClick={sharePost} disabled={isSharing} className={styles.share}>
               {isSharing ? "Sharing..." : "🔗"}
             </button>
-          </div>
-
-          <button onClick={() => router.push("/")} className={styles.backButton}>
+            <button onClick={() => router.push("/")} className={styles.backButton}>
             Go Back Home
           </button>
+          </div>
         </div>
 
         {/* Comment Section */}
@@ -226,7 +225,7 @@ export default function BlogPost({ post, initialComments }) {
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className={styles.commentSubmit}
+              className={styles.commentSubmitButton}
             >
               {isSubmitting ? "Posting..." : "Post Comment"}
             </button>
