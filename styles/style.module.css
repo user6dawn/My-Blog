@@ -1,63 +1,155 @@
-/* ✅ Page Container */
+/* ✅ Page Container - KEPT */
+.bg {
+
+}
+
 .container {
   max-width: 900px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 10px;
 }
 
-/* ✅ Full-width Header */
+/* ✅ Full-width Header - KEPT */
 .header {
+  margin-bottom: 1px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-family: 'montserrat';
   width: 100%;
+  height: 75px;
   background-color: #1a1a1a;
   color: white;
-  padding: 15px 0;
-  text-align: center;
-  font-size: 20px;
-  font-weight: bold;
+  padding-left: 10px;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  display: flex;
-  text-indent: 10px;
-  
-
+  padding-right: 10px;
+  line-height: 1px;
 }
+
+/* ✅ Left Section (Text) - KEPT */
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+/* ✅ Title - KEPT */
+.headerTitle {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+/* ✅ Subtitle - KEPT */
+.headerSubtitle {
+  font-size: 12px;
+  font-weight: normal;
+  color: rgb(216, 216, 216);
+  margin-top: -3px;
+}
+
 .header1 {
-  background: black;
   font-family: 'montserrat';
-  color: white;
+  color: rgb(216, 216, 216);
   text-align: left;
-  font-weight: 200;
   font-size: 10px;
   display: flex;
-  padding-right: 10px;
 }
 
+/* ========== NAVIGATION IMPROVEMENTS ========== */
+/* REMOVED old .nav styles */
+/* ADDED new navigation styles */
+.navToggle {
+  background-color: transparent;
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 1001;
+  margin-right: 15px;
+}
 
-/* ✅ Navigation */
+.navToggle:hover {
+  color: #ccc;
+  background-color: transparent;
+}
+
 .nav {
-  display: flex-end;
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: fixed;
+  top: 75px;
+  right: -120%;
+  background: #1a1a1a;
+  border-radius: 0 0 0 10px;
+  padding: 20px;
+  width: 200px;
+  transition: right 0.3s ease;
+  z-index: 1000;
+  box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.nav.open {
+  right: 0;
 }
 
 .nav a {
-  color: rgb(255, 255, 255);
+  color: white;
   text-decoration: none;
-  font-size: 16px;
-  padding: 1px 5px;
-  white-space: nowrap; /* Prevents text from wrapping */
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 .nav a:hover {
-  text-decoration: underline;
+  background-color: #333;
+  text-decoration: none;
 }
 
-/* ✅ Full-width Footer */
+.navOverlay {
+  position: fixed;
+  top: 75px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.navOverlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+@media (max-width: 480px) {
+  .nav {
+    width: 60%;
+    right: -60%;
+  }
+  
+  .nav a {
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+}
+/* ========== END NAVIGATION IMPROVEMENTS ========== */
+
+/* ✅ Full-width Footer - KEPT */
 .footer {
   font-family: 'montserrat';
   width: 100%;
@@ -74,7 +166,7 @@
   box-shadow: #1a1a1a;
 }
 
-/* ✅ Blog Card */
+/* ✅ Blog Card - KEPT */
 .card {
   display: flex;
   flex-direction: column;
@@ -85,7 +177,7 @@
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* ✅ Blog Image */
+/* ✅ Blog Image - KEPT */
 .image {
   width: 100%;
   height: auto;
@@ -93,7 +185,7 @@
   border-color: #1a1a1a;
 }
 
-/* ✅ Blog Content */
+/* ✅ Blog Content - KEPT */
 .content {
   margin-top: 20px;
   font-family: 'poppins';
@@ -103,7 +195,6 @@
 }
 
 .contents {
-  
   font-family: 'poppins';
   color: #1a1a1a;
   text-align: center;
@@ -131,7 +222,7 @@
   line-height: 1.6;
 }
 
-/* ✅ Bottom Row (Read More + Buttons) */
+/* ✅ Bottom Row (Read More + Buttons) - KEPT */
 .bottomRow {
   font-family: 'montserrat';
   display: flex;
@@ -151,7 +242,6 @@
   font-size: 10px;
   border: none;
   -webkit-text-fill-color: #1a1a1a;
-
 }
 
 .readmore1 {
@@ -160,21 +250,19 @@
   font-weight: bold;
   color: black;
   text-decoration:#1a1a1a;
-
   font-size: 20px;
   border: none;
   -webkit-text-fill-color: #1a1a1a;
-
 }
 
-/* ✅ Buttons Row */
+/* ✅ Buttons Row - KEPT */
 .buttonRow {
   font-family: 'montserrat';
   display: flex;
   gap: 10px;
 }
 
-/* ✅ Like, Share & Comment Buttons */
+/* ✅ Like, Share & Comment Buttons - KEPT */
 .liked, .share, .comment {
   font-family: 'montserrat';
   padding: 10px 12px;
@@ -183,14 +271,12 @@
   border: none;
   color: rgb(255, 255, 255);
   cursor: pointer;
-
 }
 
 .liked {
   font-family: 'montserrat';
   background-color: #ff5c5c;
   font-size: 10px;
-
 }
 
 .liked:hover {
@@ -222,27 +308,26 @@
   background-color: #cc8400;
 }
 
-/* ✅ Blog Post Container */
+/* ✅ Blog Post Container - KEPT */
 .detailsCard {
   border-color: #1a1a1a;
   font-family: 'poppins';
   max-width: 800px;
   margin: auto;
-  padding: 120px 20px 80px; /* Adjust padding for mobile */
+  padding: 120px 20px 80px;
   text-align: center;
 }
 
-/* ✅ Blog Image */
+/* ✅ Blog Image - KEPT */
 .detailsImage {
   width: 100%;
   height: auto;
   max-height: 500px;
   object-fit: cover;
   border-radius: 8px;
-  
 }
 
-/* ✅ Blog Title */
+/* ✅ Blog Title - KEPT */
 .detailsTitle {
   font-family: 'poppins';
   font-size: 24px;
@@ -250,9 +335,8 @@
   margin: 20px 0;
 }
 
-/* ✅ Blog Description */
+/* ✅ Blog Description - KEPT */
 .detailsDescription {
-
   font-family: 'poppins';
   font-size: 18px;
   line-height: 1.4;
@@ -260,7 +344,7 @@
   margin-bottom: 20px;
 }
 
-/* ✅ Back Home Button */
+/* ✅ Back Home Button - KEPT */
 .backButton {
   font-family: 'montserrat';
   display: inline-block;
@@ -277,31 +361,24 @@
   background-color: #ffffff;
 }
 
-/* ✅ Buttons Row */
+/* ✅ Buttons Row - KEPT */
 .detailsButtonRow {
-    font-family: 'montserrat';
+  font-family: 'montserrat';
   display: flex;
   justify-content: center;
   gap: 10px;
   margin-top: 20px;
 }
 
-/* ✅ Responsive Design */
+/* ✅ Responsive Design - KEPT */
 @media (max-width: 768px) {
-  .nav {
-    flex-direction: column;
-    gap: 5px;
-  }
-
   .footer, .header {
     font-family: 'montserrat';
-
     font-size: 16px;
     padding: 10px 0;
   }
 
   .detailsCard {  
-
     border: 1px;
     display: flex;
     flex-direction: column;
@@ -310,7 +387,7 @@
     border-radius: 10px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     border-color: #a63838;
-    padding: 120px 20px 80px; /* Adjust padding for mobile */
+    padding: 120px 20px 80px;
   }
 
   .detailsButtonRow {
@@ -318,23 +395,22 @@
     justify-content: center;
   }
 }
+
 .postdetails{
   margin-top: 40px;
   font-family: 'poppins';
   padding-top: 40px;
   text-align: center;
   font-weight: bold;
-  
 }
 
-/* styles for admin */
-
+/* styles for admin - KEPT */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f3f4f6; /* Light gray background */
+  background-color: #f3f4f6;
 }
 
 .login-box {
@@ -373,7 +449,7 @@
 
 .login-button {
   width: 100%;
-  background-color: #3b82f6; /* Blue color */
+  background-color: #3b82f6;
   color: white;
   padding: 10px;
   border: none;
@@ -381,14 +457,39 @@
   font-size: 16px;
   cursor: pointer;
   transition: background 0.3s;
-  /* omo */
 }
 
 .login-button:hover {
-  background-color: #2563eb; /* Darker blue */
+  background-color: #2563eb;
 }
 
 .login-button:disabled {
   background-color: gray;
   cursor: not-allowed;
+}
+/* Add these to your style.module.css */
+
+/* Large header title */
+.headerTitleLarge {
+  font-size: 22px; /* Larger size */
+  font-weight: bold;
+  margin-bottom: 0;
+  line-height: 1.2;
+}
+
+/* Small header subtitle */
+.headerSubtitleSmall {
+  font-size: 12px; /* Smaller size */
+  font-weight: normal;
+  color: rgb(216, 216, 216);
+  margin-top: 2px; /* Adjust spacing */
+}
+
+/* Adjust headerLeft to accommodate new text sizes */
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0; /* Reduced gap between title and subtitle */
 }

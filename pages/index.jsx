@@ -1,6 +1,6 @@
-import { supabase } from "../lib/supabase";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { supabase } from "../lib/supabase";
 import styles from "../styles/style.module.css";
 
 export async function getServerSideProps() {
@@ -21,13 +21,34 @@ export async function getServerSideProps() {
 
 export default function Home({ initialPosts }) {
   const [posts, setPosts] = useState(initialPosts);
-  const [isSharing, setIsSharing] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false);
   const [likedPosts, setLikedPosts] = useState({});
+  const [isSharing, setIsSharing] = useState(false);
 
   useEffect(() => {
     const storedLikes = JSON.parse(localStorage.getItem("likedPosts")) || {};
     setLikedPosts(storedLikes);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isNavOpen && !event.target.closest(`.${styles.nav}`) && 
+          !event.target.closest(`.${styles.navToggle}`)) {
+        setIsNavOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isNavOpen]);
+
+  const toggleNav = () => {
+    setIsNavOpen(!isNavOpen);
+  };
+
+  const closeNav = () => {
+    setIsNavOpen(false);
+  };
 
   const likePost = async (id, currentLikes) => {
     if (likedPosts[id]) return;
@@ -70,73 +91,90 @@ export default function Home({ initialPosts }) {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.bg}>
+      <div className={styles.container}>
+        {/* Updated Header with different text sizes */}
+        <header className={styles.header}>
+          {/* Left section with large title and small subtitle */}
+          <div className={styles.headerLeft}>
+            <span className={styles.headerTitleLarge}>      The Balance Code Alliance
+            </span>
+            <span className={styles.headerSubtitleSmall}>Restoring Order.  Unlocking Peace.  Empowering Lives </span>
+          </div>
 
-      {/* ✅ Header */}
-      <header className={styles.header}>
-      The Balance Code Alliance
-        <nav className={styles.nav}>
-          <Link href="/">Home</Link>
-          <Link href="/about">About</Link>
-          <Link href="/contact">Contact</Link>
-        </nav>
+          {/* Navbar Toggle Button */}
+          <button 
+            className={styles.navToggle} 
+            onClick={toggleNav}
+            aria-label={isNavOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isNavOpen}
+          >
+            {isNavOpen ? '✕' : '☰'}
+          </button>
+
+          {/* Navigation Links */}
+          <nav className={`${styles.nav} ${isNavOpen ? styles.open : ''}`}>
+            <Link href="/" onClick={closeNav} className={styles.navLink}>Home</Link>
+            <Link href="/about" onClick={closeNav} className={styles.navLink}>About</Link>
+            <Link href="/contact" onClick={closeNav} className={styles.navLink}>Contact</Link>
+          </nav>
+
+          {/* Overlay */}
+          {isNavOpen && (
+            <div 
+              className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`} 
+              onClick={closeNav}
+              aria-hidden="true"
+            />
+          )}
         </header>
-      
 
-      <h1 className={styles.postdetails}>Recent Posts</h1>
-
-      {posts.length === 0 ? (
-        <p className={styles.noPosts}>No posts available.</p>
-      ) : (
-        posts.map((post) => (
-          <div key={post.id} className={styles.card}>
-            {/* ✅ Blog Image */}
-            {post.image_url && (
-              <img src={post.image_url} alt={post.title} className={styles.image} />
-            )}
-
-            {/* ✅ Blog Content */}
-            <div className={styles.content}>
-              <h2 className={styles.blog_title}>{post.title}</h2>
-              <p className={styles.description}>{post.content.slice(0, 200)}...</p>
-
-              {/* ✅ Bottom Row (Read More + Buttons) */}
-              <div className={styles.bottomRow}>
-                <button className={styles.readmore}>
-                  <Link href={`/post/${post.id}`}>Read More...</Link>
-                </button>
-
-                {/* ✅ Buttons Row */}
-                <div className={styles.buttonRow}>
-                  {/* ✅ Like Button */}
-                  <button
-                    onClick={() => likePost(post.id, post.likes)}
-                    disabled={likedPosts[post.id]}
-                    className={likedPosts[post.id] ? styles.liked : styles.liked}
-                  >
-                    👍 {post.likes || 0} Likes
-                  </button>
-
-                  {/* ✅ Share Button */}
-                  <button
-                    onClick={() => sharePost(post.title, post.id)}
-                    disabled={isSharing}
-                    className={isSharing ? styles.sharing : styles.share}
-                  >
-                    {isSharing ? "Sharing..." : "🔗 Share"}
-                  </button>
+        <main>
+          <h1 className={styles.postdetails}>Recent Posts</h1>
+          {posts.length === 0 ? (
+            <p className={styles.noPosts}>No posts available.</p>
+          ) : (
+            posts.map((post) => (
+              <div key={post.id} className={styles.card}>
+                {post.image_url && (
+                  <img src={post.image_url} alt={post.title} className={styles.image} />
+                )}
+                <div className={styles.content}>
+                  <h2 className={styles.blog_title}>{post.title}</h2>
+                  <p className={styles.description}>{post.content.slice(0, 200)}...</p>
+                  <div className={styles.bottomRow}>
+                    <button className={styles.readmore}>
+                      <Link href={`/post/${post.id}`}>Read More...</Link>
+                    </button>
+                    <div className={styles.buttonRow}>
+                      <button
+                        onClick={() => likePost(post.id, post.likes)}
+                        disabled={likedPosts[post.id]}
+                        className={likedPosts[post.id] ? styles.liked : styles.liked}
+                        aria-label={`Like ${post.title}`}
+                      >
+                        👍 {post.likes || 0} Likes
+                      </button>
+                      <button
+                        onClick={() => sharePost(post.title, post.id)}
+                        disabled={isSharing}
+                        className={isSharing ? styles.sharing : styles.share}
+                        aria-label={`Share ${post.title}`}
+                      >
+                        {isSharing ? "Sharing..." : "🔗 Share"}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        ))
-      )}
+            ))
+          )}
+        </main>
 
-      {/* ✅ Footer */}
-      <footer className={styles.footer}>
-        © {new Date().getFullYear()} All right reserved. Onyxe Nnaemeka Blog.
-      </footer>
-
+        <footer className={styles.footer}>
+          © {new Date().getFullYear()} All rights reserved. Onyxe Nnaemeka Blog.
+        </footer>
+      </div>
     </div>
   );
 }
