@@ -61,7 +61,7 @@ export default function Contact() {
           )}
         </header>
 
-        <main className={styles.contents}> <br /> <br /> <br /> <br /> <br />
+        <main className={styles.contents}> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
           <h1 className={styles.detailTitle}>Get in Touch</h1>
           <div>
             <p>📞 <strong>Phone:</strong> +234 803 335 6633</p>

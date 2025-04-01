@@ -262,8 +262,8 @@
   gap: 10px;
 }
 
-/* ✅ Like, Share & Comment Buttons - KEPT */
-.liked, .share, .comment {
+/* ✅ Like, Share Buttons - KEPT */
+.liked, .share {
   font-family: 'montserrat';
   padding: 10px 12px;
   font-size: 10px;
@@ -299,14 +299,6 @@
   background-color: #005bb5;
 }
 
-.comment {
-  font-family: 'montserrat';
-  background-color: #ffa500;
-}
-
-.comment:hover {
-  background-color: #cc8400;
-}
 
 /* ✅ Blog Post Container - KEPT */
 .detailsCard {
