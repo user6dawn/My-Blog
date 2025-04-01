@@ -30,18 +30,6 @@ export default function Home({ initialPosts }) {
     setLikedPosts(storedLikes);
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isNavOpen && !event.target.closest(`.${styles.nav}`) && 
-          !event.target.closest(`.${styles.navToggle}`)) {
-        setIsNavOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isNavOpen]);
-
   const toggleNav = () => {
     setIsNavOpen(!isNavOpen);
   };
@@ -49,6 +37,18 @@ export default function Home({ initialPosts }) {
   const closeNav = () => {
     setIsNavOpen(false);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isNavOpen && !event.target.closest(`.${styles.nav}`) && 
+          !event.target.closest(`.${styles.navToggle}`)) {
+        closeNav();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isNavOpen]);
 
   const likePost = async (id, currentLikes) => {
     if (likedPosts[id]) return;
@@ -93,16 +93,13 @@ export default function Home({ initialPosts }) {
   return (
     <div className={styles.bg}>
       <div className={styles.container}>
-        {/* Updated Header with different text sizes */}
+        {/* Header */}
         <header className={styles.header}>
-          {/* Left section with large title and small subtitle */}
           <div className={styles.headerLeft}>
-            <span className={styles.headerTitleLarge}>      The Balance Code Alliance
-            </span>
+            <span className={styles.headerTitleLarge}>The Balance Code Alliance</span>
             <span className={styles.headerSubtitleSmall}>Restoring Order.  Unlocking Peace.  Empowering Lives </span>
           </div>
 
-          {/* Navbar Toggle Button */}
           <button 
             className={styles.navToggle} 
             onClick={toggleNav}
@@ -112,20 +109,20 @@ export default function Home({ initialPosts }) {
             {isNavOpen ? '✕' : '☰'}
           </button>
 
-          {/* Navigation Links */}
-          <nav className={`${styles.nav} ${isNavOpen ? styles.open : ''}`}>
-            <Link href="/" onClick={closeNav} className={styles.navLink}>Home</Link>
-            <Link href="/about" onClick={closeNav} className={styles.navLink}>About</Link>
-            <Link href="/contact" onClick={closeNav} className={styles.navLink}>Contact</Link>
-          </nav>
-
-          {/* Overlay */}
+          {/* Navigation Menu - Only visible when isNavOpen is true */}
           {isNavOpen && (
-            <div 
-              className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`} 
-              onClick={closeNav}
-              aria-hidden="true"
-            />
+            <>
+              <nav className={`${styles.nav} ${isNavOpen ? styles.open : ''}`}>
+                <Link href="/" onClick={closeNav} className={styles.navLink}>Home</Link>
+                <Link href="/about" onClick={closeNav} className={styles.navLink}>About</Link>
+                <Link href="/contact" onClick={closeNav} className={styles.navLink}>Contact</Link>
+              </nav>
+              <div 
+                className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`} 
+                onClick={closeNav}
+                aria-hidden="true"
+              />
+            </>
           )}
         </header>
 
