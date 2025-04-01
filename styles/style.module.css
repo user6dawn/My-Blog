@@ -346,6 +346,7 @@
 
 /* ✅ Back Home Button - KEPT */
 .backButton {
+  margin-top: 20px;
   font-family: 'montserrat';
   display: inline-block;
   background-color: #0070f3;
@@ -474,11 +475,13 @@
   font-size: 22px; /* Larger size */
   font-weight: bold;
   margin-bottom: 0;
+  padding-left: 10px;
   line-height: 1.2;
 }
 
 /* Small header subtitle */
 .headerSubtitleSmall {
+  padding-left: 10px;
   font-size: 12px; /* Smaller size */
   font-weight: normal;
   color: rgb(216, 216, 216);
