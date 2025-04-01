@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import { supabase } from "../../lib/supabase";
 import styles from "./styles/style.module.css";
 
-
 export default function AdminLogin() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -11,7 +10,6 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // ✅ Handle User Login
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -29,20 +27,20 @@ export default function AdminLogin() {
       return;
     }
 
-    // ✅ Redirect to the dashboard if login is successful
     router.push("/admin/dashboard");
   };
 
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <h2 className={styles.detailsTitle}>Admin Login</h2>
+    <div className={styles.loginContainer}>
+      <div className={styles.loginBox}>
+        <h2 className={styles.loginTitle}>Admin Login</h2>
 
-        {error && <p className="error-message">{error}</p>}
+        {error && <p className={styles.errorMessage}>{error}</p>}
 
-        <form onSubmit={handleLogin} className={styles.enteryField}>
+        <form onSubmit={handleLogin} className={styles.loginForm}>
           <input
-            className={styles.email}
+            className={styles.loginInput}
+            type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -50,14 +48,19 @@ export default function AdminLogin() {
           />
 
           <input
-            className={styles.password}
+            className={styles.loginInput}
+            type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
 
-          <button className={styles.loginButton} disabled={loading}>
+          <button 
+            className={styles.loginButton} 
+            type="submit"
+            disabled={loading}
+          >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
