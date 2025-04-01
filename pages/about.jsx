@@ -87,7 +87,7 @@ export default function About() {
           </div>
 
           <p className={styles.contents}>
-            Join the movement today. <Link href="/contact" className={styles.readmore}><h2>Click me!</h2></Link>
+            Join the movement today. <Link href="/contact" className={styles.readmore1}><h2>Click me!</h2></Link> <br />
           </p>
         </main>
 

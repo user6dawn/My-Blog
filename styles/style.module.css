@@ -18,7 +18,7 @@
   font-family: 'montserrat';
   width: 100%;
   height: 75px;
-  background-color: #2b2d42;
+  background-color: #0B132B;
   color: white;
   padding-left: 10px;
   position: fixed;
@@ -81,7 +81,7 @@
 }
 
 .navToggle:hover {
-  color: #8D99ae;
+  color: #ffffff;
   background-color: transparent;
 }
 
@@ -92,7 +92,7 @@
   position: fixed;
   top: 75px;
   right: -120%;
-  background: #1a1a1a;
+  background: #0B132B;
   border-radius: 0 0 0 10px;
   padding: 20px;
   width: 200px;
@@ -114,7 +114,7 @@
 }
 
 .nav a:hover {
-  background-color: #8D99ae;
+  background-color: #1C2541;
   text-decoration: none;
 }
 
@@ -153,7 +153,7 @@
 .footer {
   font-family: 'montserrat';
   width: 100%;
-  background-color: #1a1a1a;
+  background-color: #0B132B;
   color: rgb(157, 157, 157);
   text-align: center;
   padding: 15px 0;
@@ -237,7 +237,7 @@
   font-family: 'montserrat';
   font-weight: 700;
   color: white !important;
-  background-color: #8D99ae;
+  background-color: #1C2541;
   stroke-width: 100%;
   stroke: white;
   padding: 5px 6px;
@@ -298,7 +298,7 @@
 }
 
 .commentButton:hover {
-  background-color: #8D99ae;
+  background-color: #1C2541;
 }
 
 /* Comments Section */
@@ -339,7 +339,7 @@
   font-family: 'montserrat';
   align-self: flex-start;
   padding: 10px 20px;
-  background-color: #8D99ae;
+  background-color: #1C2541;
   color: white;
   border: none;
   border-radius: 4px;
@@ -348,12 +348,12 @@
 }
 
 .commentSubmitButton:hover {
-  background-color: #8D99ae;
+  color: white;
+  background-color: #1C2541;
 }
 
 .commentsList {
   font-family: 'montserrat';
-
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -369,11 +369,11 @@
 .comment strong {
   display: block;
   margin-bottom: 5px;
-  color: #333;
+  color: #000000;
 }
 
 .comment small {
-  color: #777;
+  color: #000000;
   font-size: 0.8em;
 }
 
@@ -405,7 +405,7 @@
 }
 
 .share:hover {
-  background-color: #8D99ae;
+  background-color: #1C2541;
 }
 
 
@@ -451,7 +451,7 @@
   margin-top: 20px;
   font-family: 'montserrat';
   display: inline-block;
-  background-color: #3A506B;
+  background-color: #1C2541;
   color: white;
   padding: 10px 12px;
   justify-self: end;
@@ -465,8 +465,8 @@
 }
 
 .backButton:hover {
-  color: #2b2d42;
-  background-color: #8D99ae;
+  color: #ffffff;
+  background-color: #1C2541;
 }
 
 /* ✅ Buttons Row - KEPT */
@@ -568,7 +568,7 @@
 }
 
 .login-button:hover {
-  background-color: #8D99ae;
+  background-color: #1C2541;
 }
 
 .login-button:disabled {
