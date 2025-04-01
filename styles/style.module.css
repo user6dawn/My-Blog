@@ -215,6 +215,8 @@
 }
 
 .description {
+  margin-bottom: 20px;
+  justify-content: center;  
   font-family: 'poppins';
   font-weight: 400;
   font-weight: medium;
@@ -442,7 +444,9 @@
   font-size: 18px;
   line-height: 1.4;
   color: #333;
+  justify-content: baseline;
   margin-bottom: 20px;
+  text-justify: distribute;
 }
 
 /* ✅ Back Home Button - KEPT */
