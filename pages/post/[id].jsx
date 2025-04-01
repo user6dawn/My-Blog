@@ -252,7 +252,7 @@ export default function BlogPost({ post, initialComments }) {
         <br /><br /><br />
 
         <footer className={styles.footer}>
-          © {new Date().getFullYear()} All rights reserved. Onyxe Nnaemeka Blog.
+          © {new Date().getFullYear()}Onyxe Nnaemeka Blog. All rights reserved.
         </footer>
       </div>
     </div>

@@ -18,7 +18,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background-color: #1a1a1a;
+  background-color: #1C2541;
   color: white;
   position: fixed;
   top: 0;
@@ -36,6 +36,7 @@
   font-family: 'poppins';
   font-size: 22px;
   font-weight: bold;
+
 }
 
 .headerSubtitleSmall {
@@ -174,7 +175,7 @@
 /* Buttons */
 .logoutButton, .submitButton {
   padding: 12px 20px;
-  background: #000000;
+  background: #1C2541;
   color: white;
   border: none;
   border-radius: 5px;
@@ -197,7 +198,7 @@
 
 .submitButton:hover {
   background: #ffffff;
-  color: #000000;
+  color: #1C2541;
 }
 
 .submitButton:disabled {
@@ -209,7 +210,7 @@
 .adminFooter {
   text-align: center;
   padding: 20px;
-  background: #1a1a1a;
+  background: #1C2541;
   color: #9d9d9d;
   font-size: 14px;
   position: fixed;
@@ -280,7 +281,7 @@
 
 .loginInput:focus {
   outline: none;
-  border-color: #0070f3;
+  border-color: #1C2541;
 }
 
 .errorMessage {
@@ -292,7 +293,7 @@
 
 .loginButton {
   width: 100%;
-  background-color: #000000;
+  background-color: #1C2541;
   color: white;
   padding: 12px;
   border: none;
@@ -303,7 +304,7 @@
 }
 
 .loginButton:hover {
-  color: #000000;
+  color: #1C2541;
   background-color: #ffffff;
 }
 
