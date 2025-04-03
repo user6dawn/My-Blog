@@ -150,6 +150,10 @@ export default function Dashboard() {
             <div className={styles.dashboardHeader}>
               <h1>Create New Post</h1>
               <button 
+                className={styles.adButton}>
+                <Link href={"/ad"} className={styles.adButton}>add new ad</Link>
+              </button>
+              <button 
                 onClick={handleLogout}
                 className={styles.logoutButton}
               >

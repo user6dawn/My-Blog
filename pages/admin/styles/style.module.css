@@ -173,7 +173,7 @@
 }
 
 /* Buttons */
-.logoutButton, .submitButton {
+.logoutButton, .submitButton, .adButton {
   padding: 12px 20px;
   background: #1C2541;
   color: white;
@@ -182,11 +182,18 @@
   font-size: 16px;
   cursor: pointer;
   transition: background 0.3s;
+  
 }
 
 .logoutButton {
   background: #ff5c5c;
 }
+.adButton{
+  background-color: #1a1a1a;
+  text-decoration: none;
+}
+
+
 
 .submitButton {
   width: 100%;
