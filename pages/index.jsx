@@ -237,13 +237,9 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
                           >
                             {randomAd.image_url && (
                               <img 
-                                src={randomAd.image_url} 
-                                alt={randomAd.title} 
-                                className={styles.adImage}
-                              />
-                            )}
-                            <h3 className={styles.adTitle}>{randomAd.title}</h3>
-                            <p className={styles.adText}>{randomAd.content}</p>
+                                src={randomAd.image_url} alt={randomAd.title} className={styles.adImage}/>)}
+                            {/* <h3 className={styles.adTitle}>{randomAd.title}</h3>
+                            <p className={styles.adText}>{randomAd.content}</p> */}
                           </a>
                         ) : (
                           <p className={styles.adPlaceholder}><marquee behavior="" direction="right">Advertisement</marquee></p>
@@ -258,7 +254,7 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
         </main>
 
         <footer className={styles.footer}>
-          © {new Date().getFullYear()} Onyxe Nnaemeka Blog. All rights reserved.
+        Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}
         </footer>
       </div>
     </div>

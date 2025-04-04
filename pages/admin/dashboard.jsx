@@ -13,6 +13,8 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [posts, setPosts] = useState([]);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -21,7 +23,25 @@ export default function Dashboard() {
       setUser(session?.user);
     };
     checkAuth();
+    fetchPosts();
   }, [router]);
+
+  const fetchPosts = async () => {
+    setIsLoadingPosts(true);
+    try {
+      const { data, error } = await supabase
+        .from("posts")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      setPosts(data || []);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    } finally {
+      setIsLoadingPosts(false);
+    }
+  };
 
   const toggleNav = () => setIsNavOpen(!isNavOpen);
   const closeNav = () => setIsNavOpen(false);
@@ -97,12 +117,32 @@ export default function Dashboard() {
       setContent('');
       setImage(null);
       setImagePreview(null);
+      fetchPosts(); // Refresh the posts list
       
     } catch (error) {
       console.error('Error:', error);
       alert(`Failed to create post: ${error.message}`);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const deletePost = async (postId) => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+    
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      alert('Post deleted successfully');
+      fetchPosts(); // Refresh the posts list
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('Failed to delete post');
     }
   };
 
@@ -149,9 +189,8 @@ export default function Dashboard() {
           <div className={styles.dashboardCard}>
             <div className={styles.dashboardHeader}>
               <h1>Create New Post</h1>
-              <button 
-                className={styles.adButton}>
-                <Link href={"/ad"} className={styles.adButton}>add new ad</Link>
+              <button className={styles.adButton}>
+                <Link href={"./ads"} className={styles.adButton}>Add New Ad</Link>
               </button>
               <button 
                 onClick={handleLogout}
@@ -206,10 +245,48 @@ export default function Dashboard() {
               </button>
             </form>
           </div>
+
+          {/* Posts Table */}
+          <div className={styles.postsTableContainer}>
+            <h2>Manage Existing Posts</h2>
+            {isLoadingPosts ? (
+              <p>Loading posts...</p>
+            ) : posts.length === 0 ? (
+              <p>No posts available.</p>
+            ) : (
+              <table className={styles.postsTable}>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Created At</th>
+                    <th>Likes</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {posts.map((post) => (
+                    <tr key={post.id}>
+                      <td>{post.title}</td>
+                      <td>{new Date(post.created_at).toLocaleDateString()}</td>
+                      <td>{post.likes}</td>
+                      <td>
+                        <button
+                          onClick={() => deletePost(post.id)}
+                          className={styles.deleteButton}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </main>
 
         <footer className={styles.adminFooter}>
-          © {new Date().getFullYear()}Onyxe Nnaemeka Blog. All rights reserved.
+        Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}
         </footer>
       </div>
     </div>
