@@ -268,6 +268,11 @@ export default function AdsManager() {
                 >
                   {isLoading ? 'Creating...' : 'Create Ad'}
                 </button>
+                <button className={styles.submitButton}>
+                <Link href="/admin/dashboard" className={styles.backToAdmin}>
+            ← Back to Admin Dashboard
+          </Link>
+                </button>
               </form>
             </div>
             
@@ -315,9 +320,7 @@ export default function AdsManager() {
             </div>
           </div>
           
-          <Link href="/admin/dashboard" className={styles.submitButton}>
-            ← Back to Admin Dashboard
-          </Link>
+
         </main>
 
         <footer className={styles.adminFooter}>

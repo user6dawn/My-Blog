@@ -233,13 +233,10 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
                             target="_blank" 
                             rel="noopener noreferrer"
                             onClick={() => trackAdClick(randomAd.id)}
-                            className={styles.adLink}
+                            
                           >
                             {randomAd.image_url && (
-                              <img 
-                                src={randomAd.image_url} alt={randomAd.title} className={styles.adImage}/>)}
-                            {/* <h3 className={styles.adTitle}>{randomAd.title}</h3>
-                            <p className={styles.adText}>{randomAd.content}</p> */}
+                              <img src={randomAd.image_url} className={styles.adImage}/>)}
                           </a>
                         ) : (
                           <p className={styles.adPlaceholder}><marquee behavior="" direction="right">Advertisement</marquee></p>

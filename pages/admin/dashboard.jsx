@@ -190,7 +190,7 @@ export default function Dashboard() {
             <div className={styles.dashboardHeader}>
               <h1>Create New Post</h1>
               <button className={styles.adButton}>
-                <Link href={"./ads"} className={styles.adButton}>Add New Ad</Link>
+                <Link href={"./ads"} className={styles.submitButton}>Create New Ad</Link>
               </button>
               <button 
                 onClick={handleLogout}
