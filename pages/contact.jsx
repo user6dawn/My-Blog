@@ -64,13 +64,13 @@ export default function Contact() {
         <main className={styles.contents}> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
           <h1 className={styles.detailTitle}>Get in Touch</h1>
           <div>
-            <p>📞 <strong>Phone:</strong> +234 803 335 6633</p>
+            <p>📞 <strong>Phone:</strong> +234 704 222 4426</p>
             <p>📧 <strong>Email:</strong> onyxeblg@gmail.com</p>
-            <h3>Follow Us</h3>
+            <h3>Follow Us@</h3>
           </div>
 
           <div className={styles.content}>
-            <a className={styles.readmore1} href="https://www.instagram.com/onyxemark?igsh=MXYya3Z3ZGQ5bjMxbg%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer"> Instagram </a> |
+            <a className={styles.readmore1} href="https://www.youtube.com/@Onyxenkembu" target="_blank" rel="noopener noreferrer"> Youtube </a> |
             <a className={styles.readmore1} href="https://www.tiktok.com/@onyxenkb?_t=ZM-8v6E9odcU5N&_r=1" target="_blank" rel="noopener noreferrer"> TikTok </a> |
             <a className={styles.readmore1} href="https://web.facebook.com/Zukydman" target="_blank" rel="noopener noreferrer"> Facebook </a>
           </div>
