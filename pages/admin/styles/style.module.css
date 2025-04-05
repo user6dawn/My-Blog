@@ -423,10 +423,10 @@
 .tableRow {
   font-family: 'poppins';
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr; /* Equal spacing for 3 columns */
   gap: 1rem;
   padding: 0.8rem;
-  align-items: center;
+  align-items: end;
 }
 
 .tableHeader {
@@ -444,7 +444,7 @@
   border-bottom: none;
 }
 
-.active {
+/* .active {
 
   background: #4CAF50;
   color: white;
@@ -461,7 +461,7 @@
   padding: 0.3rem 0.6rem;
   border-radius: 4px;
   cursor: pointer;
-}
+} */
 
 .deleteButton {
   background: #ff5252;
@@ -470,6 +470,7 @@
   padding: 0.3rem 0.6rem;
   border-radius: 4px;
   cursor: pointer;
+  
 }
 
 .error {

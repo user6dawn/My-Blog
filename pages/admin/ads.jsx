@@ -6,7 +6,6 @@ import { useRouter } from "next/router";
 
 export default function AdsManager() {
   const router = useRouter();
-  // Form state
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -16,14 +15,13 @@ export default function AdsManager() {
     is_active: true
   });
 
-  // Ads list state
   const [ads, setAds] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isNavOpen, setIsNavOpen] = useState(false);
 
-  // Fetch existing ads
   useEffect(() => {
     fetchAds();
   }, []);
@@ -55,8 +53,8 @@ export default function AdsManager() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isNavOpen && !event.target.closest(`.${styles.nav}`) && 
-          !event.target.closest(`.${styles.navToggle}`)) {
+      if (isNavOpen && !event.target.closest(`.${styles.nav}`) &&
+        !event.target.closest(`.${styles.navToggle}`)) {
         closeNav();
       }
     };
@@ -65,7 +63,6 @@ export default function AdsManager() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isNavOpen]);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -74,7 +71,43 @@ export default function AdsManager() {
     }));
   };
 
-  // Handle form submission
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    try {
+      setIsImageUploading(true);
+      let { error: uploadError } = await supabase.storage
+        .from('blog-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase
+        .storage
+        .from('blog-images')
+        .getPublicUrl(filePath);
+
+      const publicUrl = publicUrlData.publicUrl;
+
+      setFormData(prev => ({
+        ...prev,
+        image_url: publicUrl
+      }));
+
+      setSuccess("Image uploaded successfully!");
+    } catch (error) {
+      console.error("Image upload error:", error.message);
+      setError("Image upload failed.");
+    } finally {
+      setIsImageUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -82,12 +115,12 @@ export default function AdsManager() {
     setSuccess(null);
 
     try {
-      // Validate required fields
       if (!formData.title || !formData.content || !formData.link_url) {
         throw new Error('Title, content, and link URL are required');
       }
 
-      // Insert the new ad
+      console.log("Submitting form data:", formData);
+
       const { data, error } = await supabase
         .from('ads')
         .insert([formData])
@@ -95,11 +128,9 @@ export default function AdsManager() {
 
       if (error) throw error;
 
-      // Update local state
       setAds([data[0], ...ads]);
       setSuccess('Ad created successfully!');
-      
-      // Reset form
+
       setFormData({
         title: '',
         content: '',
@@ -115,7 +146,6 @@ export default function AdsManager() {
     }
   };
 
-  // Toggle ad status (active/inactive)
   const toggleAdStatus = async (id, currentStatus) => {
     try {
       const { error } = await supabase
@@ -124,27 +154,33 @@ export default function AdsManager() {
         .eq('id', id);
 
       if (error) throw error;
-      fetchAds(); // Refresh the list
+      fetchAds();
     } catch (err) {
       setError(err.message);
     }
   };
 
-  // Delete an ad
   const deleteAd = async (id) => {
     if (!confirm('Are you sure you want to delete this ad?')) return;
-    
+
+    console.log("Deleting ad with ID:", id); // DEBUG
+
     try {
       const { error } = await supabase
         .from('ads')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase delete error:", error);
+        throw error;
+      }
+
       setAds(ads.filter(ad => ad.id !== id));
       setSuccess('Ad deleted successfully');
     } catch (err) {
-      setError(err.message);
+      console.error("Delete error:", err);
+      setError(err.message || "Failed to delete ad");
     }
   };
 
@@ -157,8 +193,8 @@ export default function AdsManager() {
             <span className={styles.headerSubtitleSmall}>Restoring Order. Unlocking Peace. Empowering Lives</span>
           </div>
 
-          <button 
-            className={styles.navToggle} 
+          <button
+            className={styles.navToggle}
             onClick={toggleNav}
             aria-label={isNavOpen ? "Close menu" : "Open menu"}
             aria-expanded={isNavOpen}
@@ -173,8 +209,8 @@ export default function AdsManager() {
                 <Link href="/about" onClick={closeNav} className={styles.navLink}>About</Link>
                 <Link href="/contact" onClick={closeNav} className={styles.navLink}>Contact</Link>
               </nav>
-              <div 
-                className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`} 
+              <div
+                className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`}
                 onClick={closeNav}
                 aria-hidden="true"
               />
@@ -184,12 +220,11 @@ export default function AdsManager() {
 
         <main className={styles.adminMain}>
           <h1>Ads Management</h1>
-          
+
           {error && <div className={styles.error}>{error}</div>}
           {success && <div className={styles.success}>{success}</div>}
 
           <div className={styles.adminGrid}>
-            {/* Create Ad Form */}
             <div className={styles.adminForm}>
               <h2>Create New Ad</h2>
               <form onSubmit={handleSubmit}>
@@ -203,7 +238,7 @@ export default function AdsManager() {
                     required
                   />
                 </label>
-                
+
                 <label>
                   Content: *
                   <textarea
@@ -213,18 +248,24 @@ export default function AdsManager() {
                     required
                   />
                 </label>
-                
-                <label>
-                  Image URL:
-                  <input
-                    type="url"
-                    name="image_url"
-                    value={formData.image_url}
-                    onChange={handleChange}
-                    placeholder="https://example.com/image.jpg"
-                  />
-                </label>
-                
+                <div className={styles.fileUploadWrapper}>
+                  <label className={styles.fileUploadLabel}>
+                    {formData.image_url ? 'Change Image' : 'Select Image'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className={styles.fileInput}
+                    />
+                  </label>
+
+                  {formData.image_url && (
+                    <div className={styles.imagePreview}>
+                      <img src={formData.image_url} alt="Preview" />
+                    </div>
+                  )}
+                </div>
+
                 <label>
                   Link URL: *
                   <input
@@ -236,7 +277,7 @@ export default function AdsManager() {
                     placeholder="https://example.com"
                   />
                 </label>
-                
+
                 <label>
                   Position:
                   <select
@@ -245,41 +286,32 @@ export default function AdsManager() {
                     onChange={handleChange}
                   >
                     <option value="between_posts">Between Posts</option>
-                    {/* <option value="sidebar">Sidebar</option>
-                    <option value="header">Header</option>
-                    <option value="footer">Footer</option> */}
                   </select>
                 </label>
-                
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    name="is_active"
-                    checked={formData.is_active}
-                    onChange={handleChange}
-                  />
-                  Active
-                </label>
-                
-                <button 
-                  type="submit" 
-                  disabled={isLoading}
+
+                <button
+                  type="submit"
+                  disabled={isLoading || isImageUploading}
                   className={styles.submitButton}
                 >
-                  {isLoading ? 'Creating...' : 'Create Ad'}
+                  {isImageUploading
+                    ? 'Uploading image...'
+                    : isLoading
+                      ? 'Creating...'
+                      : 'Create Ad'}
                 </button>
+
                 <button className={styles.submitButton}>
-                <Link href="/admin/dashboard" className={styles.backToAdmin}>
-            ← Back to Admin Dashboard
-          </Link>
+                  <Link href="/admin/dashboard" className={styles.backToAdmin}>
+                    ← Back to Admin Dashboard
+                  </Link>
                 </button>
               </form>
             </div>
-            
-            {/* Existing Ads List */}
+
             <div className={styles.adminList}>
               <h2>Existing Ads ({ads.length})</h2>
-              
+
               {isLoading && !ads.length ? (
                 <p>Loading ads...</p>
               ) : ads.length === 0 ? (
@@ -289,24 +321,15 @@ export default function AdsManager() {
                   <div className={styles.tableHeader}>
                     <span>Title</span>
                     <span>Position</span>
-                    <span>Status</span>
                     <span>Actions</span>
                   </div>
-                  
+
                   {ads.map(ad => (
                     <div key={ad.id} className={styles.tableRow}>
                       <span>{ad.title}</span>
                       <span>{ad.position.replace('_', ' ')}</span>
                       <span>
-                        <button 
-                          onClick={() => toggleAdStatus(ad.id, ad.is_active)}
-                          className={ad.is_active ? styles.active : styles.inactive}
-                        >
-                          {ad.is_active ? 'Active' : 'Inactive'}
-                        </button>
-                      </span>
-                      <span>
-                        <button 
+                        <button
                           onClick={() => deleteAd(ad.id)}
                           className={styles.deleteButton}
                         >
@@ -319,12 +342,10 @@ export default function AdsManager() {
               )}
             </div>
           </div>
-          
-
         </main>
 
         <footer className={styles.adminFooter}>
-        Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}
+          Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}
         </footer>
       </div>
     </div>

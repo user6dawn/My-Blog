@@ -22,13 +22,21 @@ export async function getServerSideProps({ params }) {
       .eq("post_id", params.id)
       .order("created_at", { ascending: false });
 
-    if (commentError) throw commentError;
+    // Get active ads
+    const { data: adsData, error: adsError } = await supabase
+      .from("ads")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false });
 
-    return { 
-      props: { 
+    if (commentError || adsError) throw commentError || adsError;
+
+    return {
+      props: {
         post: postData,
-        initialComments: commentData || []
-      } 
+        initialComments: commentData || [],
+        ads: adsData || [],
+      },
     };
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -36,7 +44,7 @@ export async function getServerSideProps({ params }) {
   }
 }
 
-export default function BlogPost({ post, initialComments }) {
+export default function BlogPost({ post, initialComments, ads }) {
   const [likes, setLikes] = useState(post.likes || 0);
   const [liked, setLiked] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -57,8 +65,7 @@ export default function BlogPost({ post, initialComments }) {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isNavOpen && !event.target.closest(`.${styles.nav}`) && 
-          !event.target.closest(`.${styles.navToggle}`)) {
+      if (isNavOpen && !event.target.closest(`.${styles.nav}`) && !event.target.closest(`.${styles.navToggle}`)) {
         closeNav();
       }
     };
@@ -126,8 +133,8 @@ export default function BlogPost({ post, initialComments }) {
           {
             post_id: post.id,
             name: name.trim(),
-            comment: comment.trim()
-          }
+            comment: comment.trim(),
+          },
         ])
         .select();
 
@@ -141,6 +148,15 @@ export default function BlogPost({ post, initialComments }) {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Get random ad
+  const getRandomAd = () => {
+    if (!ads || ads.length === 0) return null;
+    const betweenPostsAds = ads.filter(ad => ad?.position === 'between_posts');
+    return betweenPostsAds.length > 0 
+      ? betweenPostsAds[Math.floor(Math.random() * betweenPostsAds.length)] 
+      : null;
   };
 
   return (
@@ -162,7 +178,7 @@ export default function BlogPost({ post, initialComments }) {
             {isNavOpen ? '✕' : '☰'}
           </button>
 
-          {/* Navigation Menu - Only visible when isNavOpen is true */}
+          {/* Navigation Menu */}
           {isNavOpen && (
             <>
               <nav className={`${styles.nav} ${isNavOpen ? styles.open : ''}`}>
@@ -188,73 +204,83 @@ export default function BlogPost({ post, initialComments }) {
           <h1 className={styles.detailsTitle}>{post.title}</h1>
 
           <p className={styles.detailsDescription}>{post.content}</p>
-
           <div className={styles.detailsButtonRow}>
-            <button onClick={likePost} disabled={liked} className={liked ? styles.liked : styles.liked}>
-              👍 {likes}
-            </button>
-
-            <button onClick={sharePost} disabled={isSharing} className={styles.share}>
-              {isSharing ? "Sharing..." : "🔗"}
-            </button>
+            <div className={styles.likeshare}>
+              <button onClick={likePost} disabled={liked} className={liked ? styles.liked : styles.liked}>
+                👍 {likes}
+              </button>
+              <button onClick={sharePost} disabled={isSharing} className={styles.share}>
+                {isSharing ? "Sharing..." : "🔗"}
+              </button>
+            </div>
             <button onClick={() => router.push("/")} className={styles.backButton}>
             Go Back Home
           </button>
           </div>
-        </div>
 
-        {/* Comment Section */}
-        <div className={styles.commentSection}>
-          <h2 className={styles.commentTitle}>Leave a Comment</h2>
-          <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
-              className={styles.commentInput}
-              required
-            />
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Your comment"
-              className={styles.commentTextarea}
-              required
-            />
-            <button 
-              type="submit" 
-              disabled={isSubmitting}
-              className={styles.commentSubmitButton}
-            >
-              {isSubmitting ? "Posting..." : "Post Comment"}
-            </button>
-          </form>
+          {/* Ad between content and comment section */}
+          {getRandomAd() && (
+            <div className={styles.adContainer}>
+              <div className={styles.adContent}>
+                <a 
+                  href={getRandomAd().link_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={() => trackAdClick(getRandomAd().id)}
+                >
+                  {getRandomAd().image_url && (
+                    <img src={getRandomAd().image_url} className={styles.adImage} />
+                  )}
+                </a>
+              </div>
+            </div>
+          )}
 
-          {/* Comments List */}
-          <div className={styles.commentsList}>
-            <h2 className={styles.commentTitle}>Comments ({comments.length})</h2>
-            {comments.length === 0 ? (
-              <p className={styles.noComments}>No comments yet. Be the first to comment!</p>
-            ) : (
-              comments.map((comment) => (
-                <div key={comment.id} className={styles.commentItem}>
-                  <h3 className={styles.commentName}>{comment.name}</h3>
-                  <p className={styles.commentText}>{comment.comment}</p>
-                  <p className={styles.commentDate}>
-                    {new Date(comment.created_at).toLocaleString()}
-                  </p>
-                </div>
-              ))
-            )}
+          {/* Comment Section */}
+          <div className={styles.commentSection}>
+            <h2 className={styles.commentTitle}>Leave a Comment</h2>
+            <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                className={styles.commentInput}
+                required
+              />
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Your comment"
+                className={styles.commentTextarea}
+                required
+              />
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className={styles.commentSubmitButton}
+              >
+                {isSubmitting ? "Posting..." : "Post Comment"}
+              </button>
+            </form>
+
+            {/* Comments List */}
+            <div className={styles.commentsList}>
+              <h2 className={styles.commentTitle}>Comments ({comments.length})</h2>
+              {comments.length === 0 ? (
+                <p className={styles.noComments}>No comments yet. Be the first to comment!</p>
+              ) : (
+                comments.map((comment) => (
+                  <div key={comment.id} className={styles.commentItem}>
+                    <h3 className={styles.commentName}>{comment.name}</h3>
+                    <p className={styles.commentText}>{comment.comment}</p>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
-        <br /><br /><br />
-
-        <footer className={styles.footer}>
-        Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}    
-          </footer>
       </div>
     </div>
-  ); 
+  );
 }
