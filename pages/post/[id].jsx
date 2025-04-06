@@ -197,13 +197,19 @@ export default function BlogPost({ post, initialComments, ads }) {
 
         {/* Blog Post Content */}
         <div className={styles.detailsCard}>
-          {post.image_url && (
+        {post.image_url && (
             <img src={post.image_url} alt={post.title} className={styles.detailsImage} />
           )}
 
           <h1 className={styles.detailsTitle}>{post.title}</h1>
 
-          <p className={styles.detailsDescription}>{post.content}</p>
+          <p 
+            className={styles.detailsDescription} 
+            dangerouslySetInnerHTML={{
+              __html: post.content.replace(/\n/g, '<br />').replace(/ {2,}/g, ' &nbsp;')
+            }} 
+          />
+
           <div className={styles.detailsButtonRow}>
             <div className={styles.likeshare}>
               <button onClick={likePost} disabled={liked} className={liked ? styles.liked : styles.liked}>
@@ -214,8 +220,8 @@ export default function BlogPost({ post, initialComments, ads }) {
               </button>
             </div>
             <button onClick={() => router.push("/")} className={styles.backButton}>
-            Go Back Home
-          </button>
+              Go Back Home
+            </button>
           </div>
 
           {/* Ad between content and comment section */}

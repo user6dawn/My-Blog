@@ -249,6 +249,7 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
             })
           )}
         </main>
+        <br />
 
         <footer className={styles.footer}>
         Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}

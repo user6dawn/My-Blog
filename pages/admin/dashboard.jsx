@@ -16,6 +16,13 @@ export default function Dashboard() {
   const [posts, setPosts] = useState([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
 
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editPostId, setEditPostId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [editImage, setEditImage] = useState(null);
+  const [editImagePreview, setEditImagePreview] = useState(null);
+
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -33,7 +40,7 @@ export default function Dashboard() {
         .from("posts")
         .select("*")
         .order("created_at", { ascending: false });
-      
+
       if (error) throw error;
       setPosts(data || []);
     } catch (error) {
@@ -46,7 +53,7 @@ export default function Dashboard() {
   const toggleNav = () => setIsNavOpen(!isNavOpen);
   const closeNav = () => setIsNavOpen(false);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = (e, isEdit = false) => {
     const file = e.target.files[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
@@ -57,34 +64,33 @@ export default function Dashboard() {
         alert('Image must be smaller than 5MB');
         return;
       }
-      setImage(file);
-      setImagePreview(URL.createObjectURL(file));
+      if (isEdit) {
+        setEditImage(file);
+        setEditImagePreview(URL.createObjectURL(file));
+      } else {
+        setImage(file);
+        setImagePreview(URL.createObjectURL(file));
+      }
     }
   };
 
   const uploadImage = async (file) => {
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      
-      const { data, error: uploadError } = await supabase.storage
-        .from('blog-images')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const { data, error: uploadError } = await supabase.storage
+      .from('blog-images')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
 
-      if (uploadError) throw uploadError;
+    if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('blog-images')
-        .getPublicUrl(data.path);
+    const { data: { publicUrl } } = supabase.storage
+      .from('blog-images')
+      .getPublicUrl(data.path);
 
-      return publicUrl;
-    } catch (error) {
-      console.error('Upload failed:', error);
-      throw error;
-    }
+    return publicUrl;
   };
 
   const handleSubmit = async (e) => {
@@ -117,8 +123,7 @@ export default function Dashboard() {
       setContent('');
       setImage(null);
       setImagePreview(null);
-      fetchPosts(); // Refresh the posts list
-      
+      fetchPosts();
     } catch (error) {
       console.error('Error:', error);
       alert(`Failed to create post: ${error.message}`);
@@ -129,7 +134,7 @@ export default function Dashboard() {
 
   const deletePost = async (postId) => {
     if (!confirm("Are you sure you want to delete this post?")) return;
-    
+
     try {
       const { error } = await supabase
         .from('posts')
@@ -139,7 +144,7 @@ export default function Dashboard() {
       if (error) throw error;
 
       alert('Post deleted successfully');
-      fetchPosts(); // Refresh the posts list
+      fetchPosts();
     } catch (error) {
       console.error('Error deleting post:', error);
       alert('Failed to delete post');
@@ -151,40 +156,67 @@ export default function Dashboard() {
     router.push('/admin');
   };
 
+  const openEditModal = (post) => {
+    setEditPostId(post.id);
+    setEditTitle(post.title);
+    setEditContent(post.content);
+    setEditImagePreview(post.image_url || null);
+    setEditImage(null);
+    setEditModalOpen(true);
+  };
+
+  const updatePost = async () => {
+    try {
+      let imageUrl = editImagePreview;
+      if (editImage) {
+        imageUrl = await uploadImage(editImage);
+      }
+
+      const { error } = await supabase
+        .from('posts')
+        .update({
+          title: editTitle,
+          content: editContent,
+          image_url: imageUrl
+        })
+        .eq('id', editPostId);
+
+      if (error) throw error;
+
+      alert("Post updated successfully");
+      setEditModalOpen(false);
+      fetchPosts();
+    } catch (error) {
+      console.error("Error updating post:", error);
+      alert("Failed to update post");
+    }
+  };
+
   return (
     <div className={styles.adminContainer}>
       <div className={styles.adminWrapper}>
+        {/* Header */}
         <header className={styles.adminHeader}>
           <div className={styles.headerLeft}>
             <span className={styles.headerTitleLarge}>The Balance Code Alliance</span>
-            <span className={styles.headerSubtitleSmall}>Restoring Order.  Unlocking Peace.  Empowering Lives</span>
+            <span className={styles.headerSubtitleSmall}>Restoring Order. Unlocking Peace. Empowering Lives</span>
           </div>
-
-          <button 
-            className={styles.navToggle} 
-            onClick={toggleNav}
-            aria-label={isNavOpen ? "Close menu" : "Open menu"}
-            aria-expanded={isNavOpen}
-          >
+          <button className={styles.navToggle} onClick={toggleNav}>
             {isNavOpen ? '✕' : '☰'}
           </button>
-
           {isNavOpen && (
             <>
               <nav className={`${styles.nav} ${isNavOpen ? styles.open : ''}`}>
-                <Link href="/" onClick={closeNav} className={styles.navLink}>Home</Link>
-                <Link href="/about" onClick={closeNav} className={styles.navLink}>About</Link>
-                <Link href="/contact" onClick={closeNav} className={styles.navLink}>Contact</Link>
+                <Link href="/" className={styles.navLink} onClick={closeNav}>Home</Link>
+                <Link href="/about" className={styles.navLink} onClick={closeNav}>About</Link>
+                <Link href="/contact" className={styles.navLink} onClick={closeNav}>Contact</Link>
               </nav>
-              <div 
-                className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`} 
-                onClick={closeNav}
-                aria-hidden="true"
-              />
+              <div className={styles.navOverlay} onClick={closeNav} />
             </>
           )}
         </header>
 
+        {/* Main */}
         <main className={styles.adminMain}>
           <div className={styles.dashboardCard}>
             <div className={styles.dashboardHeader}>
@@ -192,56 +224,31 @@ export default function Dashboard() {
               <button className={styles.adButton}>
                 <Link href={"./ads"} className={styles.submitButton}>Create New Ad</Link>
               </button>
-              <button 
-                onClick={handleLogout}
-                className={styles.logoutButton}
-              >
-                Logout
-              </button>
+              <button onClick={handleLogout} className={styles.logoutButton}>Logout</button>
             </div>
 
             <form onSubmit={handleSubmit} className={styles.postForm}>
               <input
-                className={styles.formInput}
                 type="text"
                 placeholder="Post Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                required
+                className={styles.formInput}
               />
-              
               <textarea
-                className={styles.formTextarea}
                 placeholder="Post Content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                required
+                className={styles.formTextarea}
                 rows={6}
               />
-              
-              <div className={styles.fileUploadWrapper}>
-                <label className={styles.fileUploadLabel}>
-                  {image ? 'Change Image' : 'Select Image'}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className={styles.fileInput}
-                  />
-                </label>
-                {imagePreview && (
-                  <div className={styles.imagePreview}>
-                    <img src={imagePreview} alt="Preview" />
-                  </div>
-                )}
-              </div>
-              
-              <button
-                type="submit"
-                className={styles.submitButton}
-                disabled={uploading}
-              >
-                {uploading ? 'Publishing...' : 'Publish Post'}
+              <label className={styles.fileUploadLabel}>
+                {image ? 'Change Image' : 'Select Image'}
+                <input type="file" onChange={handleImageChange} className={styles.fileInput} />
+              </label>
+              {imagePreview && <img src={imagePreview} alt="Preview" className={styles.imagePreview} />}
+              <button type="submit" disabled={uploading} className={styles.submitButton}>
+                {uploading ? "Publishing..." : "Publish Post"}
               </button>
             </form>
           </div>
@@ -270,12 +277,8 @@ export default function Dashboard() {
                       <td>{new Date(post.created_at).toLocaleDateString()}</td>
                       <td>{post.likes}</td>
                       <td>
-                        <button
-                          onClick={() => deletePost(post.id)}
-                          className={styles.deleteButton}
-                        >
-                          Delete
-                        </button>
+                        <button onClick={() => openEditModal(post)} className={styles.editButton}>Edit</button>
+                        <button onClick={() => deletePost(post.id)} className={styles.deleteButton}>Delete</button>
                       </td>
                     </tr>
                   ))}
@@ -285,8 +288,39 @@ export default function Dashboard() {
           </div>
         </main>
 
+        {/* Edit Modal */}
+        {editModalOpen && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modalContent}>
+              <h2>Edit Post</h2>
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className={styles.formInput}
+              />
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className={styles.formTextarea}
+                rows={6}
+              />
+              <label className={styles.fileUploadLabel}>
+                {editImage ? 'Change Image' : 'Select Image'}
+                <input type="file" onChange={(e) => handleImageChange(e, true)} className={styles.fileInput} />
+              </label>
+              {editImagePreview && <img src={editImagePreview} alt="Edit Preview" className={styles.imagePreview} />}
+              <div className={styles.modalActions}>
+                <button onClick={updatePost} className={styles.submitButton}>Save Changes</button>
+                <button onClick={() => setEditModalOpen(false)} className={styles.deleteButton}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
         <footer className={styles.adminFooter}>
-        Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}
+          Onyxe Nnaemeka Blog. All rights reserved. © {new Date().getFullYear()}
         </footer>
       </div>
     </div>

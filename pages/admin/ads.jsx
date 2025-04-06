@@ -22,6 +22,9 @@ export default function AdsManager() {
   const [success, setSuccess] = useState(null);
   const [isNavOpen, setIsNavOpen] = useState(false);
 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [currentAd, setCurrentAd] = useState(null);
+
   useEffect(() => {
     fetchAds();
   }, []);
@@ -43,13 +46,8 @@ export default function AdsManager() {
     }
   };
 
-  const toggleNav = () => {
-    setIsNavOpen(!isNavOpen);
-  };
-
-  const closeNav = () => {
-    setIsNavOpen(false);
-  };
+  const toggleNav = () => setIsNavOpen(!isNavOpen);
+  const closeNav = () => setIsNavOpen(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -58,7 +56,6 @@ export default function AdsManager() {
         closeNav();
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isNavOpen]);
@@ -119,17 +116,15 @@ export default function AdsManager() {
         throw new Error('Title, content, and link URL are required');
       }
 
-      console.log("Submitting form data:", formData);
-
-      const { data, error } = await supabase
-        .from('ads')
-        .insert([formData])
-        .select();
-
-      if (error) throw error;
-
-      setAds([data[0], ...ads]);
-      setSuccess('Ad created successfully!');
+      if (currentAd) {
+        await supabase.from('ads').update(formData).eq('id', currentAd.id);
+        setSuccess('Ad updated successfully!');
+      } else {
+        const { data, error } = await supabase.from('ads').insert([formData]).select();
+        if (error) throw error;
+        setAds([data[0], ...ads]);
+        setSuccess('Ad created successfully!');
+      }
 
       setFormData({
         title: '',
@@ -139,6 +134,10 @@ export default function AdsManager() {
         position: 'between_posts',
         is_active: true
       });
+
+      setCurrentAd(null);
+      setIsEditModalOpen(false);
+      fetchAds();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -163,25 +162,25 @@ export default function AdsManager() {
   const deleteAd = async (id) => {
     if (!confirm('Are you sure you want to delete this ad?')) return;
 
-    console.log("Deleting ad with ID:", id); // DEBUG
-
     try {
       const { error } = await supabase
         .from('ads')
         .delete()
         .eq('id', id);
 
-      if (error) {
-        console.error("Supabase delete error:", error);
-        throw error;
-      }
+      if (error) throw error;
 
       setAds(ads.filter(ad => ad.id !== id));
       setSuccess('Ad deleted successfully');
     } catch (err) {
-      console.error("Delete error:", err);
-      setError(err.message || "Failed to delete ad");
+      setError(err.message);
     }
+  };
+
+  const openEditModal = (ad) => {
+    setCurrentAd(ad);
+    setFormData(ad);
+    setIsEditModalOpen(true);
   };
 
   return (
@@ -193,12 +192,7 @@ export default function AdsManager() {
             <span className={styles.headerSubtitleSmall}>Restoring Order. Unlocking Peace. Empowering Lives</span>
           </div>
 
-          <button
-            className={styles.navToggle}
-            onClick={toggleNav}
-            aria-label={isNavOpen ? "Close menu" : "Open menu"}
-            aria-expanded={isNavOpen}
-          >
+          <button className={styles.navToggle} onClick={toggleNav}>
             {isNavOpen ? '✕' : '☰'}
           </button>
 
@@ -209,11 +203,7 @@ export default function AdsManager() {
                 <Link href="/about" onClick={closeNav} className={styles.navLink}>About</Link>
                 <Link href="/contact" onClick={closeNav} className={styles.navLink}>Contact</Link>
               </nav>
-              <div
-                className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`}
-                onClick={closeNav}
-                aria-hidden="true"
-              />
+              <div className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`} onClick={closeNav} />
             </>
           )}
         </header>
@@ -229,25 +219,15 @@ export default function AdsManager() {
               <h2>Create New Ad</h2>
               <form onSubmit={handleSubmit}>
                 <label>
-                  Title: *
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    required
-                  />
+                  Title:
+                  <input type="text" name="title" value={formData.title} onChange={handleChange} required />
                 </label>
 
                 <label>
-                  Content: *
-                  <textarea
-                    name="content"
-                    value={formData.content}
-                    onChange={handleChange}
-                    required
-                  />
+                  Content:
+                  <textarea name="content" value={formData.content} onChange={handleChange} required />
                 </label>
+
                 <div className={styles.fileUploadWrapper}>
                   <label className={styles.fileUploadLabel}>
                     {formData.image_url ? 'Change Image' : 'Select Image'}
@@ -267,38 +247,19 @@ export default function AdsManager() {
                 </div>
 
                 <label>
-                  Link URL: *
-                  <input
-                    type="url"
-                    name="link_url"
-                    value={formData.link_url}
-                    onChange={handleChange}
-                    required
-                    placeholder="https://example.com"
-                  />
+                  Link URL:
+                  <input type="url" name="link_url" value={formData.link_url} onChange={handleChange} required />
                 </label>
 
                 <label>
                   Position:
-                  <select
-                    name="position"
-                    value={formData.position}
-                    onChange={handleChange}
-                  >
+                  <select name="position" value={formData.position} onChange={handleChange}>
                     <option value="between_posts">Between Posts</option>
                   </select>
                 </label>
 
-                <button
-                  type="submit"
-                  disabled={isLoading || isImageUploading}
-                  className={styles.submitButton}
-                >
-                  {isImageUploading
-                    ? 'Uploading image...'
-                    : isLoading
-                      ? 'Creating...'
-                      : 'Create Ad'}
+                <button type="submit" disabled={isLoading || isImageUploading} className={styles.submitButton}>
+                  {isImageUploading ? 'Uploading image...' : isLoading ? 'Saving...' : currentAd ? 'Update Ad' : 'Create Ad'}
                 </button>
 
                 <button className={styles.submitButton}>
@@ -329,10 +290,10 @@ export default function AdsManager() {
                       <span>{ad.title}</span>
                       <span>{ad.position.replace('_', ' ')}</span>
                       <span>
-                        <button
-                          onClick={() => deleteAd(ad.id)}
-                          className={styles.deleteButton}
-                        >
+                        <button onClick={() => openEditModal(ad)} className={styles.editButton}>
+                          Edit
+                        </button>
+                        <button onClick={() => deleteAd(ad.id)} className={styles.deleteButton}>
                           Delete
                         </button>
                       </span>
@@ -348,6 +309,55 @@ export default function AdsManager() {
           Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}
         </footer>
       </div>
+
+      {isEditModalOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h2>Edit Ad</h2>
+            <form onSubmit={handleSubmit}>
+              <label>
+                Title:
+                <input type="text" name="title" value={formData.title} onChange={handleChange} required />
+              </label>
+
+              <label>
+                Content:
+                <textarea name="content" value={formData.content} onChange={handleChange} required />
+              </label>
+
+              <label>
+                Link URL:
+                <input type="url" name="link_url" value={formData.link_url} onChange={handleChange} required />
+              </label>
+
+              <div className={styles.fileUploadWrapper}>
+                <label className={styles.fileUploadLabel}>
+                  {formData.image_url ? 'Change Image' : 'Upload Image'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className={styles.fileInput}
+                  />
+                </label>
+
+                {formData.image_url && (
+                  <div className={styles.imagePreview}>
+                    <img src={formData.image_url} alt="Ad Image" />
+                  </div>
+                )}
+              </div>
+
+              <button type="submit" disabled={isLoading || isImageUploading} className={styles.submitButton}>
+                {isImageUploading ? 'Uploading image...' : isLoading ? 'Saving...' : 'Update Ad'}
+              </button>
+              <button type="button" onClick={() => setIsEditModalOpen(false)} className={styles.deleteButton}>
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
