@@ -225,7 +225,7 @@ export default function AdsManager() {
 
                 <label>
                   Content:
-                  <textarea name="content" value={formData.content} onChange={handleChange} required />
+                  <textarea name="content" value={formData.content} onChange={handleChange}  />
                 </label>
 
                 <div className={styles.fileUploadWrapper}>
@@ -248,7 +248,7 @@ export default function AdsManager() {
 
                 <label>
                   Link URL:
-                  <input type="url" name="link_url" value={formData.link_url} onChange={handleChange} required />
+                  <input type="url" name="link_url" value={formData.link_url} onChange={handleChange}  />
                 </label>
 
                 <label>
@@ -322,12 +322,12 @@ export default function AdsManager() {
 
               <label>
                 Content:
-                <textarea name="content" value={formData.content} onChange={handleChange} required />
+                <textarea name="content" value={formData.content} onChange={handleChange}  />
               </label>
 
               <label>
                 Link URL:
-                <input type="url" name="link_url" value={formData.link_url} onChange={handleChange} required />
+                <input type="url" name="link_url" value={formData.link_url} onChange={handleChange}  />
               </label>
 
               <div className={styles.fileUploadWrapper}>
