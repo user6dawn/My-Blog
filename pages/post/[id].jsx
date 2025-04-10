@@ -203,12 +203,14 @@ export default function BlogPost({ post, initialComments, ads }) {
 
           <h1 className={styles.detailsTitle}>{post.title}</h1>
 
-          <p 
-            className={styles.detailsDescription} 
-            dangerouslySetInnerHTML={{
-              __html: post.content.replace(/\n/g, '<br />').replace(/ {2,}/g, ' &nbsp;')
-            }} 
-          />
+          <div style={{ textAlign: "left" }}>
+            <p
+              className={styles.detailsDescription}
+              dangerouslySetInnerHTML={{
+                __html: post.content.replace(/\n/g, '<br />').replace(/ {2,}/g, ' &nbsp;')
+              }}
+            />
+          </div>
 
           <div className={styles.detailsButtonRow}>
             <div className={styles.likeshare}>
@@ -243,7 +245,7 @@ export default function BlogPost({ post, initialComments, ads }) {
           )}
 
           {/* Comment Section */}
-          <div className={styles.commentSection}>
+          <div className={styles.commentSection} style={{ textAlign: "left" }}>
             <h2 className={styles.commentTitle}>Leave a Comment</h2>
             <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
               <input

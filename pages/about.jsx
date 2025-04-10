@@ -63,9 +63,11 @@ export default function About() {
 
         <main className={styles.container}> <br /> <br /> <br /> <br /> <br />
           <h1 className={styles.contents}>About Us</h1>
-          <div className={styles.contents}>
+          <div className={styles.contents} style={{ textAlign: "left" }}>
+          <h2> Welcome to <strong>The Balance Code Alliance</strong>. </h2>
             <p>
-              Welcome to <strong>The Balance Code Alliance</strong>. In a world filled with chaos, confusion, and broken systems, The Balance Code Alliance is a movement dedicated to restoring harmony, order, and purpose through the wisdom of Natural Law. <br /><br />
+             <br />
+              In a world filled with chaos, confusion, and broken systems, The Balance Code Alliance is a movement dedicated to restoring harmony, order, and purpose through the wisdom of Natural Law. <br /><br />
 
               We believe that true peace, strength, and prosperity come when we align our spiritual, physical, and relational lives with the divine structure that governs all things. By understanding and applying these timeless principles, you can experience:
               <br />
@@ -86,7 +88,7 @@ export default function About() {
             </p>
           </div>
 
-          <p className={styles.contents}>
+          <p className={styles.content}>
             Join the movement today. <Link href="/contact" className={styles.readmore1}><h2>Click me!</h2></Link> <br />
           </p>
         </main>
