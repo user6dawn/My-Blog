@@ -62,15 +62,15 @@ export default function About() {
         </header>
 
         <main className={styles.container}> <br /> <br /> <br /> <br /> <br />
-          <h1 className={styles.contents}>About Us</h1>
+          <h1 className={styles.contents}><h3>About Us</h3></h1>
           <div className={styles.contents} style={{ textAlign: "left" }}>
           <h2> Welcome to <strong>The Balance Code Alliance</strong>. </h2>
             <p>
              <br />
               In a world filled with chaos, confusion, and broken systems, The Balance Code Alliance is a movement dedicated to restoring harmony, order, and purpose through the wisdom of Natural Law. <br /><br />
 
-              We believe that true peace, strength, and prosperity come when we align our spiritual, physical, and relational lives with the divine structure that governs all things. By understanding and applying these timeless principles, you can experience:
-              <br />
+              We believe that true peace, strength, and prosperity come when we align our spiritual, physical, and relational lives with the divine structure that governs all things. By understanding and applying these timeless principles, <strong>you can experience:</strong>
+              <br /> <br />
               ✅ Healing from emotional, spiritual, and relational struggles <br />
               ✅ Clarity in leadership, purpose, and decision-making <br />
               ✅ Stronger, more fulfilling relationships built on divine order <br />
@@ -84,11 +84,12 @@ export default function About() {
               This is more than just a movement—it is a return to the foundation of life itself.
 
               <br /><br />
-              🔥 Are you ready to rediscover balance, purpose, and prosperity?
+              
             </p>
           </div>
 
           <p className={styles.content}>
+          🔥 Are you ready to rediscover balance, purpose, and prosperity? <br />
             Join the movement today. <Link href="/contact" className={styles.readmore1}><h2>Click me!</h2></Link> <br />
           </p>
         </main>
