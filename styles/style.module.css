@@ -616,7 +616,6 @@
 /* Ad Space Styles */
 .adContainer {
   width: 20rem;
-  max-height: 10rem;
   justify-self: center;
   padding: 0.5rem;
   border-color: rgb(230, 69, 69);
@@ -624,7 +623,6 @@
 
 .adContent {
   max-width: 20rem;
-  max-height: 3rem;
   background-color: #d6d6d6;
   border-radius: 8px;
   text-align: center;
@@ -638,8 +636,7 @@
 }
 
 .adImage {
-  width: 100%;
-  max-height: 3rem;
+
   border-radius: 4px;
 }
 
