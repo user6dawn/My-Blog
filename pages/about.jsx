@@ -61,7 +61,7 @@ export default function About() {
           )}
         </header>
 
-        <main className={styles.container}> <br /> <br /> <br />
+        <main className={styles.container}> <br /> <br /> <br /> <br /> <br />
           <h1 className={styles.contents}>About Us</h1>
           <div className={styles.contents}>
             <p>
