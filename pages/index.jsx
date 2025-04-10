@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "../lib/supabase";
+import { Analytics } from "@vercel/analytics/react"
 import styles from "../styles/style.module.css";
 
 export async function getServerSideProps() {
