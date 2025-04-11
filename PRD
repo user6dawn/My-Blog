@@ -1,12 +1,17 @@
 PRD
 
-a blog site with a home screen that calls the supabase db "posts" table and displays the content of the table on the home screen of the page
-it has a like and share button at the bottom. 
+a blog site with a home screen that calls the supabase db "posts", "ads" and "comments" table and displays the content of the tables on the home screen of the page asides the comments page which is diplay under each post. the website has a like comment and share button.
 
-homepage - brief of the blog containing the title of the blog, an image, detail brief and like and share button
-blog details - title  of blog, image and details and like and share button 
-admin index - login
-admin dashboard - 3 entry fields, title, details and the upload image.
+pages
+homepage - brief of the blog containing the title of the blog, an image, detail brief and like and share button including the ads fetched from the db.
+
+blog details - title  of blog, image and details and like and share button a commetns page underneath concerning the comments for each page and the ads between comments and the content if the blog page
+
+admin index - a login page 
+
+admin dashboard - 3 entry fields for the, title, details and the upload image. with features like edit and delte for each blog
+
+add ads - 4 entiry fields for the add image, link url, title and content for each ad and features like edd and delete ads
 
 
 fetched and where:
