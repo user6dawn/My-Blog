@@ -214,12 +214,32 @@ export default function BlogPost({ post, initialComments, ads }) {
 
           <div className={styles.detailsButtonRow}>
             <div className={styles.likeshare}>
-              <button onClick={likePost} disabled={liked} className={liked ? styles.liked : styles.liked}>
-                👍 {likes}
-              </button>
-              <button onClick={sharePost} disabled={isSharing} className={styles.share}>
-                {isSharing ? "Sharing..." : "🔗"}
-              </button>
+            <button
+              onClick={likePost}
+              disabled={liked}
+              className={styles.liked}
+            >
+              <img
+                src={liked ? "/liked.svg" : "/notliked.svg"}
+                alt="Like"
+                width={20}
+                height={20}
+              />{" "}
+              {likes}
+            </button>
+
+            <button
+              onClick={() => sharePost(post.title, post.id)}
+              disabled={isSharing}
+              className={isSharing ? styles.sharing : styles.share}
+              aria-label={`Share ${post.title}`}
+            >
+              {isSharing ? (
+                "sharing"
+              ) : (
+                <img src="/share.svg" alt="Sharing..." width={20} height={20} />
+              )}
+            </button>
             </div>
             <button onClick={() => router.push("/")} className={styles.backButton}>
               Go Back Home
