@@ -3,6 +3,7 @@ import Link from "next/link";
 import { supabase } from "../lib/supabase";
 import { Analytics } from "@vercel/analytics/react"
 import styles from "../styles/style.module.css";
+import Head from 'next/head';
 
 export async function getServerSideProps() {
   try {
@@ -146,6 +147,13 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
   };
 
   return (
+    <Head>
+  <title>The Balance Code Alliance</title>
+  <meta name="description" content="Restoring Order. Unlocking Peace. Empowering Lives. Explore insightful blogs and articles by Onyxe Nnaemeka." />
+  <meta name="robots" content="index, follow" />
+  <meta name="google-site-verification" content="QQ-oix7EJcaWi6X6perTvyv7J8JX9PVnQ_jI5GTBWBY" />
+
+    
     <div className={styles.bg}>
       <div className={styles.container}>
         {/* Header */}
@@ -269,6 +277,6 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
         <Analytics />
       </div>
     </div>
-    
+  </Head>
   );
 }
