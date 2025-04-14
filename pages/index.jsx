@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "../lib/supabase";
+import { Analytics } from "@vercel/analytics/react"
 import styles from "../styles/style.module.css";
 
 export async function getServerSideProps() {
@@ -198,23 +199,34 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
                       <p className={styles.description}>{post.content.slice(0, 200)}...</p>
                       <div className={styles.bottomRow}>
                         <div className={styles.buttonRow}>
-                          <button
-                            onClick={() => likePost(post.id, post.likes)}
-                            disabled={likedPosts[post.id]}
-                            className={likedPosts[post.id] ? styles.liked : styles.liked}
-                            aria-label={`Like ${post.title}`}
-                          >
-                            👍{post.likes || 0}
-                          </button>
+                        <button
+                          onClick={() => likePost(post.id, post.likes)}
+                          disabled={likedPosts[post.id]}
+                          className={styles.liked}
+                          aria-label={`Like ${post.title}`}
+                        >
+                          <img
+                            src={likedPosts[post.id] ? "/liked.svg" : "/notliked.svg"}
+                            alt="Like"
+                            width={20}
+                            height={20}
+                          />{" "}
+                          {post.likes || 0}
+                        </button>
+
                           <button
                             onClick={() => sharePost(post.title, post.id)}
                             disabled={isSharing}
                             className={isSharing ? styles.sharing : styles.share}
                             aria-label={`Share ${post.title}`}
                           >
-                            {isSharing ? "Sharing..." : "🔗"}
+                            {isSharing ? (
+                              "sharing"
+                            ) : (
+                              <img src="/share.svg" alt="Sharing..." width={20} height={20} />
+                            )}
                           </button>
-                          <Link href={`/post/${post.id}`} className={styles.commentButton}>💬</Link>
+                          <Link href={`/post/${post.id}`} className={styles.commentButton}><img src="/comment.svg" alt="Sharing..." width={20} height={20} /></Link>
                         </div>
                         <button className={styles.readmore}>
                           <Link href={`/post/${post.id}`} className={styles.readmore}>Read More...</Link>
@@ -254,7 +266,9 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
         <footer className={styles.footer}>
         Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}
         </footer>
+        <Analytics />
       </div>
     </div>
+    
   );
 }

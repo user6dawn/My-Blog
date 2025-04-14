@@ -203,21 +203,43 @@ export default function BlogPost({ post, initialComments, ads }) {
 
           <h1 className={styles.detailsTitle}>{post.title}</h1>
 
-          <p 
-            className={styles.detailsDescription} 
-            dangerouslySetInnerHTML={{
-              __html: post.content.replace(/\n/g, '<br />').replace(/ {2,}/g, ' &nbsp;')
-            }} 
-          />
+          <div style={{ textAlign: "left" }}>
+            <p
+              className={styles.detailsDescription}
+              dangerouslySetInnerHTML={{
+                __html: post.content.replace(/\n/g, '<br />').replace(/ {2,}/g, ' &nbsp;')
+              }}
+            />
+          </div>
 
           <div className={styles.detailsButtonRow}>
             <div className={styles.likeshare}>
-              <button onClick={likePost} disabled={liked} className={liked ? styles.liked : styles.liked}>
-                👍 {likes}
-              </button>
-              <button onClick={sharePost} disabled={isSharing} className={styles.share}>
-                {isSharing ? "Sharing..." : "🔗"}
-              </button>
+            <button
+              onClick={likePost}
+              disabled={liked}
+              className={styles.liked}
+            >
+              <img
+                src={liked ? "/liked.svg" : "/notliked.svg"}
+                alt="Like"
+                width={20}
+                height={20}
+              />{" "}
+              {likes}
+            </button>
+
+            <button
+              onClick={() => sharePost(post.title, post.id)}
+              disabled={isSharing}
+              className={isSharing ? styles.sharing : styles.share}
+              aria-label={`Share ${post.title}`}
+            >
+              {isSharing ? (
+                "sharing"
+              ) : (
+                <img src="/share.svg" alt="Sharing..." width={20} height={20} />
+              )}
+            </button>
             </div>
             <button onClick={() => router.push("/")} className={styles.backButton}>
               Go Back Home
@@ -243,7 +265,7 @@ export default function BlogPost({ post, initialComments, ads }) {
           )}
 
           {/* Comment Section */}
-          <div className={styles.commentSection}>
+          <div className={styles.commentSection} style={{ textAlign: "left" }}>
             <h2 className={styles.commentTitle}>Leave a Comment</h2>
             <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
               <input
