@@ -355,6 +355,26 @@
   background-color: #1C2541;
 }
 
+.commentReplySubmitButton {
+  font-family: 'montserrat';
+  align-self: flex-start;
+  margin-bottom: 5px;
+  padding: 5px 10px;
+  background-color: #1C2541;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.commentReplySubmitButton :hover {
+  color: #1C2541;
+  background-color: #ffffff;
+}
+
+
+
 .commentsList {
   font-family: 'montserrat';
   display: flex;
@@ -426,7 +446,6 @@
 .detailsImage {
   width: 100%;
   height: auto;
-  max-height: 500px;
   object-fit: cover;
   border-radius: 8px;
 }

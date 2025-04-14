@@ -6,7 +6,6 @@ import styles from "../../styles/style.module.css";
 
 export async function getServerSideProps({ params }) {
   try {
-    // Get the post
     const { data: postData, error: postError } = await supabase
       .from("posts")
       .select("id, title, content, image_url, likes, created_at")
@@ -15,14 +14,13 @@ export async function getServerSideProps({ params }) {
 
     if (postError) throw postError;
 
-    // Get comments for this post
-    const { data: commentData, error: commentError } = await supabase
-      .from("comments")
-      .select("id, name, comment, created_at")
-      .eq("post_id", params.id)
-      .order("created_at", { ascending: false });
+const { data: commentData, error: commentError } = await supabase
+  .from("comments")
+  .select("id, name, comment, created_at, parent_id, likes")
+  .eq("post_id", params.id)
+  .order("created_at", { ascending: true });
 
-    // Get active ads
+
     const { data: adsData, error: adsError } = await supabase
       .from("ads")
       .select("*")
@@ -49,30 +47,29 @@ export default function BlogPost({ post, initialComments, ads }) {
   const [liked, setLiked] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const [comments, setComments] = useState(initialComments);
+  const [comments, setComments] = useState([]);
   const [name, setName] = useState("");
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
-  const toggleNav = () => {
-    setIsNavOpen(!isNavOpen);
-  };
-
-  const closeNav = () => {
-    setIsNavOpen(false);
+  const nestComments = (comments) => {
+    const map = {};
+    comments.forEach((c) => (map[c.id] = { ...c, replies: [] }));
+    const roots = [];
+    comments.forEach((c) => {
+      if (c.parent_id) {
+        map[c.parent_id]?.replies.push(map[c.id]);
+      } else {
+        roots.push(map[c.id]);
+      }
+    });
+    return roots;
   };
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isNavOpen && !event.target.closest(`.${styles.nav}`) && !event.target.closest(`.${styles.navToggle}`)) {
-        closeNav();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isNavOpen]);
+    setComments(nestComments(initialComments));
+  }, [initialComments]);
 
   useEffect(() => {
     const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || {};
@@ -99,21 +96,11 @@ export default function BlogPost({ post, initialComments, ads }) {
 
   const sharePost = async () => {
     const url = `${window.location.origin}/post/${post.id}`;
-
-    if (!navigator.share) {
-      alert("Sharing is not supported in your browser.");
-      return;
-    }
-
-    if (isSharing) {
-      console.warn("A share action is already in progress.");
-      return;
-    }
-
+    if (!navigator.share) return alert("Sharing not supported.");
+    if (isSharing) return;
     try {
       setIsSharing(true);
       await navigator.share({ title: post.title, url });
-      console.log("Blog shared successfully!");
     } catch (error) {
       console.error("Error sharing:", error);
     } finally {
@@ -121,9 +108,11 @@ export default function BlogPost({ post, initialComments, ads }) {
     }
   };
 
-  const handleCommentSubmit = async (e) => {
+  const handleCommentSubmit = async (e, parentId = null, replyText = null, replyName = null, setReplying = null) => {
     e.preventDefault();
-    if (!name.trim() || !comment.trim()) return;
+    const inputName = replyName || name;
+    const inputComment = replyText || comment;
+    if (!inputName.trim() || !inputComment.trim()) return;
 
     setIsSubmitting(true);
     try {
@@ -132,17 +121,22 @@ export default function BlogPost({ post, initialComments, ads }) {
         .insert([
           {
             post_id: post.id,
-            name: name.trim(),
-            comment: comment.trim(),
+            name: inputName.trim(),
+            comment: inputComment.trim(),
+            parent_id: parentId,
           },
         ])
         .select();
 
       if (error) throw error;
 
-      setComments([data[0], ...comments]);
-      setName("");
-      setComment("");
+      setComments((prev) => nestComments([data[0], ...flattenComments(prev)]));
+      if (!parentId) {
+        setName("");
+        setComment("");
+      } else {
+        setReplying(false);
+      }
     } catch (error) {
       console.error("Error submitting comment:", error);
     } finally {
@@ -150,109 +144,197 @@ export default function BlogPost({ post, initialComments, ads }) {
     }
   };
 
-  // Get random ad
+  const flattenComments = (comments) => {
+    let flat = [];
+    comments.forEach((c) => {
+      flat.push({ ...c, replies: [] });
+      if (c.replies?.length) {
+        flat = flat.concat(flattenComments(c.replies));
+      }
+    });
+    return flat;
+  };
+
+  const likeComment = async (commentId) => {
+    const likedComments = JSON.parse(localStorage.getItem("likedComments")) || {};
+    if (likedComments[commentId]) return; // already liked
+  
+    const { data, error } = await supabase.rpc("increment_comment_likes", { comment_id_input: commentId });
+  
+    if (!error) {
+      const updated = flattenComments(comments).map((c) =>
+        c.id === commentId ? { ...c, likes: c.likes + 1 } : c
+      );
+      setComments(nestComments(updated));
+  
+      localStorage.setItem(
+        "likedComments",
+        JSON.stringify({ ...likedComments, [commentId]: true })
+      );
+    } else {
+      console.error("Error liking comment:", error);
+    }
+  };
+  
+
   const getRandomAd = () => {
     if (!ads || ads.length === 0) return null;
-    const betweenPostsAds = ads.filter(ad => ad?.position === 'between_posts');
-    return betweenPostsAds.length > 0 
-      ? betweenPostsAds[Math.floor(Math.random() * betweenPostsAds.length)] 
+    const betweenPostsAds = ads.filter((ad) => ad?.position === "between_posts");
+    return betweenPostsAds.length > 0
+      ? betweenPostsAds[Math.floor(Math.random() * betweenPostsAds.length)]
       : null;
   };
+
+  const Comment = ({ comment, level = 0 }) => {
+    const [showReplyBox, setShowReplyBox] = useState(false);
+    const [replyText, setReplyText] = useState("");
+    const [replyName, setReplyName] = useState("");
+
+      return (
+        <div style={{ marginLeft: `${level * 20}px`, marginTop: "1rem", borderLeft: level ? "2px solid #ccc" : "none", paddingLeft: level ? "1rem" : "0" }}>
+          <div className={styles.commentInput}>
+            <h3 className={styles.commentName}>{comment.name}</h3>
+            <p className={styles.commentText}>{comment.comment}</p>
+            <div className="text-sm text-gray-600 flex gap-3 mb-2">
+              <button
+                onClick={() => likeComment(comment.id)}
+                disabled={localStorage.getItem("likedComments")?.includes(comment.id)}
+                className={styles.liked}
+              >
+                <img
+                  src={
+                    JSON.parse(localStorage.getItem("likedComments") || "{}")[comment.id]
+                      ? "/liked.svg"
+                      : "/notliked.svg"
+                  }
+                  alt="Like"
+                  width={16}
+                  height={16}
+                />
+                {comment.likes}
+              </button>
+
+              <button
+                onClick={() => setShowReplyBox(!showReplyBox)}
+                className={styles.commentReplySubmitButton}
+              >
+                {showReplyBox ? "cancel" : "Reply"}
+              </button>
+            </div>
+    
+            {showReplyBox && (
+              <form onSubmit={(e) => handleCommentSubmit(e, comment.id, replyText, replyName, setShowReplyBox)} className={styles.commentForm}>
+                <input
+                  type="text"
+                  value={replyName}
+                  onChange={(e) => setReplyName(e.target.value)}
+                  placeholder="Your name"
+                  className={styles.commentInput}
+                  required
+                />
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Your reply"
+                  className={styles.commentTextarea}
+                  required
+                />
+                <button type="submit" className={styles.commentReplySubmitButton}>
+                  {isSubmitting ? "Replying..." : "Post Reply"}
+                </button>
+              </form>
+            )}
+          </div>
+    
+          {comment.replies &&
+            comment.replies.map((reply) => (
+              <Comment key={reply.id} comment={reply} level={level + 1} />
+            ))}
+        </div>
+      );
+    };
 
   return (
     <div className={styles.bg}>
       <div className={styles.container}>
-        {/* Header with Navigation */}
         <header className={styles.header}>
           <div className={styles.headerLeft}>
             <span className={styles.headerTitleLarge}>The Balance Code Alliance</span>
-            <span className={styles.headerSubtitleSmall}>Restoring Order.  Unlocking Peace.  Empowering Lives</span>
+            <span className={styles.headerSubtitleSmall}>
+              Restoring Order. Unlocking Peace. Empowering Lives
+            </span>
           </div>
-
-          <button 
-            className={styles.navToggle} 
-            onClick={toggleNav}
+          <button
+            className={styles.navToggle}
+            onClick={() => setIsNavOpen(!isNavOpen)}
             aria-label={isNavOpen ? "Close menu" : "Open menu"}
             aria-expanded={isNavOpen}
           >
-            {isNavOpen ? '✕' : '☰'}
+            {isNavOpen ? "✕" : "☰"}
           </button>
-
-          {/* Navigation Menu */}
           {isNavOpen && (
             <>
-              <nav className={`${styles.nav} ${isNavOpen ? styles.open : ''}`}>
-                <Link href="/" onClick={closeNav} className={styles.navLink}>Home</Link>
-                <Link href="/about" onClick={closeNav} className={styles.navLink}>About</Link>
-                <Link href="/contact" onClick={closeNav} className={styles.navLink}>Contact</Link>
+              <nav className={`${styles.nav} ${isNavOpen ? styles.open : ""}`}>
+                <Link href="/" onClick={() => setIsNavOpen(false)} className={styles.navLink}>
+                  Home
+                </Link>
+                <Link href="/about" onClick={() => setIsNavOpen(false)} className={styles.navLink}>
+                  About
+                </Link>
+                <Link href="/contact" onClick={() => setIsNavOpen(false)} className={styles.navLink}>
+                  Contact
+                </Link>
               </nav>
-              <div 
-                className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`} 
-                onClick={closeNav}
-                aria-hidden="true"
-              />
+              <div className={`${styles.navOverlay} ${isNavOpen ? styles.open : ""}`} onClick={() => setIsNavOpen(false)} />
             </>
           )}
         </header>
 
-        {/* Blog Post Content */}
         <div className={styles.detailsCard}>
-        {post.image_url && (
+          {post.image_url && (
             <img src={post.image_url} alt={post.title} className={styles.detailsImage} />
           )}
-
           <h1 className={styles.detailsTitle}>{post.title}</h1>
-
           <div style={{ textAlign: "left" }}>
             <p
               className={styles.detailsDescription}
               dangerouslySetInnerHTML={{
-                __html: post.content.replace(/\n/g, '<br />').replace(/ {2,}/g, ' &nbsp;')
+                __html: post.content.replace(/\n/g, "<br />").replace(/ {2,}/g, " &nbsp;"),
               }}
             />
           </div>
 
           <div className={styles.detailsButtonRow}>
             <div className={styles.likeshare}>
-            <button
-              onClick={likePost}
-              disabled={liked}
-              className={styles.liked}
-            >
-              <img
-                src={liked ? "/liked.svg" : "/notliked.svg"}
-                alt="Like"
-                width={20}
-                height={20}
-              />{" "}
-              {likes}
-            </button>
-
-            <button
-              onClick={() => sharePost(post.title, post.id)}
-              disabled={isSharing}
-              className={isSharing ? styles.sharing : styles.share}
-              aria-label={`Share ${post.title}`}
-            >
-              {isSharing ? (
-                "sharing"
-              ) : (
-                <img src="/share.svg" alt="Sharing..." width={20} height={20} />
-              )}
-            </button>
+              <button onClick={likePost} disabled={liked} className={styles.liked}>
+                <img
+                  src={liked ? "/liked.svg" : "/notliked.svg"}
+                  alt="Like"
+                  width={20}
+                  height={20}
+                />{" "}
+                {likes}
+              </button>
+              <button
+                onClick={() => sharePost(post.title, post.id)}
+                disabled={isSharing}
+                className={isSharing ? styles.sharing : styles.share}
+                aria-label={`Share ${post.title}`}
+              >
+                {isSharing ? "sharing" : <img src="/share.svg" alt="Sharing..." width={20} height={20} />}
+              </button>
             </div>
             <button onClick={() => router.push("/")} className={styles.backButton}>
               Go Back Home
             </button>
           </div>
 
-          {/* Ad between content and comment section */}
           {getRandomAd() && (
             <div className={styles.adContainer}>
               <div className={styles.adContent}>
-                <a 
-                  href={getRandomAd().link_url} 
-                  target="_blank" 
+                <a
+                  href={getRandomAd().link_url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => trackAdClick(getRandomAd().id)}
                 >
@@ -264,7 +346,6 @@ export default function BlogPost({ post, initialComments, ads }) {
             </div>
           )}
 
-          {/* Comment Section */}
           <div className={styles.commentSection} style={{ textAlign: "left" }}>
             <h2 className={styles.commentTitle}>Leave a Comment</h2>
             <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
@@ -283,8 +364,8 @@ export default function BlogPost({ post, initialComments, ads }) {
                 className={styles.commentTextarea}
                 required
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={isSubmitting}
                 className={styles.commentSubmitButton}
               >
@@ -292,19 +373,14 @@ export default function BlogPost({ post, initialComments, ads }) {
               </button>
             </form>
 
-            {/* Comments List */}
             <div className={styles.commentsList}>
-              <h2 className={styles.commentTitle}>Comments ({comments.length})</h2>
+              <h2 className={styles.commentTitle}>Comments ({flattenComments(comments).length})</h2>
               {comments.length === 0 ? (
                 <p className={styles.noComments}>No comments yet. Be the first to comment!</p>
               ) : (
-                comments.map((comment) => (
-                  <div key={comment.id} className={styles.commentItem}>
-                    <h3 className={styles.commentName}>{comment.name}</h3>
-                    <p className={styles.commentText}>{comment.comment}</p>
-                  </div>
-                ))
+                comments.map((comment) => <Comment key={comment.id} comment={comment} level={0} />)
               )}
+
             </div>
           </div>
         </div>
