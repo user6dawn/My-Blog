@@ -77,7 +77,7 @@ export default function Contact() {
         </main>
 
         <footer className={styles.footer}>
-        Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}
+        © {new Date().getFullYear()} Onyxe Nnaemeka Blog. All rights reserved.
         </footer>
       </div>
     </div>

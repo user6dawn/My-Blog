@@ -297,7 +297,7 @@ export default function BlogPost({ post, initialComments, ads }) {
           <h1 className={styles.detailsTitle} 
           dangerouslySetInnerHTML={{ __html: post.title }} 
             />
-            
+
           <div style={{ textAlign: "left" }}>
             <p
                 className={styles.detailsDescription}
@@ -382,10 +382,12 @@ export default function BlogPost({ post, initialComments, ads }) {
               ) : (
                 comments.map((comment) => <Comment key={comment.id} comment={comment} level={0} />)
               )}
-
             </div>
           </div>
         </div>
+          <footer className={styles.footer}>
+          © {new Date().getFullYear()} Onyxe Nnaemeka Blog. All rights reserved.
+          </footer>
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import Head from 'next/head';
 
 export async function getServerSideProps() {
   try {
+    // Fetch posts
     const { data: postsData, error: postsError } = await supabase
       .from("posts")
       .select("id, title, content, image_url, likes, created_at")
@@ -14,6 +15,7 @@ export async function getServerSideProps() {
 
     if (postsError) throw postsError;
 
+    // Fetch ads
     const { data: adsData, error: adsError } = await supabase
       .from("ads")
       .select("*")
@@ -22,12 +24,32 @@ export async function getServerSideProps() {
 
     if (adsError) throw adsError;
 
+    // Fetch all comments with post_id only
+    const { data: commentData, error: commentError } = await supabase
+      .from("comments")
+      .select("post_id");
+
+    if (commentError) throw commentError;
+
+    // Count comments per post
+    const commentMap = {};
+    commentData.forEach(({ post_id }) => {
+      commentMap[post_id] = (commentMap[post_id] || 0) + 1;
+    });
+
+    // Merge comment count into each post
+    const postsWithComments = postsData.map(post => ({
+      ...post,
+      comment_count: commentMap[post.id] || 0
+    }));
+
     return { 
       props: { 
-        initialPosts: postsData || [],
+        initialPosts: postsWithComments,
         initialAds: adsData || []
       } 
     };
+
   } catch (error) {
     console.error("Error fetching data:", error);
     return { 
@@ -38,6 +60,7 @@ export async function getServerSideProps() {
     };
   }
 }
+
 
 export default function Home({ initialPosts = [], initialAds = [] }) {
   const [posts, setPosts] = useState(initialPosts);
@@ -134,6 +157,7 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
       : null;
   };
 
+
   return (
     <>
       <Head>
@@ -212,8 +236,8 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
                                 alt="Like"
                                 width={20}
                                 height={20}
-                              />{" "}
-                              {post.likes || 0}
+                              />{" "}{post.likes || 0}
+                              
                             </button>
 
                             <button
@@ -227,7 +251,12 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
 
                             <Link href={`/post/${post.id}`} className={styles.commentButton}>
                               <img src="/comment.svg" alt="Comments" width={20} height={20} />
+                              <span style={{ marginLeft: "5px", fontSize: "16px", color: "#000000" }}>
+                                {post.comment_count || 0}
+                              </span>
                             </Link>
+
+
                           </div>
 
                           <Link href={`/post/${post.id}`} className={styles.readmore}>
@@ -269,7 +298,7 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
           <br />
 
           <footer className={styles.footer}>
-            Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}
+          © {new Date().getFullYear()} Onyxe Nnaemeka Blog. All rights reserved.
           </footer>
           <Analytics />
         </div>
