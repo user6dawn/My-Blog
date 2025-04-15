@@ -324,7 +324,7 @@ export default function BlogPost({ post, initialComments, ads }) {
                 {isSharing ? "sharing" : <img src="/share.svg" alt="Sharing..." width={20} height={20} />}
               </button>
             </div>
-            <button onClick={() => router.push("/")} className={styles.backButton}>
+            <button onClick={() => (window.location.href = "/")} className={styles.backButton}>
               Go Back Home
             </button>
           </div>
