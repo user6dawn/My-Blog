@@ -136,7 +136,9 @@
 
 .formTextarea {
   min-height: 200px;
+  max-height: 400px;
   resize: vertical;
+  overflow-y: auto;
 }
 
 /* File Upload */
@@ -593,7 +595,7 @@
   padding: 1rem;
   overflow: auto;
 }
- 
+
 .modalContent {
   background-color: #fff;
   border-radius: 12px;

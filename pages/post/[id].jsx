@@ -294,7 +294,10 @@ export default function BlogPost({ post, initialComments, ads }) {
           {post.image_url && (
             <img src={post.image_url} alt={post.title} className={styles.detailsImage} />
           )}
-          <h1 className={styles.detailsTitle}>{post.title}</h1>
+          <h1 className={styles.detailsTitle} 
+          dangerouslySetInnerHTML={{ __html: post.title }} 
+            />
+            
           <div style={{ textAlign: "left" }}>
             <p
                 className={styles.detailsDescription}

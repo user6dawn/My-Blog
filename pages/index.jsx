@@ -189,7 +189,11 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
                     <div className={styles.card}>
                       {post.image_url && <img src={post.image_url} alt={post.title} className={styles.image} />}
                       <div className={styles.content}>
-                        <h2 className={styles.blog_title}>{post.title}</h2>
+
+                        <h2 className={styles.blog_title}
+                        dangerouslySetInnerHTML={{ __html: post.title }}
+                        />
+
                         <p className={styles.description}
                         dangerouslySetInnerHTML={{
                           __html: post.content.slice(0, 200) + 

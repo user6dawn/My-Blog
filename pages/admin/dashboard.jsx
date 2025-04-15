@@ -6,6 +6,9 @@ import styles from "./styles/style.module.css";
 import dynamic from "next/dynamic";
 import "react-quill/dist/quill.snow.css";
 
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+
+
 export default function Dashboard() {
   const router = useRouter();
   const [title, setTitle] = useState("");
@@ -25,6 +28,7 @@ export default function Dashboard() {
   const [editImage, setEditImage] = useState(null);
   const [editImagePreview, setEditImagePreview] = useState(null);
 
+
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
@@ -43,6 +47,7 @@ export default function Dashboard() {
     };
   
     checkAuth();
+    fetchPosts();
   }, []);
   
 
@@ -206,20 +211,20 @@ export default function Dashboard() {
     }
   };
   // Dynamically import ReactQuill to avoid SSR issues in Next.js
-  const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
   const quillModules = {
     toolbar: [
       [{ header: [1, 2, 3, false] }],
       ["bold", "italic", "underline"],
       [{ size: [] }],
+      [{ align: [] }], 
       ["link"],
       ["clean"]
     ]
   };
 
   const quillFormats = [
-    "header", "bold", "italic", "underline", "size", "link"
+    "header", "bold", "italic", "underline", "size",  "align", "link"
   ];
 
   return (
@@ -258,15 +263,18 @@ export default function Dashboard() {
             </div>
 
             <form onSubmit={handleSubmit} className={styles.postForm}>
-              <input
-                type="text"
-                placeholder="Post Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className={styles.formInput}
-              />
+              <ReactQuill
+              value={title}
+              onChange={setTitle}
+              modules={quillModules}
+              formats={quillFormats}
+              placeholder="Enter post title..."
+              className={styles.formInput}
+            />
+
               <ReactQuill
                 value={content}
+                placeholder="Post content"
                 onChange={setContent}
                 modules={quillModules}
                 formats={quillFormats}

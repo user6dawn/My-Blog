@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+
 /* ✅ Page Container - KEPT */
-.bg {
-
-}
-
 .container {
   max-width: 900px;
   margin: 0 auto;
@@ -15,8 +15,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: 'montserrat';
-  width: 100%;
   height: 75px;
   background-color: #0B132B;
   color: white;
@@ -55,7 +53,7 @@
 }
 
 .header1 {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   color: rgb(216, 216, 216);
   text-align: left;
   font-size: 10px;
@@ -151,7 +149,7 @@
 
 /* ✅ Full-width Footer - KEPT */
 .footer {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   width: 100%;
   background-color: #0B132B;
   color: rgb(157, 157, 157);
@@ -188,7 +186,7 @@
 /* ✅ Blog Content - KEPT */
 .content {
   margin-top: 20px;
-  font-family: 'poppins';
+  font-family: 'Poppins', sans-serif;
   padding: 10px;
   text-align: center;
   font-weight: bold;
@@ -196,29 +194,28 @@
 
 .contents {
   
-  font-family: 'poppins';
+  font-family: 'Poppins', sans-serif;
   color: #1a1a1a;
   text-align: center;
   font-weight: 400;
 }
 
 .titles {
-  font-family: 'poppins';
+  font-family: 'Poppins', sans-serif;
   padding: 10px;
   font-weight: bold;
   justify-content: left;
 }
 
 .blog_title {
-  font-family: 'poppins';
+  font-family: 'Poppins', sans-serif;
   font-size: 20px;
-  font-weight: bold;
 }
 
 .description {
   margin-bottom: 20px;
   justify-content: center;  
-  font-family: 'poppins';
+  font-family: 'Poppins', sans-serif;
   font-weight: 400;
   font-weight: medium;
   color: rgb(0, 0, 0);
@@ -227,7 +224,7 @@
 
 /* ✅ Bottom Row (Read More + Buttons) - KEPT */
 .bottomRow {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -237,7 +234,7 @@
 }
 
 .readmore {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   font-weight: 700;
   color: white !important;
   background-color: #1C2541;
@@ -252,7 +249,7 @@
 }
 
 .readmore1 {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   color: rgb(0, 0, 0);
   font-weight: bold;
   color: black;
@@ -264,7 +261,7 @@
 
 /* ✅ Buttons Row - KEPT */
 .buttonRow {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   display: flex;
   gap: 10px;
   gap: 10px;
@@ -273,7 +270,7 @@
 
 /* ✅ Like, Share Buttons - KEPT */
 .liked, .share {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   padding: 6px 8px;
   font-size: 15px;
   border-radius: 5px;
@@ -294,7 +291,7 @@
   font-size: 15px;
   cursor: pointer;
   transition: background-color 0.3s;
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   font-weight: 500;
   text-align: center;
 
@@ -306,7 +303,7 @@
 
 /* Comments Section */
 .commentsSection {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   margin-top: 40px;
   padding-top: 20px;
   border-top: 1px solid #eee;
@@ -320,12 +317,12 @@
 }
 
 .commentTitle{
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
 }
 
 .commentInput,
 .commentTextarea {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
 
   padding: 12px;
   border: 1px solid #ddd;
@@ -339,7 +336,7 @@
 }
 
 .commentSubmitButton {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   align-self: flex-start;
   padding: 10px 20px;
   background-color: #1C2541;
@@ -356,7 +353,7 @@
 }
 
 .commentReplySubmitButton {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   align-self: flex-start;
   margin-bottom: 5px;
   padding: 5px 10px;
@@ -376,14 +373,14 @@
 
 
 .commentsList {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
 .comment {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   padding: 15px;
   background: #f9f9f9;
   border-radius: 4px;
@@ -401,7 +398,7 @@
 }
 
 .liked {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   font-size: 15px;
   background-color: white;
   color: #000000;
@@ -420,7 +417,7 @@
 }
 
 .share {
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
   color: white !important;
   font-size: 15px;
   font-weight: 500;
@@ -435,7 +432,7 @@
 /* ✅ Blog Post Container - KEPT */
 .detailsCard {
   border-color: #1a1a1a;
-  font-family: 'poppins';
+  font-family: 'Poppins', sans-serif;
   max-width: 800px;
   margin: auto;
   padding: 120px 20px 80px;
@@ -452,7 +449,7 @@
 
 /* ✅ Blog Title - KEPT */
 .detailsTitle {
-  font-family: 'poppins';
+  font-family: 'Poppins', sans-serif;
   font-size: 24px;
   font-weight: bold;
   margin: 20px 0;
@@ -460,7 +457,7 @@
 
 /* ✅ Blog Description - KEPT */
 .detailsDescription {
-  font-family: 'poppins';
+  font-family: 'Poppins', sans-serif;
   font-size: 18px;
   line-height: 1.1;
   color: #333;
@@ -472,7 +469,7 @@
 /* ✅ Back Home Button - KEPT */
 .backButton {
   border-radius: 10px;
-  font-family: 'montserrat';
+  font-family: 'Montserrat', sans-serif;
 
   font-size: 15px;
   transition: background-color 0.3s;
@@ -507,7 +504,7 @@
 /* ✅ Responsive Design - KEPT */
 @media (max-width: 768px) {
   .footer, .header {
-    font-family: 'montserrat';
+    font-family: 'Montserrat', sans-serif;
     font-size: 16px;
     padding: 10px 0;
   }
@@ -532,7 +529,7 @@
 
 .postdetails{
   margin-top: 40px;
-  font-family: 'poppins';
+  font-family: 'Poppins', sans-serif;
   padding-top: 40px;
   text-align: center;
   font-weight: bold;
