@@ -297,11 +297,10 @@ export default function BlogPost({ post, initialComments, ads }) {
           <h1 className={styles.detailsTitle}>{post.title}</h1>
           <div style={{ textAlign: "left" }}>
             <p
-              className={styles.detailsDescription}
-              dangerouslySetInnerHTML={{
-                __html: post.content.replace(/\n/g, "<br />").replace(/ {2,}/g, " &nbsp;"),
-              }}
-            />
+                className={styles.detailsDescription}
+                style={{ textAlign: "left" }}
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
           </div>
 
           <div className={styles.detailsButtonRow}>

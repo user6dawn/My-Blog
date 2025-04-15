@@ -190,7 +190,11 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
                       {post.image_url && <img src={post.image_url} alt={post.title} className={styles.image} />}
                       <div className={styles.content}>
                         <h2 className={styles.blog_title}>{post.title}</h2>
-                        <p className={styles.description}>{post.content.slice(0, 200)}...</p>
+                        <p className={styles.description}
+                        dangerouslySetInnerHTML={{
+                          __html: post.content.slice(0, 200) + 
+                        (post.length > 200 ? "..." : "")}}
+                        /> 
                         <div className={styles.bottomRow}>
                           <div className={styles.buttonRow}>
                             <button

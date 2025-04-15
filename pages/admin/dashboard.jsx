@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import styles from "./styles/style.module.css";
+import dynamic from "next/dynamic";
+import "react-quill/dist/quill.snow.css";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -25,13 +27,24 @@ export default function Dashboard() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) router.push("/admin");
-      setUser(session?.user);
+      const { data: { session }, error } = await supabase.auth.getSession();
+  
+      if (!session || error) {
+        // Try to refresh token
+        const { data: refreshedSession, error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError || !refreshedSession.session) {
+          router.push("/admin"); // redirect to login if refresh fails
+          return;
+        }
+        setUser(refreshedSession.session.user);
+      } else {
+        setUser(session.user);
+      }
     };
+  
     checkAuth();
-    fetchPosts();
-  }, [router]);
+  }, []);
+  
 
   const fetchPosts = async () => {
     setIsLoadingPosts(true);
@@ -73,6 +86,7 @@ export default function Dashboard() {
       }
     }
   };
+  
 
   const uploadImage = async (file) => {
     const fileExt = file.name.split('.').pop();
@@ -191,6 +205,22 @@ export default function Dashboard() {
       alert("Failed to update post");
     }
   };
+  // Dynamically import ReactQuill to avoid SSR issues in Next.js
+  const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+
+  const quillModules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline"],
+      [{ size: [] }],
+      ["link"],
+      ["clean"]
+    ]
+  };
+
+  const quillFormats = [
+    "header", "bold", "italic", "underline", "size", "link"
+  ];
 
   return (
     <div className={styles.adminContainer}>
@@ -235,13 +265,14 @@ export default function Dashboard() {
                 onChange={(e) => setTitle(e.target.value)}
                 className={styles.formInput}
               />
-              <textarea
-                placeholder="Post Content"
+              <ReactQuill
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={setContent}
+                modules={quillModules}
+                formats={quillFormats}
                 className={styles.formTextarea}
-                rows={6}
               />
+
               <label className={styles.fileUploadLabel}>
                 {image ? 'Change Image' : 'Select Image'}
                 <input type="file" onChange={handleImageChange} className={styles.fileInput} />
@@ -299,12 +330,14 @@ export default function Dashboard() {
                 onChange={(e) => setEditTitle(e.target.value)}
                 className={styles.formInput}
               />
-              <textarea
+              <ReactQuill
                 value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
+                onChange={setEditContent}
+                modules={quillModules}
+                formats={quillFormats}
                 className={styles.formTextarea}
-                rows={6}
               />
+
               <label className={styles.fileUploadLabel}>
                 {editImage ? 'Change Image' : 'Select Image'}
                 <input type="file" onChange={(e) => handleImageChange(e, true)} className={styles.fileInput} />
