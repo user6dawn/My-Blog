@@ -7,7 +7,6 @@ import Head from 'next/head';
 
 export async function getServerSideProps() {
   try {
-    // Fetch posts
     const { data: postsData, error: postsError } = await supabase
       .from("posts")
       .select("id, title, content, image_url, likes, created_at")
@@ -15,7 +14,6 @@ export async function getServerSideProps() {
 
     if (postsError) throw postsError;
 
-    // Fetch active ads
     const { data: adsData, error: adsError } = await supabase
       .from("ads")
       .select("*")
@@ -53,7 +51,6 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
     setLikedPosts(storedLikes);
   }, []);
 
-  // Track ad impressions
   useEffect(() => {
     const trackAdImpression = async (adId) => {
       try {
@@ -63,44 +60,41 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
       }
     };
 
-    if (ads && ads.length > 0) {
-      ads.forEach(ad => {
-        if (ad?.id) trackAdImpression(ad.id);
-      });
-    }
+    ads?.forEach(ad => {
+      if (ad?.id) trackAdImpression(ad.id);
+    });
   }, [ads]);
 
-  const toggleNav = () => {
-    setIsNavOpen(!isNavOpen);
-  };
-
-  const closeNav = () => {
-    setIsNavOpen(false);
-  };
+  const toggleNav = () => setIsNavOpen(!isNavOpen);
+  const closeNav = () => setIsNavOpen(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isNavOpen && !event.target.closest(`.${styles.nav}`) && 
-          !event.target.closest(`.${styles.navToggle}`)) {
+      if (
+        isNavOpen && 
+        !event.target.closest(`.${styles.nav}`) && 
+        !event.target.closest(`.${styles.navToggle}`)
+      ) {
         closeNav();
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isNavOpen]);
 
   const likePost = async (id, currentLikes) => {
     if (likedPosts[id]) return;
-
     const { error } = await supabase
       .from("posts")
       .update({ likes: currentLikes + 1 })
       .eq("id", id);
 
     if (!error) {
-      setPosts(posts.map(post => post.id === id ? { ...post, likes: currentLikes + 1 } : post));
+      const updatedPosts = posts.map(post =>
+        post.id === id ? { ...post, likes: currentLikes + 1 } : post
+      );
       const updatedLikes = { ...likedPosts, [id]: true };
+      setPosts(updatedPosts);
       setLikedPosts(updatedLikes);
       localStorage.setItem("likedPosts", JSON.stringify(updatedLikes));
     }
@@ -108,21 +102,16 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
 
   const sharePost = async (title, id) => {
     const url = `${window.location.origin}/post/${id}`;
-
     if (!navigator.share) {
       alert("Sharing is not supported in your browser.");
       return;
     }
 
-    if (isSharing) {
-      console.warn("A share action is already in progress.");
-      return;
-    }
+    if (isSharing) return;
 
     try {
       setIsSharing(true);
       await navigator.share({ title, url });
-      console.log("Blog shared successfully!");
     } catch (error) {
       console.error("Error sharing:", error);
     } finally {
@@ -139,7 +128,6 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
   };
 
   const getRandomAd = () => {
-    if (!ads || ads.length === 0) return null;
     const betweenPostsAds = ads.filter(ad => ad?.position === 'between_posts');
     return betweenPostsAds.length > 0 
       ? betweenPostsAds[Math.floor(Math.random() * betweenPostsAds.length)] 
@@ -147,136 +135,137 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
   };
 
   return (
-    <Head>
-  <title>The Balance Code Alliance</title>
-  <meta name="description" content="Restoring Order. Unlocking Peace. Empowering Lives. Explore insightful blogs and articles by Onyxe Nnaemeka." />
-  <meta name="robots" content="index, follow" />
-  <meta name="google-site-verification" content="QQ-oix7EJcaWi6X6perTvyv7J8JX9PVnQ_jI5GTBWBY" />
+    <>
+      <Head>
+        <title>The Balance Code Alliance</title>
+        <meta name="description" content="Restoring Order. Unlocking Peace. Empowering Lives. Explore insightful blogs and articles by Onyxe Nnaemeka." />
+        <meta name="robots" content="index, follow" />
+        <meta name="google-site-verification" content="QQ-oix7EJcaWi6X6perTvyv7J8JX9PVnQ_jI5GTBWBY" />
+      </Head>
 
-    
-    <div className={styles.bg}>
-      <div className={styles.container}>
-        {/* Header */}
-        <header className={styles.header}>
-          <div className={styles.headerLeft}>
-            <span className={styles.headerTitleLarge}>The Balance Code Alliance</span>
-            <span className={styles.headerSubtitleSmall}>Restoring Order. Unlocking Peace. Empowering Lives</span>
-          </div>
+      <div className={styles.bg}>
+        <div className={styles.container}>
+          {/* Header */}
+          <header className={styles.header}>
+            <div className={styles.headerLeft}>
+              <span className={styles.headerTitleLarge}>The Balance Code Alliance</span>
+              <span className={styles.headerSubtitleSmall}>Restoring Order. Unlocking Peace. Empowering Lives</span>
+            </div>
 
-          <button 
-            className={styles.navToggle} 
-            onClick={toggleNav}
-            aria-label={isNavOpen ? "Close menu" : "Open menu"}
-            aria-expanded={isNavOpen}
-          >
-            {isNavOpen ? '✕' : '☰'}
-          </button>
+            <button 
+              className={styles.navToggle} 
+              onClick={toggleNav}
+              aria-label={isNavOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isNavOpen}
+            >
+              {isNavOpen ? '✕' : '☰'}
+            </button>
 
-          {/* Navigation Menu */}
-          {isNavOpen && (
-            <>
-              <nav className={`${styles.nav} ${isNavOpen ? styles.open : ''}`}>
-                <Link href="/" onClick={closeNav} className={styles.navLink}>Home</Link>
-                <Link href="/about" onClick={closeNav} className={styles.navLink}>About</Link>
-                <Link href="/contact" onClick={closeNav} className={styles.navLink}>Contact</Link>
-              </nav>
-              <div 
-                className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`} 
-                onClick={closeNav}
-                aria-hidden="true"
-              />
-            </>
-          )}
-        </header>
+            {isNavOpen && (
+              <>
+                <nav className={`${styles.nav} ${isNavOpen ? styles.open : ''}`}>
+                  <Link href="/" onClick={closeNav} className={styles.navLink}>Home</Link>
+                  <Link href="/about" onClick={closeNav} className={styles.navLink}>About</Link>
+                  <Link href="/contact" onClick={closeNav} className={styles.navLink}>Contact</Link>
+                </nav>
+                <div 
+                  className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`} 
+                  onClick={closeNav}
+                  aria-hidden="true"
+                />
+              </>
+            )}
+          </header>
 
-        <main>
-          <h1 className={styles.postdetails}>Recent Posts</h1>
-          {!posts || posts.length === 0 ? (
-            <p className={styles.noPosts}>No posts available.</p>
-          ) : (
-            posts.map((post, index) => {
-              const randomAd = getRandomAd();
-              return (
-                <div key={post.id}>
-                  <div className={styles.card}>
-                    {post.image_url && (
-                      <img src={post.image_url} alt={post.title} className={styles.image} />
-                    )}
-                    <div className={styles.content}>
-                      <h2 className={styles.blog_title}>{post.title}</h2>
-                      <p className={styles.description}>{post.content.slice(0, 200)}...</p>
-                      <div className={styles.bottomRow}>
-                        <div className={styles.buttonRow}>
-                        <button
-                          onClick={() => likePost(post.id, post.likes)}
-                          disabled={likedPosts[post.id]}
-                          className={styles.liked}
-                          aria-label={`Like ${post.title}`}
-                        >
-                          <img
-                            src={likedPosts[post.id] ? "/liked.svg" : "/notliked.svg"}
-                            alt="Like"
-                            width={20}
-                            height={20}
-                          />{" "}
-                          {post.likes || 0}
-                        </button>
+          <main>
+            <h1 className={styles.postdetails}>Recent Posts</h1>
+            {!posts?.length ? (
+              <p className={styles.noPosts}>No posts available.</p>
+            ) : (
+              posts.map((post, index) => {
+                const randomAd = getRandomAd();
+                return (
+                  <div key={post.id}>
+                    <div className={styles.card}>
+                      {post.image_url && <img src={post.image_url} alt={post.title} className={styles.image} />}
+                      <div className={styles.content}>
+                        <h2 className={styles.blog_title}>{post.title}</h2>
+                        <p className={styles.description}>{post.content.slice(0, 200)}...</p>
+                        <div className={styles.bottomRow}>
+                          <div className={styles.buttonRow}>
+                            <button
+                              onClick={() => likePost(post.id, post.likes)}
+                              disabled={likedPosts[post.id]}
+                              className={styles.liked}
+                              aria-label={`Like ${post.title}`}
+                            >
+                              <img
+                                src={likedPosts[post.id] ? "/liked.svg" : "/notliked.svg"}
+                                alt="Like"
+                                width={20}
+                                height={20}
+                              />{" "}
+                              {post.likes || 0}
+                            </button>
 
-                          <button
-                            onClick={() => sharePost(post.title, post.id)}
-                            disabled={isSharing}
-                            className={isSharing ? styles.sharing : styles.share}
-                            aria-label={`Share ${post.title}`}
-                          >
-                            {isSharing ? (
-                              "sharing"
-                            ) : (
-                              <img src="/share.svg" alt="Sharing..." width={20} height={20} />
-                            )}
-                          </button>
-                          <Link href={`/post/${post.id}`} className={styles.commentButton}><img src="/comment.svg" alt="Sharing..." width={20} height={20} /></Link>
+                            <button
+                              onClick={() => sharePost(post.title, post.id)}
+                              disabled={isSharing}
+                              className={isSharing ? styles.sharing : styles.share}
+                              aria-label={`Share ${post.title}`}
+                            >
+                              {isSharing ? "sharing" : <img src="/share.svg" alt="Share" width={20} height={20} />}
+                            </button>
+
+                            <Link href={`/post/${post.id}`} className={styles.commentButton}>
+                              <img src="/comment.svg" alt="Comments" width={20} height={20} />
+                            </Link>
+                          </div>
+
+                          <Link href={`/post/${post.id}`} className={styles.readmore}>
+                            <button className={styles.readmore}>Read More...</button>
+                          </Link>
                         </div>
-                        <button className={styles.readmore}>
-                          <Link href={`/post/${post.id}`} className={styles.readmore}>Read More...</Link>
-                        </button>
                       </div>
                     </div>
+
+                    {/* Ad */}
+                    {index < posts.length - 1 && (
+                      <div className={styles.adContainer}>
+                        <div className={styles.adContent}>
+                          {randomAd ? (
+                            <a 
+                              href={randomAd.link_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              onClick={() => trackAdClick(randomAd.id)}
+                            >
+                              {randomAd.image_url && (
+                                <img src={randomAd.image_url} className={styles.adImage}/>
+                              )}
+                            </a>
+                          ) : (
+                            <p className={styles.adPlaceholder}>
+                              <marquee behavior="scroll" direction="right">Advertisement</marquee>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
+                );
+              })
+            )}
+          </main>
 
-                  {/* Ad Space - Only show between posts, not after last post */}
-                  {index < posts.length - 1 && (
-                    <div className={styles.adContainer}>
-                      <div className={styles.adContent}>
-                        {randomAd ? (
-                          <a 
-                            href={randomAd.link_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            onClick={() => trackAdClick(randomAd.id)}
-                            
-                          >
-                            {randomAd.image_url && (
-                              <img src={randomAd.image_url} className={styles.adImage}/>)}
-                          </a>
-                        ) : (
-                          <p className={styles.adPlaceholder}><marquee behavior="" direction="right">Advertisement</marquee></p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })
-          )}
-        </main>
-        <br />
+          <br />
 
-        <footer className={styles.footer}>
-        Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}
-        </footer>
-        <Analytics />
+          <footer className={styles.footer}>
+            Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}
+          </footer>
+          <Analytics />
+        </div>
       </div>
-    </div>
-  </Head>
+    </>
   );
 }
