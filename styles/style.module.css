@@ -11,6 +11,7 @@
 
 /* ✅ Full-width Header - KEPT */
 .header {
+  font-family: 'poppins' sans-serif;
   margin-bottom: 1px;
   display: flex;
   justify-content: space-between;
@@ -603,6 +604,7 @@
 
 /* Large header title */
 .headerTitleLarge {
+  font-family: 'poppins' sans-serif;
   font-size: 22px; /* Larger size */
   font-weight: bold;
   margin-bottom: 0;
@@ -613,7 +615,7 @@
 /* Small header subtitle */
 .headerSubtitleSmall {
   padding-left: 10px;
-
+  font-family: 'poppins' sans-serif;
   font-size: 12px; /* Smaller size */
   font-weight: normal;
   color: rgb(216, 216, 216);
