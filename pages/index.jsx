@@ -68,7 +68,27 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [likedPosts, setLikedPosts] = useState({});
   const [isSharing, setIsSharing] = useState(false);
+  const [showNotificationBell, setShowNotificationBell] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [subscriberName, setSubscriberName] = useState('');
+  const [subscriberEmail, setSubscriberEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+
+
+    useEffect(() => {
+      const refreshSession = async () => {
+        const { data, error } = await supabase.auth.refreshSession();
+        if (error) {
+          console.error("Session refresh error:", error.message);
+        } else {
+          console.log("Session refreshed:", data);
+        }
+      };
+  
+      refreshSession();
+    }, []);
+  
   useEffect(() => {
     const storedLikes = JSON.parse(localStorage.getItem("likedPosts")) || {};
     setLikedPosts(storedLikes);
@@ -295,14 +315,78 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
             )}
           </main>
 
-          <br />
-
+          <br />  
           <footer className={styles.footer}>
-          © {new Date().getFullYear()} Onyxe Nnaemeka Blog. All rights reserved.
-          </footer>
-          <Analytics />
+      © {new Date().getFullYear()} Onyxe Nnaemeka Blog. All rights reserved.
+    </footer>
+
         </div>
+        {showNotificationBell && (
+        <div className={styles.bellWrapper}>
+          <button  onClick={() => setShowModal(true)} aria-label="Subscribe to Notifications" className={styles.bellButton}>
+            <img src="/notification-bell.svg" alt="Subscribe" className={styles.notificationBell} />
+          </button>
+          <span>
+            <button className={styles.bellClose} onClick={() => setShowNotificationBell(false)} aria-label="Close notification bell">✕</button>
+          </span>
+        </div>
+      )}
+
+  {showModal && (
+    <div className={styles.modalOverlay}>
+      <div className={styles.modal}>
+        <h2 className={styles.modalTitle}>Get Notified of New Posts</h2>
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          setIsSubmitting(true);
+
+          const { error, data } = await supabase
+            .from("subscribers")
+            .upsert(
+              [{ name: subscriberName, email: subscriberEmail }],
+              { onConflict: ["email"] }
+            );
+
+          if (error) {
+            console.error("Supabase error:", error);
+            alert("Error: " + error.message); // 👈 Better feedback for now
+          } else {
+            alert("You're now subscribed!");
+            setShowModal(false);
+            setSubscriberEmail("");
+            setSubscriberName("");
+          }
+
+          setIsSubmitting(false);
+        }}>
+
+          <input
+            type="text"
+            placeholder="Your Name"
+            value={subscriberName}
+            onChange={(e) => setSubscriberName(e.target.value)}
+            required
+            className={styles.modalInput}
+          />
+          <input
+            type="email"
+            placeholder="Your Email"
+            value={subscriberEmail}
+            onChange={(e) => setSubscriberEmail(e.target.value)}
+            required
+            className={styles.modalInput}
+          />
+          <button type="submit" className={styles.modalButton} disabled={isSubmitting}>
+            {isSubmitting ? 'Submitting...' : 'Notify Me'}
+          </button>
+          <button type="button" className={styles.modalClose} onClick={() => setShowModal(false)}>Cancel</button>
+        </form>
       </div>
+    </div>
+  )}
+  </div>          
+
+    <Analytics />
     </>
   );
 }
