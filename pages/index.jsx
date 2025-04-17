@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { Analytics } from "@vercel/analytics/react"
 import styles from "../styles/style.module.css";
 import Head from 'next/head';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export async function getServerSideProps() {
   try {
@@ -387,6 +388,7 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
   </div>          
 
     <Analytics />
+    <SpeedInsights/>
     </>
   );
 }
