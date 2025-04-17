@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       resend.emails.send({
         from: 'The Balance Code Alliance <noreply@yourdomain.com>',
         to: email,
-        subject: `${title}` ,
+        subject: `📰 There's a New Post Titled: ${title}`,
         html: `<h2>${title}</h2><p>${content.substring(0, 150)}...</p><p><a href="${blogUrl}">Read the full post</a></p>`,
       })
     );
