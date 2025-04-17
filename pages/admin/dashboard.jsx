@@ -137,6 +137,18 @@ export default function Dashboard() {
 
       if (error) throw error;
 
+      await fetch('/api/notify-subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          content,
+          postId: data[0].id,
+        }),
+      });  
+
       alert('Post created successfully!');
       setTitle('');
       setContent('');
