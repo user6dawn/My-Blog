@@ -2,7 +2,10 @@ import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -10,25 +13,35 @@ export default async function handler(req, res) {
   const { title, content, postId } = req.body;
 
   try {
-    const { data: subscribers, error } = await supabase.from('subscribers').select('email');
+    const { data: subscribers, error } = await supabase
+      .from('subscribers')
+      .select('email');
 
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Supabase fetch error:', error);
+      throw error;
+    }
 
     const blogUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/post/${postId}`;
 
-    const promises = subscribers.map(({ email }) =>
-      resend.emails.send({
-        from: 'The Balance Code Alliance <noreply@yourdomain.com>',
-        to: email,
-        subject: `📰 There's a New Post Titled: ${title}`,
-        html: `<h2>${title}</h2><p>${content.substring(0, 150)}...</p><p><a href="${blogUrl}">Read the full post</a></p>`,
-      })
-    );
+    for (const { email } of subscribers) {
+      try {
+        const result = await resend.emails.send({
+          from: 'onboarding@resend.dev', // change this for testing
+          to: email,
+          subject: `📰 New Post: ${title}`,
+          html: `<h2>${title}</h2><p>${content.substring(0, 150)}...</p><p><a href="${blogUrl}">Read more</a></p>`,
+        });
 
-    await Promise.all(promises);
+        console.log(`✅ Email sent to ${email}:`, result);
+      } catch (emailErr) {
+        console.error(`❌ Email send failed to ${email}:`, emailErr);
+      }
+    }
+
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error('Notify error:', err);
-    res.status(500).json({ error: 'Failed to notify subscribers' });
+    console.error('❌ Final error in notify-subscribers:', err);
+    res.status(500).json({ error: err.message });
   }
 }
