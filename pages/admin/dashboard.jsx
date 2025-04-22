@@ -257,6 +257,7 @@ export default function Dashboard() {
                 <Link href="/" className={styles.navLink} onClick={closeNav}>Home</Link>
                 <Link href="/about" className={styles.navLink} onClick={closeNav}>About</Link>
                 <Link href="/contact" className={styles.navLink} onClick={closeNav}>Contact</Link>
+                <Link href="/Gallery" onClick={closeNav} className={styles.navLink}>Gallery</Link>
               </nav>
               <div className={styles.navOverlay} onClick={closeNav} />
             </>

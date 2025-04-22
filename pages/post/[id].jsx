@@ -284,6 +284,8 @@ export default function BlogPost({ post, initialComments, ads }) {
                 <Link href="/contact" onClick={() => setIsNavOpen(false)} className={styles.navLink}>
                   Contact
                 </Link>
+                <Link href="/Gallery" onClick={() => setIsNavOpen(false)} className={styles.navLink}>Gallery</Link>
+
               </nav>
               <div className={`${styles.navOverlay} ${isNavOpen ? styles.open : ""}`} onClick={() => setIsNavOpen(false)} />
             </>

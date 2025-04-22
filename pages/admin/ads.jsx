@@ -202,6 +202,7 @@ export default function AdsManager() {
                 <Link href="/" onClick={closeNav} className={styles.navLink}>Home</Link>
                 <Link href="/about" onClick={closeNav} className={styles.navLink}>About</Link>
                 <Link href="/contact" onClick={closeNav} className={styles.navLink}>Contact</Link>
+                <Link href="/Gallery" onClick={closeNav} className={styles.navLink}>Gallery</Link>
               </nav>
               <div className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`} onClick={closeNav} />
             </>
