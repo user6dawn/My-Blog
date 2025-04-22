@@ -5,7 +5,11 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+); 
+
+function stripHtmlTags(html) {
+  return html.replace(/<[^>]*>/g, '').trim();
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -29,7 +33,7 @@ export default async function handler(req, res) {
         const result = await resend.emails.send({
           from: 'onboarding@resend.dev', // change this for testing
           to: email,
-          subject: `📰 New Post: ${title}`,
+          subject: `📰 New Post: ${stripHtmlTags(title)}`,
           html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6;">
             <h2>${title}</h2>
@@ -37,7 +41,7 @@ export default async function handler(req, res) {
             <p><a href="${blogUrl}" target="_blank" style="color: blue;">Read the full post</a></p>
           </div>
         `
-                });
+        });
 
         console.log(`✅ Email sent to ${email}:`, result);
       } catch (emailErr) {
