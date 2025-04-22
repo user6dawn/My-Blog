@@ -31,3 +31,9 @@ login or signup page using email and passwprd entirelly for both, upon click, it
 **PROMPT DETAIlS**
 provide inline design in the framework of you choose, put the image, title and descriptioon in a card, the image should be at the left, the title should be on the same level as the image but on the right immidiately after the image, and the description should span underneath the title
 
+
+
+
+<!-- paste this in the api -->
+from: 'The Balance Code <news@yourblog.com>'
+

@@ -30,8 +30,14 @@ export default async function handler(req, res) {
           from: 'onboarding@resend.dev', // change this for testing
           to: email,
           subject: `📰 New Post: ${title}`,
-          html: `<h2>${title}</h2><p>${content.substring(0, 150)}...</p><p><a href="${blogUrl}">Read more</a></p>`,
-        });
+          html: `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <h2>${title}</h2>
+            <p>${content.substring(0, 150)}...</p>
+            <p><a href="${blogUrl}" target="_blank" style="color: blue;">Read the full post</a></p>
+          </div>
+        `
+                });
 
         console.log(`✅ Email sent to ${email}:`, result);
       } catch (emailErr) {
