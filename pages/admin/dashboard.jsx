@@ -374,7 +374,7 @@ export default function Dashboard() {
 
         {/* Footer */}
         <footer className={styles.adminFooter}>
-          Onyxe Nnaemeka Blog. All rights reserved. © {new Date().getFullYear()}
+        © {new Date().getFullYear()} Onyxe Nnaemeka's Blog. All rights reserved.
         </footer>
       </div>
     </div>

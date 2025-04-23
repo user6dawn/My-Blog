@@ -62,12 +62,14 @@ export default function About() {
           )}
         </header>
 
-
+<div> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+  <h1>coming soon...</h1>
+</div>
 
 
 
         <footer className={styles.footer}>
-        © {new Date().getFullYear()} Onyxe Nnaemeka Blog. All rights reserved.
+        © {new Date().getFullYear()} Onyxe Nnaemeka's Blog. All rights reserved.
         </footer>
       </div>
     </div>

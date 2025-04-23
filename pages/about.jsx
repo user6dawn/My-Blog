@@ -96,7 +96,7 @@ export default function About() {
         </main>
 
         <footer className={styles.footer}>
-        © {new Date().getFullYear()} Onyxe Nnaemeka Blog. All rights reserved.
+        © {new Date().getFullYear()} Onyxe Nnaemeka's Blog. All rights reserved.
         </footer>
       </div>
     </div>

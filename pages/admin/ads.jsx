@@ -307,7 +307,7 @@ export default function AdsManager() {
         </main>
 
         <footer className={styles.adminFooter}>
-          Onyxe Nnaemeka Blog. All rights reserved.© {new Date().getFullYear()}
+        © {new Date().getFullYear()} Onyxe Nnaemeka's Blog. All rights reserved.
         </footer>
       </div>
 

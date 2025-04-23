@@ -320,7 +320,7 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
 
           <br />  
           <footer className={styles.footer}>
-      © {new Date().getFullYear()} Onyxe Nnaemeka Blog. All rights reserved.
+      © {new Date().getFullYear()} Onyxe Nnaemeka's Blog. All rights reserved.
     </footer>
 
         </div>
