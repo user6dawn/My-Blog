@@ -1,15 +1,14 @@
-import { Resend } from 'resend';
+import SibApiV3Sdk from 'sib-api-v3-sdk';
 import { createClient } from '@supabase/supabase-js';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
-); 
+);
 
-function stripHtmlTags(html) {
-  return html.replace(/<[^>]*>/g, '').trim();
-}
+  function stripHtmlTags(html) {
+    return html.replace(/<[^>]*>/g, '').trim();
+  }
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -21,37 +20,26 @@ export default async function handler(req, res) {
       .from('subscribers')
       .select('email');
 
-    if (error) {
-      console.error('❌ Supabase fetch error:', error);
-      throw error;
-    }
+    if (error) throw error;
 
     const blogUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/post/${postId}`;
+    const client = SibApiV3Sdk.ApiClient.instance;
+    client.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
+
+    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
     for (const { email } of subscribers) {
-      try {
-        const result = await resend.emails.send({
-          from: 'onboarding@resend.dev', // change this for testing
-          to: email,
-          subject: `📰 New Post: ${stripHtmlTags(title)}`,
-          html: `
-          <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-            <h2>${title}</h2>
-            <p>${content.substring(0, 150)}...</p>
-            <p><a href="${blogUrl}" target="_blank" style="color: blue;">Read the full post</a></p>
-          </div>
-        `
-        });
-
-        console.log(`✅ Email sent to ${email}:`, result);
-      } catch (emailErr) {
-        console.error(`❌ Email send failed to ${email}:`, emailErr);
-      }
+      await apiInstance.sendTransacEmail({
+        sender: { name: 'The Balance Code Alliance', email: process.env.EMAIL_FROM },
+        to: [{ email }],
+        subject: `📰 New Post: ${stripHtmlTags(title)}`,
+        htmlContent: `<h2>${title}</h2><p>${content.substring(0, 150)}...</p><p><a href="${blogUrl}">Read more</a></p>`
+      });
     }
 
-    res.status(200).json({ success: true });
+    res.status(200).json({ message: 'Emails sent' });
   } catch (err) {
-    console.error('❌ Final error in notify-subscribers:', err);
+    console.error('Email error:', err);
     res.status(500).json({ error: err.message });
   }
 }
