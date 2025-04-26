@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         sender: { name: 'The Balance Code Alliance', email: process.env.EMAIL_FROM },
         to: [{ email }],
         subject: `📰 New Post: ${stripHtmlTags(title)}`,
-        htmlContent: `<h2>${title}</h2><p>${content.substring(0, 150)}...</p><p><a href="${blogUrl}">Read more</a></p>`
+        htmlContent: `<h2>${title}</h2><p>${content.substring(0, 150)}...</p><p><a href="${onyxennaemekasblog.com}">Read more</a></p>`
       });
     }
 
