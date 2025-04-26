@@ -73,7 +73,7 @@ export default function Contact() {
           <div className={styles.content}>
             <a className={styles.readmore1} href="https://www.youtube.com/@Onyxenkembu" target="_blank" rel="noopener noreferrer"> Youtube </a> |
             <a className={styles.readmore1} href="https://www.tiktok.com/@onyxenkb?_t=ZM-8v6E9odcU5N&_r=1" target="_blank" rel="noopener noreferrer"> TikTok </a> |
-            <a className={styles.readmore1} href="https://web.facebook.com/Zukydman" target="_blank" rel="noopener noreferrer"> Facebook </a>
+            <a className={styles.readmore1} href="https://www.facebook.com/share/1FyC5cQQEx/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer"> Facebook </a>
           </div>
         </main>
 
