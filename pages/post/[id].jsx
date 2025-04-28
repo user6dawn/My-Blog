@@ -2,6 +2,7 @@ import { supabase } from "../../lib/supabase";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Head from "next/head";
 import styles from "../../styles/style.module.css";
 
 export async function getServerSideProps({ params }) {
@@ -14,12 +15,11 @@ export async function getServerSideProps({ params }) {
 
     if (postError) throw postError;
 
-const { data: commentData, error: commentError } = await supabase
-  .from("comments")
-  .select("id, name, comment, created_at, parent_id, likes")
-  .eq("post_id", params.id)
-  .order("created_at", { ascending: true });
-
+    const { data: commentData, error: commentError } = await supabase
+      .from("comments")
+      .select("id, name, comment, created_at, parent_id, likes")
+      .eq("post_id", params.id)
+      .order("created_at", { ascending: true });
 
     const { data: adsData, error: adsError } = await supabase
       .from("ads")
@@ -52,6 +52,8 @@ export default function BlogPost({ post, initialComments, ads }) {
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+
+  const closeNav = () => setIsNavOpen(false);
 
   const nestComments = (comments) => {
     const map = {};
@@ -157,16 +159,16 @@ export default function BlogPost({ post, initialComments, ads }) {
 
   const likeComment = async (commentId) => {
     const likedComments = JSON.parse(localStorage.getItem("likedComments")) || {};
-    if (likedComments[commentId]) return; // already liked
-  
+    if (likedComments[commentId]) return;
+
     const { data, error } = await supabase.rpc("increment_comment_likes", { comment_id_input: commentId });
-  
+
     if (!error) {
       const updated = flattenComments(comments).map((c) =>
         c.id === commentId ? { ...c, likes: c.likes + 1 } : c
       );
       setComments(nestComments(updated));
-  
+
       localStorage.setItem(
         "likedComments",
         JSON.stringify({ ...likedComments, [commentId]: true })
@@ -175,7 +177,6 @@ export default function BlogPost({ post, initialComments, ads }) {
       console.error("Error liking comment:", error);
     }
   };
-  
 
   const getRandomAd = () => {
     if (!ads || ads.length === 0) return null;
@@ -190,207 +191,188 @@ export default function BlogPost({ post, initialComments, ads }) {
     const [replyText, setReplyText] = useState("");
     const [replyName, setReplyName] = useState("");
 
-      return (
-        <div style={{ marginLeft: `${level * 20}px`, marginTop: "1rem", borderLeft: level ? "2px solid #ccc" : "none", paddingLeft: level ? "1rem" : "0" }}>
-          <div className={styles.commentInput}>
-            <h3 className={styles.commentName}>{comment.name}</h3>
-            <p className={styles.commentText}>{comment.comment}</p>
-            <div className="text-sm text-gray-600 flex gap-3 mb-2">
-              <button
-                onClick={() => likeComment(comment.id)}
-                disabled={localStorage.getItem("likedComments")?.includes(comment.id)}
-                className={styles.liked}
-              >
-                <img
-                  src={
-                    JSON.parse(localStorage.getItem("likedComments") || "{}")[comment.id]
-                      ? "/liked.svg"
-                      : "/notliked.svg"
-                  }
-                  alt="Like"
-                  width={16}
-                  height={16}
-                />
-                {comment.likes}
-              </button>
-
-              <button
-                onClick={() => setShowReplyBox(!showReplyBox)}
-                className={styles.commentReplySubmitButton}
-              >
-                {showReplyBox ? "cancel" : "Reply"}
-              </button>
-            </div>
-    
-            {showReplyBox && (
-              <form onSubmit={(e) => handleCommentSubmit(e, comment.id, replyText, replyName, setShowReplyBox)} className={styles.commentForm}>
-                <input
-                  type="text"
-                  value={replyName}
-                  onChange={(e) => setReplyName(e.target.value)}
-                  placeholder="Your name"
-                  className={styles.commentInput}
-                  required
-                />
-                <textarea
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="Your reply"
-                  className={styles.commentTextarea}
-                  required
-                />
-                <button type="submit" className={styles.commentReplySubmitButton}>
-                  {isSubmitting ? "Replying..." : "Post Reply"}
-                </button>
-              </form>
-            )}
-          </div>
-    
-          {comment.replies &&
-            comment.replies.map((reply) => (
-              <Comment key={reply.id} comment={reply} level={level + 1} />
-            ))}
-        </div>
-      );
-    };
-
-  return (
-    <div className={styles.bg}>
-      <div className={styles.container}>
-        <header className={styles.header}>
-          <div className={styles.headerLeft}>
-            <span className={styles.headerTitleLarge}>The Balance Code Alliance</span>
-            <span className={styles.headerSubtitleSmall}>
-              Restoring Order. Unlocking Peace. Empowering Lives
-            </span>
-          </div>
-          <button
-            className={styles.navToggle}
-            onClick={() => setIsNavOpen(!isNavOpen)}
-            aria-label={isNavOpen ? "Close menu" : "Open menu"}
-            aria-expanded={isNavOpen}
-          >
-            {isNavOpen ? "✕" : "☰"}
-          </button>
-          {isNavOpen && (
-            <>
-              <nav className={`${styles.nav} ${isNavOpen ? styles.open : ""}`}>
-                <Link href="/" onClick={() => setIsNavOpen(false)} className={styles.navLink}>
-                  Home
-                </Link>
-                <Link href="/about" onClick={() => setIsNavOpen(false)} className={styles.navLink}>
-                  About
-                </Link>
-                <Link href="/contact" onClick={() => setIsNavOpen(false)} className={styles.navLink}>
-                  Contact
-                </Link>
-                <Link href="/Gallery" onClick={() => setIsNavOpen(false)} className={styles.navLink}>Gallery</Link>
-
-              </nav>
-              <div className={`${styles.navOverlay} ${isNavOpen ? styles.open : ""}`} onClick={() => setIsNavOpen(false)} />
-            </>
-          )}
-        </header>
-
-        <div className={styles.detailsCard}>
-          {post.image_url && (
-            <img src={post.image_url} alt={post.title} className={styles.detailsImage} />
-          )}
-          <h1 className={styles.detailsTitle} 
-          dangerouslySetInnerHTML={{ __html: post.title }} 
-            />
-
-          <div style={{ textAlign: "left" }}>
-            <p
-                className={styles.detailsDescription}
-                style={{ textAlign: "left" }}
-                dangerouslySetInnerHTML={{ __html: post.content }}
+    return (
+      <div style={{ marginLeft: `${level * 20}px`, marginTop: "1rem", borderLeft: level ? "2px solid #ccc" : "none", paddingLeft: level ? "1rem" : "0" }}>
+        <div className={styles.commentInput}>
+          <h3 className={styles.commentName}>{comment.name}</h3>
+          <p className={styles.commentText}>{comment.comment}</p>
+          <div className="text-sm text-gray-600 flex gap-3 mb-2">
+            <button
+              onClick={() => likeComment(comment.id)}
+              disabled={localStorage.getItem("likedComments")?.includes(comment.id)}
+              className={styles.liked}
+            >
+              <img
+                src={
+                  JSON.parse(localStorage.getItem("likedComments") || "{}")[comment.id]
+                    ? "/liked.svg"
+                    : "/notliked.svg"
+                }
+                alt="Like"
+                width={16}
+                height={16}
               />
-          </div>
+              {comment.likes}
+            </button>
 
-          <div className={styles.detailsButtonRow}>
-            <div className={styles.likeshare}>
-              <button onClick={likePost} disabled={liked} className={styles.liked}>
-                <img
-                  src={liked ? "/liked.svg" : "/notliked.svg"}
-                  alt="Like"
-                  width={20}
-                  height={20}
-                />{" "}
-                {likes}
-              </button>
-              <button
-                onClick={() => sharePost(post.title, post.id)}
-                disabled={isSharing}
-                className={isSharing ? styles.sharing : styles.share}
-                aria-label={`Share ${post.title}`}
-              >
-                {isSharing ? "sharing" : <img src="/share.svg" alt="Sharing..." width={20} height={20} />}
-              </button>
-            </div>
-            <button onClick={() => (window.location.href = "/")} className={styles.backButton}>
-              Go Back Home
+            <button
+              onClick={() => setShowReplyBox(!showReplyBox)}
+              className={styles.commentReplySubmitButton}
+            >
+              {showReplyBox ? "Cancel" : "Reply"}
             </button>
           </div>
 
-          {getRandomAd() && (
-            <div className={styles.adContainer}>
-              <div className={styles.adContent}>
-                <a
-                  href={getRandomAd().link_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackAdClick(getRandomAd().id)}
-                >
-                  {getRandomAd().image_url && (
-                    <img src={getRandomAd().image_url} className={styles.adImage} />
-                  )}
-                </a>
-              </div>
-            </div>
-          )}
-
-          <div className={styles.commentSection} style={{ textAlign: "left" }}>
-            <h2 className={styles.commentTitle}>Leave a Comment</h2>
-            <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
+          {showReplyBox && (
+            <form onSubmit={(e) => handleCommentSubmit(e, comment.id, replyText, replyName, setShowReplyBox)} className={styles.commentForm}>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={replyName}
+                onChange={(e) => setReplyName(e.target.value)}
                 placeholder="Your name"
                 className={styles.commentInput}
                 required
               />
               <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Your comment"
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Your reply"
                 className={styles.commentTextarea}
                 required
               />
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={styles.commentSubmitButton}
-              >
-                {isSubmitting ? "Posting..." : "Post Comment"}
+              <button type="submit" className={styles.commentReplySubmitButton}>
+                {isSubmitting ? "Replying..." : "Post Reply"}
               </button>
             </form>
+          )}
+        </div>
 
-            <div className={styles.commentsList}>
-              <h2 className={styles.commentTitle}>Comments ({flattenComments(comments).length})</h2>
-              {comments.length === 0 ? (
-                <p className={styles.noComments}>No comments yet. Be the first to comment!</p>
-              ) : (
-                comments.map((comment) => <Comment key={comment.id} comment={comment} level={0} />)
-              )}
+        {comment.replies &&
+          comment.replies.map((reply) => (
+            <Comment key={reply.id} comment={reply} level={level + 1} />
+          ))}
+      </div>
+    );
+  };
+
+  return (
+    <>
+      <Head>
+        <title>The Balance Code Alliance</title>
+        <meta name="description" content="Restoring Order. Unlocking Peace. Empowering Lives. Explore insightful blogs and articles by Onyxe Nnaemeka." />
+        <meta name="robots" content="index, follow" />
+        <meta name="google-site-verification" content="QQ-oix7EJcaWi6X6perTvyv7J8JX9PVnQ_jI5GTBWBY" />
+        <link rel="icon" type="image/png" href="/favicon-32x32.png" />
+      </Head>
+
+      <div className={styles.bg}>
+        <div className={styles.container}>
+          <header className={styles.header}>
+            <div className={styles.headerLeft}>
+              <span className={styles.headerTitleLarge}>The Balance Code Alliance</span>
+              <span className={styles.headerSubtitleSmall}>
+                Restoring Order. Unlocking Peace. Empowering Lives
+              </span>
+            </div>
+            <button
+              className={styles.navToggle}
+              onClick={() => setIsNavOpen(!isNavOpen)}
+              aria-label={isNavOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isNavOpen}
+            >
+              {isNavOpen ? "✕" : "☰"}
+            </button>
+            {isNavOpen && (
+              <>
+                <nav className={`${styles.nav} ${isNavOpen ? styles.open : ""}`}>
+                  <Link href="/" className={styles.navLink} onClick={closeNav}>Home</Link>
+                  <Link href="/about" className={styles.navLink} onClick={closeNav}>About</Link>
+                  <Link href="/contact" className={styles.navLink} onClick={closeNav}>Contact</Link>
+                  <Link href="/Gallery" className={styles.navLink} onClick={closeNav}>Gallery</Link>
+                </nav>
+                <div className={`${styles.navOverlay} ${isNavOpen ? styles.open : ""}`} onClick={closeNav} />
+              </>
+            )}
+          </header>
+
+          <div className={styles.detailsCard}>
+            {post.image_url && (
+              <img src={post.image_url} alt={post.title} className={styles.detailsImage} />
+            )}
+            <h1 className={styles.detailsTitle} dangerouslySetInnerHTML={{ __html: post.title }} />
+            <div style={{ textAlign: "left" }}>
+              <p className={styles.detailsDescription} dangerouslySetInnerHTML={{ __html: post.content }} />
+            </div>
+
+            <div className={styles.detailsButtonRow}>
+              <div className={styles.likeshare}>
+                <button onClick={likePost} disabled={liked} className={styles.liked}>
+                  <img src={liked ? "/liked.svg" : "/notliked.svg"} alt="Like" width={20} height={20} /> {likes}
+                </button>
+                <button
+                  onClick={sharePost}
+                  disabled={isSharing}
+                  className={isSharing ? styles.sharing : styles.share}
+                >
+                  {isSharing ? "Sharing..." : <img src="/share.svg" alt="Share" width={20} height={20} />}
+                </button>
+              </div>
+              <button onClick={() => (window.location.href = "/")} className={styles.backButton}>
+                Go Back Home
+              </button>
+            </div>
+
+            {getRandomAd() && (
+              <div className={styles.adContainer}>
+                <div className={styles.adContent}>
+                  <a href={getRandomAd().link_url} target="_blank" rel="noopener noreferrer">
+                    {getRandomAd().image_url && (
+                      <img src={getRandomAd().image_url} className={styles.adImage} />
+                    )}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            <div className={styles.commentSection}>
+              <h2 className={styles.commentTitle}>Leave a Comment</h2>
+              <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name"
+                  className={styles.commentInput}
+                  required
+                />
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Your comment"
+                  className={styles.commentTextarea}
+                  required
+                />
+                <button type="submit" disabled={isSubmitting} className={styles.commentSubmitButton}>
+                  {isSubmitting ? "Posting..." : "Post Comment"}
+                </button>
+              </form>
+
+              <div className={styles.commentsList}>
+                <h2 className={styles.commentTitle}>Comments ({flattenComments(comments).length})</h2>
+                {comments.length === 0 ? (
+                  <p className={styles.noComments}>No comments yet. Be the first to comment!</p>
+                ) : (
+                  comments.map((comment) => <Comment key={comment.id} comment={comment} level={0} />)
+                )}
+              </div>
             </div>
           </div>
-        </div>
+
           <footer className={styles.footer}>
-          © {new Date().getFullYear()} Onyxe Nnaemeka's Blog. All rights reserved.
+            © {new Date().getFullYear()} Onyxe Nnaemeka's Blog. All rights reserved.
           </footer>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

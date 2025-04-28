@@ -32,7 +32,9 @@ export default function Contact() {
         <header className={styles.header}>
           <div className={styles.headerLeft}>
             <span className={styles.headerTitleLarge}>The Balance Code Alliance</span>
-            <span className={styles.headerSubtitleSmall}>Restoring Order.  Unlocking Peace.  Empowering Lives</span>
+            <span className={styles.headerSubtitleSmall}>
+              Restoring Order. Unlocking Peace. Empowering Lives
+            </span>
           </div>
 
           <button 
@@ -44,14 +46,14 @@ export default function Contact() {
             {isNavOpen ? '✕' : '☰'}
           </button>
 
-          {/* Navigation Menu - Only visible when isNavOpen is true */}
+          {/* Navigation Menu */}
           {isNavOpen && (
             <>
               <nav className={`${styles.nav} ${isNavOpen ? styles.open : ''}`}>
-                <Link href="/" onClick={closeNav} className={styles.navLink}>Home</Link>
-                <Link href="/about" onClick={closeNav} className={styles.navLink}>About</Link>
-                <Link href="/contact" onClick={closeNav} className={styles.navLink}>Contact</Link>
-                <Link href="/Gallery" onClick={closeNav} className={styles.navLink}>Gallery</Link>
+                <Link href="/" className={styles.navLink} onClick={closeNav}>Home</Link>
+                <Link href="/about" className={styles.navLink} onClick={closeNav}>About</Link>
+                <Link href="/contact" className={styles.navLink} onClick={closeNav}>Contact</Link>
+                <Link href="/gallery" className={styles.navLink} onClick={closeNav}>Gallery</Link>
               </nav>
               <div 
                 className={`${styles.navOverlay} ${isNavOpen ? styles.open : ''}`} 
@@ -62,25 +64,29 @@ export default function Contact() {
           )}
         </header>
 
-        <main className={styles.contents}> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
-          <h1 className={styles.detailTitle}>Get in Touch</h1>
-          <div>
-            <p>📞 <strong>Phone:</strong> +234 704 222 4426</p>
-            <p>📧 <strong>Email:</strong> onyxeblg@gmail.com</p>
-            <h3>Follow Us@</h3>
-          </div>
+        {/* Main Content */}
+        <main className={styles.contents}>
+          <div style={{ paddingTop: "150px" }}>
+            <h1 className={styles.detailTitle}>Get in Touch</h1>
+            <div>
+              <p>📞 <strong>Phone:</strong> +234 704 222 4426</p>
+              <p>📧 <strong>Email:</strong> onyxeblg@gmail.com</p>
+              <h3>Follow Us @</h3>
+            </div>
 
-          <div className={styles.content}>
-            <a className={styles.readmore1} href="https://www.youtube.com/@Onyxenkembu" target="_blank" rel="noopener noreferrer"> Youtube </a> |
-            <a className={styles.readmore1} href="https://www.tiktok.com/@onyxenkb?_t=ZM-8v6E9odcU5N&_r=1" target="_blank" rel="noopener noreferrer"> TikTok </a> |
-            <a className={styles.readmore1} href="https://www.facebook.com/share/1FyC5cQQEx/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer"> Facebook </a>
+            <div className={styles.content}>
+              <a className={styles.readmore1} href="https://www.youtube.com/@Onyxenkembu" target="_blank" rel="noopener noreferrer">YouTube</a> |
+              <a className={styles.readmore1} href="https://www.tiktok.com/@onyxenkb?_t=ZM-8v6E9odcU5N&_r=1" target="_blank" rel="noopener noreferrer">TikTok</a> |
+              <a className={styles.readmore1} href="https://www.facebook.com/share/1FyC5cQQEx/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">Facebook</a>
+            </div>
           </div>
         </main>
 
+        {/* Footer */}
         <footer className={styles.footer}>
-        © {new Date().getFullYear()} Onyxe Nnaemeka's Blog. All rights reserved.
+          © {new Date().getFullYear()} Onyxe Nnaemeka's Blog. All rights reserved.
         </footer>
       </div>
     </div>
   );
-} 
+}
