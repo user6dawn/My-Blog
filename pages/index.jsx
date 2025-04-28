@@ -186,6 +186,9 @@ export default function Home({ initialPosts = [], initialAds = [] }) {
         <meta name="description" content="Restoring Order. Unlocking Peace. Empowering Lives. Explore insightful blogs and articles by Onyxe Nnaemeka." />
         <meta name="robots" content="index, follow" />
         <meta name="google-site-verification" content="QQ-oix7EJcaWi6X6perTvyv7J8JX9PVnQ_jI5GTBWBY" />
+        <link rel="icon" type="image/png" href="/favicon-32x32.png" />
+
+
       </Head>
 
       <div className={styles.bg}>

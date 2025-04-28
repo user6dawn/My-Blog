@@ -30,6 +30,7 @@ export default function About() {
       <div className={styles.container}>
         {/* Header with Navigation */}
         <header className={styles.header}>
+        <link rel="icon" type="image/png" href="/favicon-32x32.png" />
           <div className={styles.headerLeft}>
             <span className={styles.headerTitleLarge}>The Balance Code Alliance</span>
             <span className={styles.headerSubtitleSmall}>Restoring Order.  Unlocking Peace.  Empowering Lives</span>
