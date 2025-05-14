@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../styles/styles.css';
 import ThemeToggle from './ThemeToggle';
-import { Outlet } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -61,7 +60,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className={`min-h-screen flex flex-col transition-colors duration-200 ${isDark ? 'bg-black text-white' : 'bg-gray-100 text-gray-900'}`}>
-      <header className={`header ${isDark ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
+      <header className={`header ${isDark ? 'bg-black text-white' : 'bg-white text-gray-900 text-left'}`}>
         <div className="header-left">
           <span className={`header-title-large ${isDark ? 'text-white' : 'text-gray-900'}`}>
             The Balance Code Alliance
@@ -80,6 +79,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           >
             {isNavOpen ? '✕' : '☰'}
           </button>
+          
+          {/* Move Theme Toggle into the nav section */}
           <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
         </div>
       </header>
