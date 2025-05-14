@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Comment as CommentType } from '../types';
 import { supabase } from '../lib/supabase';
 import { ThumbsUp, Reply } from 'lucide-react';
@@ -10,9 +10,9 @@ interface CommentProps {
   onCommentUpdated: () => void;
 }
 
-const Comment: React.FC<CommentProps> = ({ 
-  comment, 
-  postId, 
+const Comment: React.FC<CommentProps> = ({
+  comment,
+  postId,
   level = 0,
   onCommentUpdated
 }) => {
@@ -20,9 +20,12 @@ const Comment: React.FC<CommentProps> = ({
   const [replyText, setReplyText] = useState('');
   const [replyName, setReplyName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [likedComments, setLikedComments] = useState<Record<string, boolean>>(
-    JSON.parse(localStorage.getItem('likedComments') || '{}')
-  );
+  const [likedComments, setLikedComments] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const storedLikes = JSON.parse(localStorage.getItem('likedComments') || '{}');
+    setLikedComments(storedLikes);
+  }, []);
 
   const handleReplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,11 +60,11 @@ const Comment: React.FC<CommentProps> = ({
 
     try {
       await supabase.rpc("increment_comment_likes", { comment_id_input: commentId });
-      
+
       const updatedLikedComments = { ...likedComments, [commentId]: true };
       setLikedComments(updatedLikedComments);
       localStorage.setItem('likedComments', JSON.stringify(updatedLikedComments));
-      
+
       onCommentUpdated();
     } catch (error) {
       console.error("Error liking comment:", error);
@@ -69,30 +72,30 @@ const Comment: React.FC<CommentProps> = ({
   };
 
   return (
-    <div 
-      style={{ 
-        marginLeft: `${level * 20}px`, 
-        marginTop: '1rem', 
+    <div
+      style={{
+        marginLeft: `${level * 20}px`,
+        marginTop: '1rem',
         borderLeft: level ? '2px solid #e5e7eb' : 'none',
-        paddingLeft: level ? '1rem' : '0' 
+        paddingLeft: level ? '1rem' : '0'
       }}
     >
-      <div className="p-3 bg-gray-50 rounded">
-        <h3 className="comment-name">{comment.name}</h3>
-        <p className="comment-text">{comment.comment}</p>
-        <div className="flex gap-3 mt-2">
+      <div className="p-4 rounded bg-gray-100 dark:bg-black text-gray-900 dark:text-white">
+        <h3 className="font-semibold">{comment.name}</h3>
+        <p>{comment.comment}</p>
+        <div className="flex gap-4 mt-2 text-sm text-gray-600 dark:text-white">
           <button
             onClick={() => likeComment(comment.id)}
             disabled={likedComments[comment.id]}
-            className="flex items-center gap-1 text-sm text-gray-600"
+            className="flex items-center gap-1"
           >
-            <ThumbsUp size={14} className={likedComments[comment.id] ? "text-blue-500" : ""} />
+            <ThumbsUp size={14} className={likedComments[comment.id] ? "text-white" : ""} />
             <span>{comment.likes}</span>
           </button>
 
           <button
             onClick={() => setShowReplyBox(!showReplyBox)}
-            className="flex items-center gap-1 text-sm text-gray-600"
+            className="flex items-center gap-1"
           >
             <Reply size={14} />
             <span>{showReplyBox ? "Cancel" : "Reply"}</span>
@@ -117,7 +120,11 @@ const Comment: React.FC<CommentProps> = ({
             className="comment-textarea"
             required
           />
-          <button type="submit" className="comment-reply-submit-button" disabled={isSubmitting}>
+          <button
+            type="submit"
+            className="comment-submit-button"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "Posting..." : "Post Reply"}
           </button>
         </form>
@@ -126,10 +133,10 @@ const Comment: React.FC<CommentProps> = ({
       {comment.replies && comment.replies.length > 0 && (
         <div className="mt-2">
           {comment.replies.map((reply) => (
-            <Comment 
-              key={reply.id} 
-              comment={reply} 
-              postId={postId} 
+            <Comment
+              key={reply.id}
+              comment={reply}
+              postId={postId}
               level={level + 1}
               onCommentUpdated={onCommentUpdated}
             />
@@ -148,16 +155,16 @@ interface CommentListProps {
 
 const CommentList: React.FC<CommentListProps> = ({ comments, postId, onCommentUpdated }) => {
   return (
-    <div className="mt-6">
+    <div className="mt-8">
       {comments.length === 0 ? (
-        <p className="no-comments">No comments yet. Be the first to comment!</p>
+        <p className="text-gray-600 dark:text-blue-300 italic">No comments yet. Be the first to comment!</p>
       ) : (
         comments.map((comment) => (
-          <Comment 
-            key={comment.id} 
-            comment={comment} 
+          <Comment
+            key={comment.id}
+            comment={comment}
             postId={postId}
-            onCommentUpdated={onCommentUpdated} 
+            onCommentUpdated={onCommentUpdated}
           />
         ))
       )}

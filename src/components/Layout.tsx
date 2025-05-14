@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../styles/styles.css';
 import ThemeToggle from './ThemeToggle';
+import { Outlet } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
