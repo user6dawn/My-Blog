@@ -81,7 +81,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </button>
           
           {/* Move Theme Toggle into the nav section */}
-          <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
         </div>
       </header>
 
@@ -108,4 +107,4 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   );
 };
 
-export default Layout;
+export default Layout;  

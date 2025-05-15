@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { Bell, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import ThemeToggle from './ThemeToggle';
 
-const NotificationBell: React.FC = () => {
+interface NotificationBellProps {
+  isDark: boolean;
+  toggleTheme: () => void;
+}
+
+const NotificationBell: React.FC<NotificationBellProps> = ({ isDark, toggleTheme }) => {
   const [showNotificationBell, setShowNotificationBell] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [subscriberName, setSubscriberName] = useState('');
@@ -40,12 +46,22 @@ const NotificationBell: React.FC = () => {
   if (!showNotificationBell) return null;
 
   return (
-    <>
-      <div className="bell-wrapper">
-        <button onClick={() => setShowModal(true)} aria-label="Subscribe to Notifications" className="bell-button">
+    <div className="fixed bottom-6 right-6 flex items-center gap-4 z-50">
+      <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
+      
+      <div className="relative">
+        <button 
+          onClick={() => setShowModal(true)} 
+          aria-label="Subscribe to Notifications" 
+          className="p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+        >
           <Bell size={24} />
         </button>
-        <button className="bell-close" onClick={() => setShowNotificationBell(false)} aria-label="Close notification bell">
+        <button 
+          className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center" 
+          onClick={() => setShowNotificationBell(false)} 
+          aria-label="Close notification bell"
+        >
           <X size={12} />
         </button>
       </div>
@@ -81,7 +97,7 @@ const NotificationBell: React.FC = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
