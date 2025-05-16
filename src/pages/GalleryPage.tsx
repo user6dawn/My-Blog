@@ -113,19 +113,21 @@ const GalleryPage: React.FC = () => {
       {/* Image Preview Modal */}
       {selectedImage && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 overflow-auto"
           onClick={() => setSelectedImage(null)}
         >
           <div
-            className="bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg max-w-3xl w-full mx-4 relative"
+            className="bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg w-full max-w-4xl max-h-screen overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <img
               src={selectedImage.image_url}
               alt={selectedImage.title}
-              className="w-full h-auto object-contain rounded"
+              className="w-full h-auto max-h-[70vh] object-contain rounded"
             />
-            <h2 className="text-xl font-bold mt-4 text-gray-800 dark:text-white">{selectedImage.title}</h2>
+            <h2 className="text-xl font-bold mt-4 text-gray-800 dark:text-white text-center">
+              {selectedImage.title}
+            </h2>
           </div>
         </div>
       )}
