@@ -141,28 +141,44 @@ const PostDetailPage: React.FC = () => {
     }
   };
 
-  const sharePost = async () => {
-    if (!post) return;
-    
-    const url = `${window.location.origin}/post/${post.id}`;
-    
-    if (!navigator.share) {
+const sharePost = async () => {
+  if (!post) return;
+
+  const url = `${window.location.origin}/post/${post.id}`;
+  const title = post.title;
+
+  if (
+    navigator.canShare &&
+    navigator.canShare({ files: [] }) &&
+    typeof post.image_url === 'string'
+  ) {
+    try {
+      // ✅ Ensure fetch only runs if image_url is a string
+      const response = await fetch(post.image_url);
+      const blob = await response.blob();
+      const file = new File([blob], 'image.jpg', { type: blob.type });
+
+      await navigator.share({
+        title,
+        text: 'Check out this post!',
+        url,
+        files: [file],
+      });
+    } catch (err) {
+      console.error("Error sharing with image:", err);
+    }
+  } else {
+    // Fallback: just share title + URL or copy
+    try {
       await navigator.clipboard.writeText(url);
       alert("Post URL copied to clipboard!");
-      return;
+    } catch (err) {
+      console.error("Clipboard fallback error:", err);
     }
+  }
+};
 
-    if (isSharing) return;
 
-    try {
-      setIsSharing(true);
-      await navigator.share({ title: post.title, url });
-    } catch (error) {
-      console.error("Error sharing:", error);
-    } finally {
-      setIsSharing(false);
-    }
-  };
 
   const getRandomAd = (position: string) => {
     const filteredAds = ads.filter(ad => ad?.position === position);
