@@ -208,7 +208,14 @@ const PostDetailPage: React.FC = () => {
   }
 
   return (
+    
     <Layout>
+      <meta property="og:title" content="Post Title" />
+      <meta property="og:description" content="Post summary or excerpt" />
+      <meta property="og:image" content="https://yourdomain.com/path-to-image.jpg" />
+      <meta property="og:url" content="https://yourdomain.com/post/123" />
+      <meta property="og:type" content="article" />
+
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md overflow-hidden transition-colors duration-300">
           {post.image_url && (
