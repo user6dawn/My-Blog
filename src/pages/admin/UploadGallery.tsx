@@ -83,13 +83,13 @@ const UploadGallery: React.FC = () => {
       const fileName = `${Date.now()}.${fileExt}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('gallery-images')
+        .from('blog-images')
         .upload(fileName, image);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('gallery-images')
+        .from('blog-images')
         .getPublicUrl(uploadData.path);
 
       const { data: { session } } = await supabase.auth.getSession();
