@@ -104,8 +104,10 @@ const [formData, setFormData] = useState({
         image_url: '',
         link_url: '',
         position: 'between_posts',
-        is_active: true
+        is_active: true,
+        content: ''
       });
+
     } catch (err: any) {
       setError(err.message);
     } finally {

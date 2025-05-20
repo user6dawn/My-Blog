@@ -12,61 +12,6 @@ interface GalleryImage {
   created_at: string;
 }
 
-const handleGallerySubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  // Add session check
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
-    setGalleryError('You must be logged in to upload images');
-    return;
-  }
-
-  if (!galleryTitle || !galleryImage) {
-    setGalleryError('Title and image are required!');
-    return;
-  }
-
-  setGalleryUploading(true);
-
-  try {
-    const fileExt = galleryImage.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
-    
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('gallery-images')
-      .upload(fileName, galleryImage);
-
-    if (uploadError) throw uploadError;
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('gallery-images')
-      .getPublicUrl(uploadData.path);
-
-    const { error: insertError } = await supabase
-      .from('gallery')
-      .insert([{
-        title: galleryTitle,
-        description: galleryDescription,
-        image_url: publicUrl
-      }]);
-
-    if (insertError) throw insertError;
-
-    alert('Gallery image uploaded!');
-    setGalleryTitle('');
-    setGalleryDescription('');
-    setGalleryImage(null);
-    setGalleryImagePreview(null);
-    setGalleryError(null);
-  } catch (err: any) {
-    console.error('Gallery upload failed:', err);
-    setGalleryError(err.message || 'Failed to upload image');
-  } finally {
-    setGalleryUploading(false);
-  }
-};
-
 const UploadGallery: React.FC = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
@@ -146,14 +91,13 @@ const UploadGallery: React.FC = () => {
       const { data: { publicUrl } } = supabase.storage
         .from('gallery-images')
         .getPublicUrl(uploadData.path);
+
       const { data: { session } } = await supabase.auth.getSession();
-
-if (!session) {
-  setError('You must be logged in to upload images.');
-  setUploading(false);
-  return;
-}
-
+      if (!session) {
+        setError('You must be logged in to upload images.');
+        setUploading(false);
+        return;
+      }
 
       const { error: insertError } = await supabase
         .from('gallery')

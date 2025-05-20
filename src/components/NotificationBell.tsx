@@ -24,7 +24,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ isDark, toggleTheme
         .from("subscribers")
         .upsert(
           [{ name: subscriberName, email: subscriberEmail }],
-          { onConflict: ['email'] }
+          { onConflict: 'email' }
         );
 
       if (error) {

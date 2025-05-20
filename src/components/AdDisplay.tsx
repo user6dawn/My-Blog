@@ -14,14 +14,14 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ ad, position }) => {
     const fetchFallbackAds = async () => {
       const { data, error } = await supabase
         .from('ads')
-        .select('id, title, link_url, image_url') // Ensure image_url is included
+        .select('id, title, link_url, image_url, is_active, position, created_at') // Fetch all required fields
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching fallback ads:', error);
       } else {
-        console.log('Fetched fallback ads:', data); // Debugging statement
+        console.log('Fetched fallback ads:', data);
         setFallbackAds(data || []);
       }
     };
@@ -56,7 +56,7 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ ad, position }) => {
   // If no ad is passed as a prop, display fallback ads
   if (!ad) {
     return (
-      <div className="ad-container w-full overflow-hidden py-2 bg-gray-100 text-sm text-gray-700">
+      <div className="ad-container w-full overflow-hidden py-2 text-sm text-gray-700">
         <marquee behavior="scroll" direction="left" scrollamount="6">
           {fallbackAds.length > 0 ? (
             fallbackAds.map((item) => (
@@ -65,7 +65,7 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ ad, position }) => {
                 href={item.link_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => trackAdClick(item.id)} // Pass the ad ID to track the click
+                onClick={() => trackAdClick(item.id)}
                 className="mx-4 hover:underline"
               >
                 {item.image_url ? (
@@ -95,7 +95,7 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ ad, position }) => {
           href={ad.link_url}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => trackAdClick(ad.id)} // Track click on active ad
+          onClick={() => trackAdClick(ad.id)}
           className="block"
         >
           {ad.image_url ? (

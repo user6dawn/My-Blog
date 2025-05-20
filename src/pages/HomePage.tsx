@@ -131,7 +131,7 @@ const HomePage: React.FC = () => {
         </div>
       </div>
       
-      <NotificationBell />
+      
     </Layout>
   );
 };
