@@ -18,21 +18,11 @@ const PostDetailPage: React.FC = () => {
   const [isSharing, setIsSharing] = useState(false);
   const [showSharePreview, setShowSharePreview] = useState(false);
 
-  // Function to convert HTML to plain text
-  const htmlToPlainText = (html: string) => {
-    if (typeof window === 'undefined') return ''; // SSR safety
-    
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    return tempDiv.textContent || tempDiv.innerText || '';
-  };
-
   useEffect(() => {
     const fetchPostDetails = async () => {
       if (!id) return;
       
       try {
-        // Fetch post
         const { data: postData, error: postError } = await supabase
           .from("posts")
           .select("id, title, content, image_url, likes, created_at")
@@ -41,7 +31,6 @@ const PostDetailPage: React.FC = () => {
 
         if (postError) throw postError;
 
-        // Fetch comments
         const { data: commentData, error: commentError } = await supabase
           .from("comments")
           .select("id, name, comment, created_at, parent_id, likes, post_id")
@@ -50,7 +39,6 @@ const PostDetailPage: React.FC = () => {
 
         if (commentError) throw commentError;
 
-        // Fetch ads
         const { data: adsData, error: adsError } = await supabase
           .from("ads")
           .select("*")
@@ -62,7 +50,6 @@ const PostDetailPage: React.FC = () => {
         setPost(postData);
         setAds(adsData || []);
         
-        // Structure comments in a nested format
         const nestComments = (comments: Comment[]) => {
           const map: Record<string, Comment> = {};
           comments.forEach(c => (map[c.id] = { ...c, replies: [] }));
@@ -77,7 +64,6 @@ const PostDetailPage: React.FC = () => {
               roots.push(map[c.id]);
             }
           });
-          
           return roots;
         };
 
@@ -111,7 +97,6 @@ const PostDetailPage: React.FC = () => {
       return;
     }
 
-    // Structure comments in a nested format
     const nestComments = (comments: Comment[]) => {
       const map: Record<string, Comment> = {};
       comments.forEach(c => (map[c.id] = { ...c, replies: [] }));
@@ -126,7 +111,6 @@ const PostDetailPage: React.FC = () => {
           roots.push(map[c.id]);
         }
       });
-      
       return roots;
     };
 
@@ -144,57 +128,53 @@ const PostDetailPage: React.FC = () => {
     if (!error) {
       setPost({ ...post, likes: (post.likes || 0) + 1 });
       setLiked(true);
-      
       const likedPosts = JSON.parse(localStorage.getItem("likedPosts") || "{}");
       likedPosts[post.id] = true;
       localStorage.setItem("likedPosts", JSON.stringify(likedPosts));
     }
   };
 
+  const fetchImageFile = async (imageUrl: string): Promise<File> => {
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const fileName = imageUrl.split('/').pop() || 'image.jpg';
+    return new File([blob], fileName, { type: blob.type });
+  };
+
   const sharePost = async () => {
     if (!post) return;
     
     const url = `${window.location.origin}/post/${post.id}`;
-    const plainTextContent = htmlToPlainText(post.content).substring(0, 140) + '...';
     
-    // Create a share data object with more details
-    const shareData = {
-      title: post.title,
-      text: plainTextContent,
-      url: url,
-      files: post.image_url ? [await fetchImageFile(post.image_url)] : undefined
-    };
-
-    // Check if Web Share API is supported
-    if (navigator.share && navigator.canShare?.(shareData)) {
-      try {
-        setIsSharing(true);
-        await navigator.share(shareData);
-      } catch (error) {
-        console.error("Error sharing:", error);
-        // Fallback to clipboard if share fails
-        await navigator.clipboard.writeText(url);
-        setShowSharePreview(true);
-      } finally {
-        setIsSharing(false);
-      }
-    } else {
-      // Fallback for browsers without Web Share API
-      await navigator.clipboard.writeText(url);
-      setShowSharePreview(true);
-    }
-  };
-
-  // Helper function to fetch image as File object for Web Share API
-  const fetchImageFile = async (imageUrl: string): Promise<File> => {
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const fileName = imageUrl.split('/').pop() || 'image.jpg';
-      return new File([blob], fileName, { type: blob.type });
+      setIsSharing(true);
+      const shareData: ShareData = {
+        title: post.title,
+        text: `Check out: ${post.title}`,
+        url: url,
+      };
+
+      if (post.image_url && navigator.canShare && navigator.canShare({ files: true })) {
+        try {
+          const imageFile = await fetchImageFile(post.image_url);
+          shareData.files = [imageFile];
+        } catch (error) {
+          console.error('Error sharing image:', error);
+        }
+      }
+
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(`${post.title}\n\n${url}`);
+        setShowSharePreview(true);
+      }
     } catch (error) {
-      console.error('Error fetching image:', error);
-      throw error;
+      console.error("Error sharing:", error);
+      await navigator.clipboard.writeText(`${post.title}\n\n${url}`);
+      setShowSharePreview(true);
+    } finally {
+      setIsSharing(false);
     }
   };
 
@@ -202,7 +182,7 @@ const PostDetailPage: React.FC = () => {
     if (!post) return;
     
     const url = `${window.location.origin}/post/${post.id}`;
-    const text = `Check out this post: ${post.title}`;
+    const text = `Check out: ${post.title}`;
     
     switch(platform) {
       case 'twitter':
@@ -224,7 +204,7 @@ const PostDetailPage: React.FC = () => {
     const url = `${window.location.origin}/post/${post.id}`;
     
     const copyToClipboard = async () => {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(`${post.title}\n\n${url}`);
       alert("Link copied to clipboard!");
       onClose();
     };
@@ -235,25 +215,17 @@ const PostDetailPage: React.FC = () => {
           <div className="p-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">Share this post</h3>
-              <button 
-                onClick={onClose} 
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                aria-label="Close share dialog"
-              >
+              <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                 <X size={20} />
               </button>
             </div>
             
-            {/* Share card preview */}
             <div className="border rounded-lg overflow-hidden mb-4 bg-gray-50 dark:bg-zinc-700">
               {post.image_url && (
                 <img 
                   src={post.image_url} 
                   alt={post.title} 
                   className="w-full h-48 object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
                 />
               )}
               <div className="p-3">
@@ -261,7 +233,6 @@ const PostDetailPage: React.FC = () => {
               </div>
             </div>
             
-            {/* Social media buttons */}
             <div className="grid grid-cols-2 gap-2 mb-4">
               <button 
                 onClick={() => socialMediaShare('twitter')}
@@ -350,17 +321,11 @@ const PostDetailPage: React.FC = () => {
               src={post.image_url} 
               alt={post.title} 
               className="w-full h-64 sm:h-96 object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
             />
           )}
           
           <div className="p-6 text-gray-800 dark:text-gray-100 transition-colors duration-300">
-            <h1 
-              className="text-2xl sm:text-3xl font-bold mb-4" 
-              dangerouslySetInnerHTML={{ __html: post.title }}
-            />
+            <h1 className="text-2xl sm:text-3xl font-bold mb-4" dangerouslySetInnerHTML={{ __html: post.title }} />
             
             <div className="prose prose-lg dark:prose-invert max-w-none">
               <div dangerouslySetInnerHTML={{ __html: post.content }} />
@@ -376,11 +341,7 @@ const PostDetailPage: React.FC = () => {
                 >
                   <Heart
                     size={16}
-                    className={
-                      liked
-                        ? "text-red-500 fill-red-500"
-                        : "text-gray-700 dark:text-gray-300"
-                    }
+                    className={liked ? "text-red-500 fill-red-500" : "text-gray-700 dark:text-gray-300"}
                   />
                   <span>{post.likes || 0}</span>
                 </button>
@@ -406,7 +367,6 @@ const PostDetailPage: React.FC = () => {
           </div>
         </div>
         
-        {/* Ad after the post content */}
         <div className="my-6">
           <AdDisplay ad={getRandomAd('between_posts')} position="between_posts" />
         </div>
@@ -426,12 +386,10 @@ const PostDetailPage: React.FC = () => {
           </div>
         </div>
         
-        {/* Second ad after comments section */}
         <div className="my-6">
           <AdDisplay ad={getRandomAd('between_posts')} position="between_posts" />
         </div>
 
-        {/* Share Preview Modal */}
         {showSharePreview && <SharePreview onClose={() => setShowSharePreview(false)} />}
       </div>
     </Layout>
