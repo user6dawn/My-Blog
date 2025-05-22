@@ -7,8 +7,6 @@ import AdDisplay from '../components/AdDisplay';
 import { Post, Comment, Ad } from '../types';
 import { ThumbsUp, Share2, Home, Heart } from 'lucide-react';
 import Layout from '../components/Layout';
-import { Helmet } from "react-helmet";
-
 
 const PostDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -143,44 +141,28 @@ const PostDetailPage: React.FC = () => {
     }
   };
 
-const sharePost = async () => {
-  if (!post) return;
-
-  const url = `${window.location.origin}/post/${post.id}`;
-  const title = post.title;
-
-  if (
-    navigator.canShare &&
-    navigator.canShare({ files: [] }) &&
-    typeof post.image_url === 'string'
-  ) {
-    try {
-      // ✅ Ensure fetch only runs if image_url is a string
-      const response = await fetch(post.image_url);
-      const blob = await response.blob();
-      const file = new File([blob], 'image.jpg', { type: blob.type });
-
-      await navigator.share({
-        title,
-        text: 'Check out this post!',
-        url,
-        files: [file],
-      });
-    } catch (err) {
-      console.error("Error sharing with image:", err);
-    }
-  } else {
-    // Fallback: just share title + URL or copy
-    try {
+  const sharePost = async () => {
+    if (!post) return;
+    
+    const url = `${window.location.origin}/post/${post.id}`;
+    
+    if (!navigator.share) {
       await navigator.clipboard.writeText(url);
       alert("Post URL copied to clipboard!");
-    } catch (err) {
-      console.error("Clipboard fallback error:", err);
+      return;
     }
-  }
-};
 
+    if (isSharing) return;
 
+    try {
+      setIsSharing(true);
+      await navigator.share({ title: post.title, url });
+    } catch (error) {
+      console.error("Error sharing:", error);
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   const getRandomAd = (position: string) => {
     const filteredAds = ads.filter(ad => ad?.position === position);
@@ -226,28 +208,7 @@ const sharePost = async () => {
   }
 
   return (
-    
-<Layout>
-  {post && (
-    <Helmet>
-      <title>{post.title}</title>
-      <meta name="description" content={post.content.slice(0, 150)} />
-      {/* Open Graph */}
-      <meta property="og:title" content={post.title} />
-      <meta property="og:description" content={post.content.slice(0, 150)} />
-      <meta property="og:image" content={post.image_url} />
-      <meta property="og:url" content={`${window.location.origin}/post/${post.id}`} />
-      <meta property="og:type" content="article" />
-
-      {/* Twitter Card */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={post.title} />
-      <meta name="twitter:description" content={post.content.slice(0, 150)} />
-      <meta name="twitter:image" content={post.image_url} />
-    </Helmet>
-  )}
-
-
+    <Layout>
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md overflow-hidden transition-colors duration-300">
           {post.image_url && (
