@@ -18,6 +18,15 @@ const PostDetailPage: React.FC = () => {
   const [isSharing, setIsSharing] = useState(false);
   const [showSharePreview, setShowSharePreview] = useState(false);
 
+  // Function to convert HTML to plain text
+  const htmlToPlainText = (html: string) => {
+    if (typeof window === 'undefined') return ''; // SSR safety
+    
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || '';
+  };
+
   useEffect(() => {
     const fetchPostDetails = async () => {
       if (!id) return;
@@ -146,15 +155,18 @@ const PostDetailPage: React.FC = () => {
     if (!post) return;
     
     const url = `${window.location.origin}/post/${post.id}`;
+    const plainTextContent = htmlToPlainText(post.content).substring(0, 140) + '...';
     
     // Create a share data object with more details
     const shareData = {
       title: post.title,
+      text: plainTextContent,
       url: url,
+      files: post.image_url ? [await fetchImageFile(post.image_url)] : undefined
     };
 
     // Check if Web Share API is supported
-    if (navigator.share) {
+    if (navigator.share && navigator.canShare?.(shareData)) {
       try {
         setIsSharing(true);
         await navigator.share(shareData);
@@ -162,16 +174,27 @@ const PostDetailPage: React.FC = () => {
         console.error("Error sharing:", error);
         // Fallback to clipboard if share fails
         await navigator.clipboard.writeText(url);
-        alert("Post URL copied to clipboard!");
+        setShowSharePreview(true);
       } finally {
         setIsSharing(false);
       }
     } else {
       // Fallback for browsers without Web Share API
       await navigator.clipboard.writeText(url);
-      
-      // Show a custom share preview modal
       setShowSharePreview(true);
+    }
+  };
+
+  // Helper function to fetch image as File object for Web Share API
+  const fetchImageFile = async (imageUrl: string): Promise<File> => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const fileName = imageUrl.split('/').pop() || 'image.jpg';
+      return new File([blob], fileName, { type: blob.type });
+    } catch (error) {
+      console.error('Error fetching image:', error);
+      throw error;
     }
   };
 
