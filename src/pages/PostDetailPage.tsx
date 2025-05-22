@@ -7,6 +7,8 @@ import AdDisplay from '../components/AdDisplay';
 import { Post, Comment, Ad } from '../types';
 import { ThumbsUp, Share2, Home, Heart } from 'lucide-react';
 import Layout from '../components/Layout';
+import { Helmet } from "react-helmet";
+
 
 const PostDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -225,12 +227,26 @@ const sharePost = async () => {
 
   return (
     
-    <Layout>
-      <meta property="og:title" content="Post Title" />
-      <meta property="og:description" content="Post summary or excerpt" />
-      <meta property="og:image" content="https://yourdomain.com/path-to-image.jpg" />
-      <meta property="og:url" content="https://yourdomain.com/post/123" />
+<Layout>
+  {post && (
+    <Helmet>
+      <title>{post.title}</title>
+      <meta name="description" content={post.content.slice(0, 150)} />
+      {/* Open Graph */}
+      <meta property="og:title" content={post.title} />
+      <meta property="og:description" content={post.content.slice(0, 150)} />
+      <meta property="og:image" content={post.image_url} />
+      <meta property="og:url" content={`${window.location.origin}/post/${post.id}`} />
       <meta property="og:type" content="article" />
+
+      {/* Twitter Card */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={post.title} />
+      <meta name="twitter:description" content={post.content.slice(0, 150)} />
+      <meta name="twitter:image" content={post.image_url} />
+    </Helmet>
+  )}
+
 
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md overflow-hidden transition-colors duration-300">
