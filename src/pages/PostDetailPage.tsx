@@ -5,9 +5,8 @@ import CommentList from '../components/CommentList';
 import CommentForm from '../components/CommentForm';
 import AdDisplay from '../components/AdDisplay';
 import { Post, Comment, Ad } from '../types';
-import { Share2, Home, Heart, MessageCircle } from 'lucide-react';
+import { ThumbsUp, Share2, Home, Heart, X } from 'lucide-react';
 import Layout from '../components/Layout';
-import { Helmet } from 'react-helmet';
 
 const PostDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,12 +16,14 @@ const PostDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [showSharePreview, setShowSharePreview] = useState(false);
 
   useEffect(() => {
     const fetchPostDetails = async () => {
       if (!id) return;
-
+      
       try {
+        // Fetch post
         const { data: postData, error: postError } = await supabase
           .from("posts")
           .select("id, title, content, image_url, likes, created_at")
@@ -31,6 +32,7 @@ const PostDetailPage: React.FC = () => {
 
         if (postError) throw postError;
 
+        // Fetch comments
         const { data: commentData, error: commentError } = await supabase
           .from("comments")
           .select("id, name, comment, created_at, parent_id, likes, post_id")
@@ -39,6 +41,7 @@ const PostDetailPage: React.FC = () => {
 
         if (commentError) throw commentError;
 
+        // Fetch ads
         const { data: adsData, error: adsError } = await supabase
           .from("ads")
           .select("*")
@@ -46,23 +49,26 @@ const PostDetailPage: React.FC = () => {
           .order("created_at", { ascending: false });
 
         if (adsError) throw adsError;
-
+        
         setPost(postData);
         setAds(adsData || []);
-
+        
+        // Structure comments in a nested format
         const nestComments = (comments: Comment[]) => {
           const map: Record<string, Comment> = {};
           comments.forEach(c => (map[c.id] = { ...c, replies: [] }));
-
+          
           const roots: Comment[] = [];
           comments.forEach(c => {
-            if (c.parent_id && map[c.parent_id]?.replies) {
-              map[c.parent_id].replies.push(map[c.id]);
+            if (c.parent_id) {
+              if (map[c.parent_id]?.replies) {
+                map[c.parent_id].replies?.push(map[c.id]);
+              }
             } else {
               roots.push(map[c.id]);
             }
           });
-
+          
           return roots;
         };
 
@@ -84,7 +90,7 @@ const PostDetailPage: React.FC = () => {
 
   const refreshComments = async () => {
     if (!id) return;
-
+    
     const { data, error } = await supabase
       .from("comments")
       .select("id, name, comment, created_at, parent_id, likes, post_id")
@@ -96,19 +102,22 @@ const PostDetailPage: React.FC = () => {
       return;
     }
 
+    // Structure comments in a nested format
     const nestComments = (comments: Comment[]) => {
       const map: Record<string, Comment> = {};
       comments.forEach(c => (map[c.id] = { ...c, replies: [] }));
-
+      
       const roots: Comment[] = [];
       comments.forEach(c => {
-        if (c.parent_id && map[c.parent_id]?.replies) {
-          map[c.parent_id].replies.push(map[c.id]);
+        if (c.parent_id) {
+          if (map[c.parent_id]?.replies) {
+            map[c.parent_id].replies?.push(map[c.id]);
+          }
         } else {
           roots.push(map[c.id]);
         }
       });
-
+      
       return roots;
     };
 
@@ -126,7 +135,7 @@ const PostDetailPage: React.FC = () => {
     if (!error) {
       setPost({ ...post, likes: (post.likes || 0) + 1 });
       setLiked(true);
-
+      
       const likedPosts = JSON.parse(localStorage.getItem("likedPosts") || "{}");
       likedPosts[post.id] = true;
       localStorage.setItem("likedPosts", JSON.stringify(likedPosts));
@@ -135,31 +144,142 @@ const PostDetailPage: React.FC = () => {
 
   const sharePost = async () => {
     if (!post) return;
-
+    
     const url = `${window.location.origin}/post/${post.id}`;
+    
+    // Create a share data object with more details
+    const shareData = {
+      title: post.title,
+      text: post.content.substring(0, 100) + '...', // Short description
+      url: url,
+    };
 
-    if (!navigator.share) {
+    // Check if Web Share API is supported
+    if (navigator.share) {
+      try {
+        setIsSharing(true);
+        await navigator.share(shareData);
+      } catch (error) {
+        console.error("Error sharing:", error);
+        // Fallback to clipboard if share fails
+        await navigator.clipboard.writeText(url);
+        alert("Post URL copied to clipboard!");
+      } finally {
+        setIsSharing(false);
+      }
+    } else {
+      // Fallback for browsers without Web Share API
       await navigator.clipboard.writeText(url);
-      alert("Post URL copied to clipboard!");
-      return;
+      
+      // Show a custom share preview modal
+      setShowSharePreview(true);
     }
+  };
 
-    if (isSharing) return;
-
-    try {
-      setIsSharing(true);
-      await navigator.share({ title: post.title, url });
-    } catch (error) {
-      console.error("Error sharing:", error);
-    } finally {
-      setIsSharing(false);
+  const socialMediaShare = (platform: string) => {
+    if (!post) return;
+    
+    const url = `${window.location.origin}/post/${post.id}`;
+    const text = `Check out this post: ${post.title}`;
+    
+    switch(platform) {
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+        break;
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        break;
+      case 'linkedin':
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+        break;
     }
+  };
+
+  const SharePreview = ({ onClose }: { onClose: () => void }) => {
+    if (!post) return null;
+    
+    const url = `${window.location.origin}/post/${post.id}`;
+    
+    const copyToClipboard = async () => {
+      await navigator.clipboard.writeText(url);
+      alert("Link copied to clipboard!");
+      onClose();
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white dark:bg-zinc-800 rounded-lg max-w-md w-full overflow-hidden shadow-xl">
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">Share this post</h3>
+              <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                <X size={20} />
+              </button>
+            </div>
+            
+            {/* Share card preview */}
+            <div className="border rounded-lg overflow-hidden mb-4">
+              {post.image_url && (
+                <img 
+                  src={post.image_url} 
+                  alt={post.title} 
+                  className="w-full h-48 object-cover"
+                />
+              )}
+              <div className="p-3">
+                <h4 className="font-bold text-sm mb-1">{post.title}</h4>
+                <p className="text-gray-600 dark:text-gray-300 text-xs">
+                  {post.content.substring(0, 100)}...
+                </p>
+              </div>
+            </div>
+            
+            {/* Social media buttons */}
+            <div className="flex gap-2 mb-4">
+              <button 
+                onClick={() => socialMediaShare('twitter')}
+                className="flex-1 bg-blue-400 text-white p-2 rounded flex items-center justify-center gap-2"
+              >
+                <span>Twitter</span>
+              </button>
+              <button 
+                onClick={() => socialMediaShare('facebook')}
+                className="flex-1 bg-blue-600 text-white p-2 rounded flex items-center justify-center gap-2"
+              >
+                <span>Facebook</span>
+              </button>
+              <button 
+                onClick={() => socialMediaShare('linkedin')}
+                className="flex-1 bg-blue-700 text-white p-2 rounded flex items-center justify-center gap-2"
+              >
+                <span>LinkedIn</span>
+              </button>
+            </div>
+            
+            <div className="flex justify-between">
+              <button
+                onClick={copyToClipboard}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                Copy Link
+              </button>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const getRandomAd = (position: string) => {
     const filteredAds = ads.filter(ad => ad?.position === position);
-    return filteredAds.length > 0
-      ? filteredAds[Math.floor(Math.random() * filteredAds.length)]
+    return filteredAds.length > 0 
+      ? filteredAds[Math.floor(Math.random() * filteredAds.length)] 
       : null;
   };
 
@@ -174,8 +294,6 @@ const PostDetailPage: React.FC = () => {
     });
     return flat;
   };
-
-  const canonicalUrl = post ? `${window.location.origin}/post/${post.id}` : '';
 
   if (loading) {
     return (
@@ -202,116 +320,96 @@ const PostDetailPage: React.FC = () => {
   }
 
   return (
-    <>
-      <Helmet>
-        <title>{post.title}</title>
-        <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={(post.content || '').replace(/<[^>]+>/g, '').slice(0, 150)} />
-        <meta property="og:image" content={post.image_url || '/default-og-image.jpg'} />
-        <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:type" content="article" />
-        <meta property="og:site_name" content="Your Blog Name" />
-        <meta property="og:locale" content="en_US" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post.title} />
-        <meta name="twitter:description" content={(post.content || '').replace(/<[^>]+>/g, '').slice(0, 150)} />
-        <meta name="twitter:image" content={post.image_url || '/default-og-image.jpg'} />
-        <meta name="twitter:site" content="@yourhandle" />
-        <meta name="twitter:creator" content="@yourhandle" />
-        <link rel="canonical" href={canonicalUrl} />
-      </Helmet>
-
-      <Layout>
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md overflow-hidden transition-colors duration-300">
-            {post.image_url && (
-              <img
-                src={post.image_url}
-                alt={post.title}
-                className="w-full object-cover"
-              />
-            )}
-
-            <div className="p-6 text-gray-800 dark:text-gray-100 transition-colors duration-300">
-              <h1
-                className="text-2xl sm:text-3xl font-bold mb-4"
-                dangerouslySetInnerHTML={{ __html: post.title }}
-              />
-
-              <div className="prose prose-lg dark:prose-invert max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: post.content }} />
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-gray-300 dark:border-gray-700 flex items-center justify-between text-sm">
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={likePost}
-                    disabled={liked}
-                    className="flex items-center gap-1"
-                    aria-label={`Like ${post.title}`}
-                  >
-                    <Heart
-                      size={16}
-                      className={
-                        liked
-                          ? "text-red-500 fill-red-500"
-                          : "text-gray-700 dark:text-gray-300"
-                      }
-                    />
-                    <span>{post.likes || 0}</span>
-                  </button>
-
-                  <button
-                    onClick={sharePost}
-                    disabled={isSharing}
-                    className="flex items-center gap-1"
-                    aria-label={`Share ${post.title}`}
-                  >
-                    {isSharing ? "Sharing..." : <Share2 size={16} />}
-                  </button>
-
-                  <div className="flex items-center gap-1">
-                    <MessageCircle size={16} />
-                    <span>{flattenComments(comments).length}</span>
-                  </div>
-                </div>
-
-                <Link
-                  to="/"
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+    <Layout>
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md overflow-hidden transition-colors duration-300">
+          {post.image_url && (
+            <img 
+              src={post.image_url} 
+              alt={post.title} 
+              className="w-full h-64 sm:h-96 object-cover"
+            />
+          )}
+          
+          <div className="p-6 text-gray-800 dark:text-gray-100 transition-colors duration-300">
+            <h1 
+              className="text-2xl sm:text-3xl font-bold mb-4" 
+              dangerouslySetInnerHTML={{ __html: post.title }}
+            />
+            
+            <div className="prose prose-lg dark:prose-invert max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            </div>
+            
+            <div className="flex items-center justify-between text-sm text-gray-700 dark:text-gray-300">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={likePost}
+                  disabled={liked}
+                  className="flex items-center gap-1"
+                  aria-label={`Like ${post.title}`}
                 >
-                  <Home size={18} />
-                  <span>Back to Home</span>
-                </Link>
+                  <Heart
+                    size={16}
+                    className={
+                      liked
+                        ? "text-red-500 fill-red-500"
+                        : "text-gray-700 dark:text-gray-300"
+                    }
+                  />
+                  <span>{post.likes || 0}</span>
+                </button>
+
+                <button
+                  onClick={sharePost}
+                  disabled={isSharing}
+                  className="flex items-center gap-1"
+                  aria-label={`Share ${post.title}`}
+                >
+                  {isSharing ? "Sharing..." : <Share2 size={16} />}
+                </button>
               </div>
+
+              <Link 
+                to="/" 
+                className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+              >
+                <Home size={18} />
+                <span>Back to Home</span>
+              </Link>
             </div>
-          </div>
-
-          <div className="my-6">
-            <AdDisplay ad={getRandomAd('between_posts')} position="between_posts" />
-          </div>
-
-          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md p-6 mt-6 transition-colors duration-300">
-            <CommentForm postId={post.id} onCommentAdded={refreshComments} />
-
-            <div className="mt-8">
-              <h2 className="text-xl font-bold mb-4">
-                Comments ({flattenComments(comments).length})
-              </h2>
-              <CommentList
-                comments={comments}
-                postId={post.id}
-                onCommentUpdated={refreshComments}
-              />
-            </div>
-          </div>
-
-          <div className="my-6">
-            <AdDisplay ad={getRandomAd('between_posts')} position="between_posts" />
           </div>
         </div>
-      </Layout>
-    </>
+        
+        {/* Ad after the post content */}
+        <div className="my-6">
+          <AdDisplay ad={getRandomAd('between_posts')} position="between_posts" />
+        </div>
+        
+        <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md p-6 mt-6 transition-colors duration-300">
+          <CommentForm postId={post.id} onCommentAdded={refreshComments} />
+          
+          <div className="mt-8">
+            <h2 className="text-xl font-bold mb-4">
+              Comments ({flattenComments(comments).length})
+            </h2>
+            <CommentList 
+              comments={comments} 
+              postId={post.id} 
+              onCommentUpdated={refreshComments}
+            />
+          </div>
+        </div>
+        
+        {/* Second ad after comments section */}
+        <div className="my-6">
+          <AdDisplay ad={getRandomAd('between_posts')} position="between_posts" />
+        </div>
+
+        {/* Share Preview Modal */}
+        {showSharePreview && <SharePreview onClose={() => setShowSharePreview(false)} />}
+      </div>
+    </Layout>
   );
 };
 
