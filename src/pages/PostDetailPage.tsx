@@ -5,7 +5,7 @@ import CommentList from '../components/CommentList';
 import CommentForm from '../components/CommentForm';
 import AdDisplay from '../components/AdDisplay';
 import { Post, Comment, Ad } from '../types';
-import { ThumbsUp, Share2, Home, Heart, X } from 'lucide-react';
+import { ThumbsUp, Share2, Home, Heart, X, Twitter, Facebook, Linkedin, Link as LinkIcon } from 'lucide-react';
 import Layout from '../components/Layout';
 
 const PostDetailPage: React.FC = () => {
@@ -150,7 +150,6 @@ const PostDetailPage: React.FC = () => {
     // Create a share data object with more details
     const shareData = {
       title: post.title,
-      text: post.content.substring(0, 100) + '...', // Short description
       url: url,
     };
 
@@ -193,6 +192,7 @@ const PostDetailPage: React.FC = () => {
         window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
         break;
     }
+    setShowSharePreview(false);
   };
 
   const SharePreview = ({ onClose }: { onClose: () => void }) => {
@@ -212,62 +212,61 @@ const PostDetailPage: React.FC = () => {
           <div className="p-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">Share this post</h3>
-              <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              <button 
+                onClick={onClose} 
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                aria-label="Close share dialog"
+              >
                 <X size={20} />
               </button>
             </div>
             
             {/* Share card preview */}
-            <div className="border rounded-lg overflow-hidden mb-4">
+            <div className="border rounded-lg overflow-hidden mb-4 bg-gray-50 dark:bg-zinc-700">
               {post.image_url && (
                 <img 
                   src={post.image_url} 
                   alt={post.title} 
                   className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
                 />
               )}
               <div className="p-3">
                 <h4 className="font-bold text-sm mb-1">{post.title}</h4>
-                <p className="text-gray-600 dark:text-gray-300 text-xs">
-                  {post.content.substring(0, 100)}...
-                </p>
               </div>
             </div>
             
             {/* Social media buttons */}
-            <div className="flex gap-2 mb-4">
+            <div className="grid grid-cols-2 gap-2 mb-4">
               <button 
                 onClick={() => socialMediaShare('twitter')}
-                className="flex-1 bg-blue-400 text-white p-2 rounded flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-2 p-2 bg-blue-400 text-white rounded hover:bg-blue-500 transition-colors"
               >
+                <Twitter size={16} />
                 <span>Twitter</span>
               </button>
               <button 
                 onClick={() => socialMediaShare('facebook')}
-                className="flex-1 bg-blue-600 text-white p-2 rounded flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-2 p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
               >
+                <Facebook size={16} />
                 <span>Facebook</span>
               </button>
               <button 
                 onClick={() => socialMediaShare('linkedin')}
-                className="flex-1 bg-blue-700 text-white p-2 rounded flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-2 p-2 bg-blue-700 text-white rounded hover:bg-blue-800 transition-colors"
               >
+                <Linkedin size={16} />
                 <span>LinkedIn</span>
               </button>
-            </div>
-            
-            <div className="flex justify-between">
               <button
                 onClick={copyToClipboard}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                className="flex items-center justify-center gap-2 p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
               >
-                Copy Link
-              </button>
-              <button
-                onClick={onClose}
-                className="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
-              >
-                Cancel
+                <LinkIcon size={16} />
+                <span>Copy Link</span>
               </button>
             </div>
           </div>
@@ -328,6 +327,9 @@ const PostDetailPage: React.FC = () => {
               src={post.image_url} 
               alt={post.title} 
               className="w-full h-64 sm:h-96 object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
             />
           )}
           
