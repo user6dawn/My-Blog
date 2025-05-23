@@ -161,43 +161,8 @@ const PostDetailPage: React.FC = () => {
   const sharePost = async () => {
     if (!post) return
 
-    const url = `${window.location.origin}/post/${post.id}`
-    const plainTitle = getPlainTextFromHTML(post.title)
-    const plainExcerpt = getExcerpt(post.content)
-
-    try {
-      setIsSharing(true)
-      const shareData: ShareData = {
-        title: plainTitle,
-        text: `${plainTitle}\n\n${plainExcerpt}\n\n`,
-        url: url,
-      }
-
-      // Check if we can share files by creating a test File object
-      if (post.image_url && navigator.canShare) {
-        try {
-          const imageFile = await fetchImageFile(post.image_url)
-          const testShareData = { ...shareData, files: [imageFile] }
-          if (navigator.canShare(testShareData)) {
-            shareData.files = [imageFile]
-          }
-        } catch (error) {
-          console.error("Error sharing image:", error)
-        }
-      }
-      if (navigator.share) {
-        await navigator.share(shareData)
-      } else {
-        await navigator.clipboard.writeText(`${plainTitle}\n\n${plainExcerpt}\n\n${url}`)
-        setShowSharePreview(true)
-      }
-    } catch (error) {
-      console.error("Error sharing:", error)
-      await navigator.clipboard.writeText(`${plainTitle}\n\n${url}`)
-      setShowSharePreview(true)
-    } finally {
-      setIsSharing(false)
-    }
+    // Always show the custom share preview instead of using native share
+    setShowSharePreview(true)
   }
 
   const socialMediaShare = (platform: string) => {
@@ -300,6 +265,46 @@ const PostDetailPage: React.FC = () => {
                 <span>Copy Link</span>
               </button>
             </div>
+
+            {/* Add native share option if available */}
+            {navigator.share && (
+              <button
+                onClick={async () => {
+                  const url = `${window.location.origin}/post/${post.id}`
+                  const plainTitle = getPlainTextFromHTML(post.title)
+                  const plainExcerpt = getExcerpt(post.content)
+
+                  try {
+                    const shareData: ShareData = {
+                      title: plainTitle,
+                      text: `${plainTitle}\n\n${plainExcerpt}\n\n`,
+                      url: url,
+                    }
+
+                    if (post.image_url) {
+                      try {
+                        const imageFile = await fetchImageFile(post.image_url)
+                        const testShareData = { ...shareData, files: [imageFile] }
+                        if (navigator.canShare && navigator.canShare(testShareData)) {
+                          shareData.files = [imageFile]
+                        }
+                      } catch (error) {
+                        console.error("Error sharing image:", error)
+                      }
+                    }
+
+                    await navigator.share(shareData)
+                    onClose()
+                  } catch (error) {
+                    console.error("Error with native sharing:", error)
+                  }
+                }}
+                className="w-full flex items-center justify-center gap-2 p-3 bg-green-600 text-white rounded hover:bg-green-700 transition-colors mt-2"
+              >
+                <Share2 size={16} />
+                <span>More Apps</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
