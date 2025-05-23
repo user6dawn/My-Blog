@@ -12,6 +12,9 @@ import type { Post, Comment, Ad } from "../types"
 import { Share2, Home, Heart, X, Twitter, Facebook, LinkIcon } from "lucide-react"
 import Layout from "../components/Layout"
 
+// Default image to use if post has no image
+const DEFAULT_OG_IMAGE = "https://yourdomain.com/default-og-image.jpg" // Replace with your actual default image URL
+
 const PostDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const [post, setPost] = useState<Post | null>(null)
@@ -21,9 +24,11 @@ const PostDetailPage: React.FC = () => {
   const [liked, setLiked] = useState(false)
   const [isSharing, setIsSharing] = useState(false)
   const [showSharePreview, setShowSharePreview] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(false)
 
   // Helper function to extract plain text from HTML
   const getPlainTextFromHTML = (html: string) => {
+    if (!html) return ""
     const tempDiv = document.createElement("div")
     tempDiv.innerHTML = html
     return tempDiv.textContent || tempDiv.innerText || ""
@@ -31,8 +36,25 @@ const PostDetailPage: React.FC = () => {
 
   // Helper function to get a short excerpt from content
   const getExcerpt = (htmlContent: string, maxLength = 160) => {
+    if (!htmlContent) return ""
     const plainText = getPlainTextFromHTML(htmlContent)
     return plainText.length > maxLength ? plainText.substring(0, maxLength) + "..." : plainText
+  }
+
+  // Ensure image URL is absolute for Open Graph tags
+  const getAbsoluteImageUrl = (imageUrl: string) => {
+    if (!imageUrl) return DEFAULT_OG_IMAGE
+    if (imageUrl.startsWith("http")) return imageUrl
+    if (imageUrl.startsWith("//")) return `https:${imageUrl}`
+    return `${window.location.origin}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`
+  }
+
+  // Preload image to ensure it's available
+  const preloadImage = (imageUrl: string) => {
+    if (!imageUrl) return
+    const img = new Image()
+    img.onload = () => setImageLoaded(true)
+    img.src = imageUrl
   }
 
   useEffect(() => {
@@ -66,6 +88,11 @@ const PostDetailPage: React.FC = () => {
 
         setPost(postData)
         setAds(adsData || [])
+
+        // Preload the image if it exists
+        if (postData?.image_url) {
+          preloadImage(getAbsoluteImageUrl(postData.image_url))
+        }
 
         const nestComments = (comments: Comment[]) => {
           const map: Record<string, Comment> = {}
@@ -370,13 +397,6 @@ const PostDetailPage: React.FC = () => {
     )
   }
 
-  // Ensure image URL is absolute for Open Graph tags
-  const getAbsoluteImageUrl = (imageUrl: string) => {
-    if (!imageUrl) return ""
-    if (imageUrl.startsWith("http")) return imageUrl
-    return `${window.location.origin}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`
-  }
-
   const absoluteImageUrl = getAbsoluteImageUrl(post.image_url || "")
 
   return (
@@ -391,20 +411,44 @@ const PostDetailPage: React.FC = () => {
           <meta property="og:url" content={`${window.location.origin}/post/${post.id}`} />
           <meta property="og:title" content={getPlainTextFromHTML(post.title)} />
           <meta property="og:description" content={getExcerpt(post.content, 160)} />
-          {absoluteImageUrl && <meta property="og:image" content={absoluteImageUrl} />}
-          {absoluteImageUrl && <meta property="og:image:secure_url" content={absoluteImageUrl} />}
+          <meta property="og:image" content={absoluteImageUrl} />
+          <meta property="og:image:secure_url" content={absoluteImageUrl} />
+          <meta property="og:image:type" content="image/jpeg" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
-          <meta property="og:site_name" content="Your Site Name" />
+          <meta property="og:image:alt" content={getPlainTextFromHTML(post.title)} />
+          <meta property="og:site_name" content="The Balance Code Alliance" />
+          <meta property="og:locale" content="en_US" />
 
           {/* Twitter */}
-          <meta property="twitter:card" content="summary_large_image" />
-          <meta property="twitter:url" content={`${window.location.origin}/post/${post.id}`} />
-          <meta property="twitter:title" content={getPlainTextFromHTML(post.title)} />
-          <meta property="twitter:description" content={getExcerpt(post.content, 160)} />
-          {absoluteImageUrl && <meta property="twitter:image" content={absoluteImageUrl} />}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:url" content={`${window.location.origin}/post/${post.id}`} />
+          <meta name="twitter:title" content={getPlainTextFromHTML(post.title)} />
+          <meta name="twitter:description" content={getExcerpt(post.content, 160)} />
+          <meta name="twitter:image" content={absoluteImageUrl} />
+          <meta name="twitter:image:alt" content={getPlainTextFromHTML(post.title)} />
+
+          {/* WhatsApp specific - force image refresh */}
+          <meta property="og:image:url" content={`${absoluteImageUrl}?v=${new Date().getTime()}`} />
+
+          {/* JSON-LD structured data */}
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              headline: getPlainTextFromHTML(post.title),
+              description: getExcerpt(post.content, 160),
+              image: absoluteImageUrl,
+              datePublished: post.created_at,
+              url: `${window.location.origin}/post/${post.id}`,
+            })}
+          </script>
         </Helmet>
       )}
+
+      {/* Preload image for crawlers */}
+      {post.image_url && <link rel="preload" as="image" href={absoluteImageUrl} />}
+
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md overflow-hidden transition-colors duration-300">
           {post.image_url && (
@@ -412,6 +456,7 @@ const PostDetailPage: React.FC = () => {
               src={post.image_url || "/placeholder.svg"}
               alt={post.title}
               className="w-full h-64 sm:h-96 object-cover"
+              onLoad={() => setImageLoaded(true)}
             />
           )}
 
