@@ -154,10 +154,15 @@ const PostDetailPage: React.FC = () => {
         url: url,
       };
 
-      if (post.image_url && navigator.canShare && navigator.canShare({ files: true })) {
+      // Check if we can share files by creating a test File object
+      if (post.image_url && navigator.canShare) {
         try {
           const imageFile = await fetchImageFile(post.image_url);
-          shareData.files = [imageFile];
+          // Test if files can be shared by creating a test share data object
+          const testShareData = { ...shareData, files: [imageFile] };
+          if (navigator.canShare(testShareData)) {
+            shareData.files = [imageFile];
+          }
         } catch (error) {
           console.error('Error sharing image:', error);
         }
