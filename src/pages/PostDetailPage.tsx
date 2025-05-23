@@ -9,7 +9,7 @@ import CommentList from "../components/CommentList"
 import CommentForm from "../components/CommentForm"
 import AdDisplay from "../components/AdDisplay"
 import type { Post, Comment, Ad } from "../types"
-import { Share2, Home, Heart, X, Twitter, Facebook, Linkedin, LinkIcon } from "lucide-react"
+import { Share2, Home, Heart, X, Twitter, Facebook, LinkIcon } from "lucide-react"
 import Layout from "../components/Layout"
 
 const PostDetailPage: React.FC = () => {
@@ -169,21 +169,12 @@ const PostDetailPage: React.FC = () => {
     if (!post) return
 
     const url = `${window.location.origin}/post/${post.id}`
-
-    const plainTitle = (() => {
-      const tempDiv = document.createElement("div")
-      tempDiv.innerHTML = post.title
-      return tempDiv.textContent || tempDiv.innerText || ""
-    })()
-
-    // Include image URL in the shared text
-    const imageText = post.image_url ? `\n\n${post.image_url}` : ""
-    const text = `Check out: ${plainTitle}${imageText}`
+    const plainTitle = getPlainTextFromHTML(post.title)
 
     switch (platform) {
       case "twitter":
         window.open(
-          `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+          `https://twitter.com/intent/tweet?text=${encodeURIComponent(plainTitle)}&url=${encodeURIComponent(url)}`,
           "_blank",
         )
         break
@@ -192,6 +183,9 @@ const PostDetailPage: React.FC = () => {
         break
       case "linkedin":
         window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, "_blank")
+        break
+      case "whatsapp":
+        window.open(`https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + url)}`, "_blank")
         break
     }
     setShowSharePreview(false)
@@ -203,20 +197,32 @@ const PostDetailPage: React.FC = () => {
     const url = `${window.location.origin}/post/${post.id}`
 
     const copyToClipboard = async () => {
-      const plainTitle = (() => {
-        const tempDiv = document.createElement("div")
-        tempDiv.innerHTML = post.title
-        return tempDiv.textContent || tempDiv.innerText || ""
-      })()
-
-      // Include image URL in the copied text
-      const imageText = post.image_url ? `\n\n${post.image_url}` : ""
-      const textToCopy = `${plainTitle}${imageText}\n\n${url}`
-
-      await navigator.clipboard.writeText(textToCopy)
+      const plainTitle = getPlainTextFromHTML(post.title)
+      await navigator.clipboard.writeText(`${plainTitle}\n\n${url}`)
       alert("Link copied to clipboard!")
       onClose()
     }
+
+    // Create a mock-up of how the shared content will appear
+    const RichPreviewMockup = () => (
+      <div className="border rounded-lg overflow-hidden mb-4 bg-gray-50 dark:bg-zinc-700">
+        {post.image_url && (
+          <div className="relative">
+            <img src={post.image_url || "/placeholder.svg"} alt={post.title} className="w-full h-48 object-cover" />
+            <div className="absolute bottom-2 right-2 bg-white rounded-full p-1">
+              <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                <span className="text-xs font-bold">YS</span>
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="p-3">
+          <h4 className="font-bold text-sm mb-1">{getPlainTextFromHTML(post.title)}</h4>
+          <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">{getExcerpt(post.content, 100)}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{window.location.host}</p>
+        </div>
+      </div>
+    )
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -232,16 +238,30 @@ const PostDetailPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="border rounded-lg overflow-hidden mb-4 bg-gray-50 dark:bg-zinc-700">
-              {post.image_url && (
-                <img src={post.image_url || "/placeholder.svg"} alt={post.title} className="w-full h-48 object-cover" />
-              )}
-              <div className="p-3">
-                <h4 className="font-bold text-sm mb-1">{post.title}</h4>
-              </div>
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                Preview of how your post will appear when shared:
+              </p>
+              <RichPreviewMockup />
             </div>
 
             <div className="grid grid-cols-2 gap-2 mb-4">
+              <button
+                onClick={() => socialMediaShare("whatsapp")}
+                className="flex items-center justify-center gap-2 p-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  stroke="none"
+                >
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg>
+                <span>WhatsApp</span>
+              </button>
               <button
                 onClick={() => socialMediaShare("twitter")}
                 className="flex items-center justify-center gap-2 p-2 bg-blue-400 text-white rounded hover:bg-blue-500 transition-colors"
@@ -255,13 +275,6 @@ const PostDetailPage: React.FC = () => {
               >
                 <Facebook size={16} />
                 <span>Facebook</span>
-              </button>
-              <button
-                onClick={() => socialMediaShare("linkedin")}
-                className="flex items-center justify-center gap-2 p-2 bg-blue-700 text-white rounded hover:bg-blue-800 transition-colors"
-              >
-                <Linkedin size={16} />
-                <span>LinkedIn</span>
               </button>
               <button
                 onClick={copyToClipboard}
@@ -278,13 +291,11 @@ const PostDetailPage: React.FC = () => {
                 onClick={async () => {
                   const url = `${window.location.origin}/post/${post.id}`
                   const plainTitle = getPlainTextFromHTML(post.title)
-                  const plainExcerpt = getExcerpt(post.content)
-                  const imageText = post.image_url ? `\n\nImage: ${post.image_url}` : ""
 
                   try {
                     const shareData: ShareData = {
                       title: plainTitle,
-                      text: `${plainTitle}\n\n${plainExcerpt}${imageText}\n\n`,
+                      text: plainTitle,
                       url: url,
                     }
 
@@ -359,26 +370,39 @@ const PostDetailPage: React.FC = () => {
     )
   }
 
+  // Ensure image URL is absolute for Open Graph tags
+  const getAbsoluteImageUrl = (imageUrl: string) => {
+    if (!imageUrl) return ""
+    if (imageUrl.startsWith("http")) return imageUrl
+    return `${window.location.origin}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`
+  }
+
+  const absoluteImageUrl = getAbsoluteImageUrl(post.image_url || "")
+
   return (
     <Layout>
       {post && (
         <Helmet>
-          <title>{post.title.replace(/<[^>]*>/g, "")}</title>
-          <meta name="description" content={post.content.substring(0, 160).replace(/<[^>]*>/g, "")} />
+          <title>{getPlainTextFromHTML(post.title)}</title>
+          <meta name="description" content={getExcerpt(post.content, 160)} />
 
           {/* Open Graph / Facebook */}
           <meta property="og:type" content="article" />
           <meta property="og:url" content={`${window.location.origin}/post/${post.id}`} />
-          <meta property="og:title" content={post.title.replace(/<[^>]*>/g, "")} />
-          <meta property="og:description" content={post.content.substring(0, 160).replace(/<[^>]*>/g, "")} />
-          {post.image_url && <meta property="og:image" content={post.image_url} />}
+          <meta property="og:title" content={getPlainTextFromHTML(post.title)} />
+          <meta property="og:description" content={getExcerpt(post.content, 160)} />
+          {absoluteImageUrl && <meta property="og:image" content={absoluteImageUrl} />}
+          {absoluteImageUrl && <meta property="og:image:secure_url" content={absoluteImageUrl} />}
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:site_name" content="Your Site Name" />
 
           {/* Twitter */}
           <meta property="twitter:card" content="summary_large_image" />
           <meta property="twitter:url" content={`${window.location.origin}/post/${post.id}`} />
-          <meta property="twitter:title" content={post.title.replace(/<[^>]*>/g, "")} />
-          <meta property="twitter:description" content={post.content.substring(0, 160).replace(/<[^>]*>/g, "")} />
-          {post.image_url && <meta property="twitter:image" content={post.image_url} />}
+          <meta property="twitter:title" content={getPlainTextFromHTML(post.title)} />
+          <meta property="twitter:description" content={getExcerpt(post.content, 160)} />
+          {absoluteImageUrl && <meta property="twitter:image" content={absoluteImageUrl} />}
         </Helmet>
       )}
       <div className="max-w-4xl mx-auto">
