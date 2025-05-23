@@ -1,5 +1,6 @@
 "use client"
 
+import { Helmet } from "react-helmet"
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
@@ -20,6 +21,19 @@ const PostDetailPage: React.FC = () => {
   const [liked, setLiked] = useState(false)
   const [isSharing, setIsSharing] = useState(false)
   const [showSharePreview, setShowSharePreview] = useState(false)
+
+  // Helper function to extract plain text from HTML
+  const getPlainTextFromHTML = (html: string) => {
+    const tempDiv = document.createElement("div")
+    tempDiv.innerHTML = html
+    return tempDiv.textContent || tempDiv.innerText || ""
+  }
+
+  // Helper function to get a short excerpt from content
+  const getExcerpt = (htmlContent: string, maxLength = 160) => {
+    const plainText = getPlainTextFromHTML(htmlContent)
+    return plainText.length > maxLength ? plainText.substring(0, maxLength) + "..." : plainText
+  }
 
   useEffect(() => {
     const fetchPostDetails = async () => {
@@ -148,21 +162,14 @@ const PostDetailPage: React.FC = () => {
     if (!post) return
 
     const url = `${window.location.origin}/post/${post.id}`
-
-    // Convert HTML to plain text
-    const getPlainTextFromHTML = (html: string) => {
-      const tempDiv = document.createElement("div")
-      tempDiv.innerHTML = html
-      return tempDiv.textContent || tempDiv.innerText || ""
-    }
-
     const plainTitle = getPlainTextFromHTML(post.title)
+    const plainExcerpt = getExcerpt(post.content)
 
     try {
       setIsSharing(true)
       const shareData: ShareData = {
         title: plainTitle,
-        text: `${plainTitle}\n\n`,
+        text: `${plainTitle}\n\n${plainExcerpt}\n\n`,
         url: url,
       }
 
@@ -178,11 +185,10 @@ const PostDetailPage: React.FC = () => {
           console.error("Error sharing image:", error)
         }
       }
-
       if (navigator.share) {
         await navigator.share(shareData)
       } else {
-        await navigator.clipboard.writeText(`${plainTitle}\n\n${url}`)
+        await navigator.clipboard.writeText(`${plainTitle}\n\n${plainExcerpt}\n\n${url}`)
         setShowSharePreview(true)
       }
     } catch (error) {
@@ -343,6 +349,26 @@ const PostDetailPage: React.FC = () => {
 
   return (
     <Layout>
+      {post && (
+        <Helmet>
+          <title>{post.title.replace(/<[^>]*>/g, "")}</title>
+          <meta name="description" content={post.content.substring(0, 160).replace(/<[^>]*>/g, "")} />
+
+          {/* Open Graph / Facebook */}
+          <meta property="og:type" content="article" />
+          <meta property="og:url" content={`${window.location.origin}/post/${post.id}`} />
+          <meta property="og:title" content={post.title.replace(/<[^>]*>/g, "")} />
+          <meta property="og:description" content={post.content.substring(0, 160).replace(/<[^>]*>/g, "")} />
+          {post.image_url && <meta property="og:image" content={post.image_url} />}
+
+          {/* Twitter */}
+          <meta property="twitter:card" content="summary_large_image" />
+          <meta property="twitter:url" content={`${window.location.origin}/post/${post.id}`} />
+          <meta property="twitter:title" content={post.title.replace(/<[^>]*>/g, "")} />
+          <meta property="twitter:description" content={post.content.substring(0, 160).replace(/<[^>]*>/g, "")} />
+          {post.image_url && <meta property="twitter:image" content={post.image_url} />}
+        </Helmet>
+      )}
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md overflow-hidden transition-colors duration-300">
           {post.image_url && (
