@@ -176,7 +176,9 @@ const PostDetailPage: React.FC = () => {
       return tempDiv.textContent || tempDiv.innerText || ""
     })()
 
-    const text = `Check out: ${plainTitle}`
+    // Include image URL in the shared text
+    const imageText = post.image_url ? `\n\n${post.image_url}` : ""
+    const text = `Check out: ${plainTitle}${imageText}`
 
     switch (platform) {
       case "twitter":
@@ -207,7 +209,11 @@ const PostDetailPage: React.FC = () => {
         return tempDiv.textContent || tempDiv.innerText || ""
       })()
 
-      await navigator.clipboard.writeText(`${plainTitle}\n\n${url}`)
+      // Include image URL in the copied text
+      const imageText = post.image_url ? `\n\n${post.image_url}` : ""
+      const textToCopy = `${plainTitle}${imageText}\n\n${url}`
+
+      await navigator.clipboard.writeText(textToCopy)
       alert("Link copied to clipboard!")
       onClose()
     }
@@ -273,11 +279,12 @@ const PostDetailPage: React.FC = () => {
                   const url = `${window.location.origin}/post/${post.id}`
                   const plainTitle = getPlainTextFromHTML(post.title)
                   const plainExcerpt = getExcerpt(post.content)
+                  const imageText = post.image_url ? `\n\nImage: ${post.image_url}` : ""
 
                   try {
                     const shareData: ShareData = {
                       title: plainTitle,
-                      text: `${plainTitle}\n\n${plainExcerpt}\n\n`,
+                      text: `${plainTitle}\n\n${plainExcerpt}${imageText}\n\n`,
                       url: url,
                     }
 
