@@ -1,6 +1,6 @@
 "use client"
 
-import { Helmet } from "react-helmet"
+import { Helmet } from "react-helmet-async"
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { useParams, Link } from "react-router-dom"
