@@ -1,6 +1,6 @@
 "use client"
 
-import { Helmet } from "react-helmet-async"
+import { Helmet } from "react-helmet-async";
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { useParams, Link } from "react-router-dom"
@@ -166,28 +166,19 @@ const PostDetailPage: React.FC = () => {
 
     const url = shareUrl
     const plainTitle = getPlainTextFromHTML(post.title)
-    const description = getExcerpt(post.content)
 
     switch (platform) {
       case "twitter":
         window.open(
           `https://twitter.com/intent/tweet?text=${encodeURIComponent(plainTitle)}&url=${encodeURIComponent(url)}`,
           "_blank",
-          "width=550,height=420"
         )
         break
       case "facebook":
-        window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-          "_blank",
-          "width=626,height=436"
-        )
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank")
         break
       case "whatsapp":
-        window.open(
-          `https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + description + "\n\n" + url)}`,
-          "_blank"
-        )
+        window.open(`https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + url)}`, "_blank")
         break
     }
     setShowSharePreview(false)
@@ -291,7 +282,7 @@ const PostDetailPage: React.FC = () => {
                   try {
                     await navigator.share({
                       title: plainTitle,
-                      text: getExcerpt(post.content),
+                      text: plainTitle,
                       url: shareUrl,
                     })
                     onClose()
@@ -352,45 +343,37 @@ const PostDetailPage: React.FC = () => {
     )
   }
 
+  const currentShareUrl = `${window.location.origin}/post/${post.id}`;
+  const plainTextContent = post.content.replace(/<[^>]*>/g, "");
+  const excerpt = plainTextContent.substring(0, 160);
+
   return (
     <Layout>
-      {post && (
-        <Helmet>
-          <title>{getPlainTextFromHTML(post.title)}</title>
-          <meta name="description" content={getExcerpt(post.content, 160)} />
+      <Helmet>
+        <title>{post.title} | The Balance Code Alliance</title>
+        <meta name="description" content={excerpt} />
 
-          {/* Open Graph / Facebook */}
-          <meta property="og:type" content="article" />
-          <meta property="og:url" content={shareUrl} />
-          <meta property="og:title" content={getPlainTextFromHTML(post.title)} />
-          <meta property="og:description" content={getExcerpt(post.content, 160)} />
-          {post.image_url && (
-            <>
-              <meta property="og:image" content={post.image_url} />
-              <meta property="og:image:secure_url" content={post.image_url} />
-              <meta property="og:image:width" content="1200" />
-              <meta property="og:image:height" content="630" />
-              <meta property="og:image:alt" content={getPlainTextFromHTML(post.title)} />
-            </>
-          )}
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={currentShareUrl} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={excerpt} />
+        {post.image_url && (
+          <>
+            <meta property="og:image" content={post.image_url} />
+            <meta property="og:image:secure_url" content={post.image_url} />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta property="og:image:alt" content={post.title} />
+          </>
+        )}
 
-          {/* Twitter Card */}
-          <meta name="twitter:card" content={post.image_url ? "summary_large_image" : "summary"} />
-          <meta name="twitter:url" content={shareUrl} />
-          <meta name="twitter:title" content={getPlainTextFromHTML(post.title)} />
-          <meta name="twitter:description" content={getExcerpt(post.content, 160)} />
-          {post.image_url && (
-            <>
-              <meta name="twitter:image" content={post.image_url} />
-              <meta name="twitter:image:alt" content={getPlainTextFromHTML(post.title)} />
-            </>
-          )}
-        </Helmet>
-      )}
-
-      {post?.image_url && (
-        <link rel="preload" as="image" href={post.image_url} />
-      )}
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={excerpt} />
+        {post.image_url && <meta name="twitter:image" content={post.image_url} />}
+      </Helmet>
 
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md overflow-hidden transition-colors duration-300">
@@ -398,7 +381,7 @@ const PostDetailPage: React.FC = () => {
             <img
               src={post.image_url}
               alt={post.title}
-              className="w-full object-cover"
+              className="w-full h-64 sm:h-96 object-cover"
             />
           )}
 
