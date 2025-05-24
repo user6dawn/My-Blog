@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 "use client"
 
 import { Helmet } from "react-helmet-async";
+=======
+import { Helmet } from "react-helmet"
+>>>>>>> 9d0d4ed48efebbb3adb261a1c63ba8b8738e24c4
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { useParams, Link } from "react-router-dom"
@@ -175,10 +179,24 @@ const PostDetailPage: React.FC = () => {
         )
         break
       case "facebook":
+<<<<<<< HEAD
         window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank")
         break
       case "whatsapp":
         window.open(`https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + url)}`, "_blank")
+=======
+        window.open(
+          `https://www.facebook.com/dialog/share?app_id=YOUR_FB_APP_ID&href=${encodeURIComponent(url)}&quote=${encodeURIComponent(plainTitle)}`,
+          "_blank",
+          "width=550,height=420"
+        )
+        break
+      case "whatsapp":
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + url)}`,
+          "_blank"
+        )
+>>>>>>> 9d0d4ed48efebbb3adb261a1c63ba8b8738e24c4
         break
     }
     setShowSharePreview(false)
