@@ -12,9 +12,6 @@ import type { Post, Comment, Ad } from "../types"
 import { Share2, Home, Heart, X, Twitter, Facebook, LinkIcon } from "lucide-react"
 import Layout from "../components/Layout"
 
-// Default image to use if post has no image
-const DEFAULT_OG_IMAGE = "https://yourdomain.com/default-og-image.jpg" // Replace with your actual default image URL
-
 const PostDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const [post, setPost] = useState<Post | null>(null)
@@ -40,14 +37,6 @@ const PostDetailPage: React.FC = () => {
     if (!htmlContent) return ""
     const plainText = getPlainTextFromHTML(htmlContent)
     return plainText.length > maxLength ? plainText.substring(0, maxLength) + "..." : plainText
-  }
-
-  // Ensure image URL is absolute for Open Graph tags
-  const getAbsoluteImageUrl = (imageUrl: string) => {
-    if (!imageUrl) return DEFAULT_OG_IMAGE
-    if (imageUrl.startsWith("http")) return imageUrl
-    if (imageUrl.startsWith("//")) return `https:${imageUrl}`
-    return `${window.location.origin}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`
   }
 
   useEffect(() => {
@@ -81,13 +70,7 @@ const PostDetailPage: React.FC = () => {
 
         setPost(postData)
         setAds(adsData || [])
-
-        // Generate a special sharing URL that will work with WhatsApp
-        if (postData) {
-          // Use a special URL for sharing that includes a timestamp to prevent caching
-          const timestamp = new Date().getTime()
-          setShareUrl(`${window.location.origin}/share/${id}?t=${timestamp}`)
-        }
+        setShareUrl(`${window.location.origin}/post/${id}`)
 
         const nestComments = (comments: Comment[]) => {
           const map: Record<string, Comment> = {}
@@ -121,55 +104,6 @@ const PostDetailPage: React.FC = () => {
     const likedPosts = JSON.parse(localStorage.getItem("likedPosts") || "{}")
     setLiked(likedPosts[id || ""] || false)
   }, [id])
-
-  // Generate a special HTML file for sharing when the post data is available
-  useEffect(() => {
-    if (post && iframeRef.current) {
-      try {
-        const iframeDoc = iframeRef.current.contentDocument
-        if (iframeDoc) {
-          const plainTitle = getPlainTextFromHTML(post.title)
-          const plainDescription = getExcerpt(post.content, 160)
-          const imageUrl = getAbsoluteImageUrl(post.image_url || "")
-
-          // Write the HTML with proper Open Graph tags directly to the iframe
-          iframeDoc.open()
-          iframeDoc.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <title>${plainTitle}</title>
-              <meta name="description" content="${plainDescription}">
-              
-              <!-- Open Graph / Facebook -->
-              <meta property="og:type" content="article">
-              <meta property="og:url" content="${window.location.origin}/post/${post.id}">
-              <meta property="og:title" content="${plainTitle}">
-              <meta property="og:description" content="${plainDescription}">
-              <meta property="og:image" content="${imageUrl}">
-              <meta property="og:image:width" content="1200">
-              <meta property="og:image:height" content="630">
-              
-              <!-- Twitter -->
-              <meta name="twitter:card" content="summary_large_image">
-              <meta name="twitter:title" content="${plainTitle}">
-              <meta name="twitter:description" content="${plainDescription}">
-              <meta name="twitter:image" content="${imageUrl}">
-            </head>
-            <body>
-              <img src="${imageUrl}" alt="${plainTitle}" style="max-width: 100%;">
-              <h1>${plainTitle}</h1>
-              <p>${plainDescription}</p>
-            </body>
-            </html>
-          `)
-          iframeDoc.close()
-        }
-      } catch (error) {
-        console.error("Error generating sharing HTML:", error)
-      }
-    }
-  }, [post])
 
   const refreshComments = async () => {
     if (!id) return
@@ -222,24 +156,14 @@ const PostDetailPage: React.FC = () => {
     }
   }
 
-  const fetchImageFile = async (imageUrl: string): Promise<File> => {
-    const response = await fetch(imageUrl)
-    const blob = await response.blob()
-    const fileName = imageUrl.split("/").pop() || "image.jpg"
-    return new File([blob], fileName, { type: blob.type })
-  }
-
   const sharePost = async () => {
     if (!post) return
-
-    // Always show the custom share preview instead of using native share
     setShowSharePreview(true)
   }
 
   const socialMediaShare = (platform: string) => {
     if (!post || !shareUrl) return
 
-    // Use the special sharing URL instead of the direct post URL
     const url = shareUrl
     const plainTitle = getPlainTextFromHTML(post.title)
 
@@ -253,9 +177,6 @@ const PostDetailPage: React.FC = () => {
       case "facebook":
         window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank")
         break
-      case "linkedin":
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, "_blank")
-        break
       case "whatsapp":
         window.open(`https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + url)}`, "_blank")
         break
@@ -268,18 +189,16 @@ const PostDetailPage: React.FC = () => {
 
     const copyToClipboard = async () => {
       const plainTitle = getPlainTextFromHTML(post.title)
-      // Use the special sharing URL for copying
       await navigator.clipboard.writeText(`${plainTitle}\n\n${shareUrl}`)
       alert("Link copied to clipboard!")
       onClose()
     }
 
-    // Create a mock-up of how the shared content will appear
     const RichPreviewMockup = () => (
       <div className="border rounded-lg overflow-hidden mb-4 bg-gray-50 dark:bg-zinc-700">
         {post.image_url && (
           <div className="relative">
-            <img src={post.image_url || "/placeholder.svg"} alt={post.title} className="w-full h-48 object-cover" />
+            <img src={post.image_url} alt={post.title} className="w-full h-48 object-cover" />
             <div className="absolute bottom-2 right-2 bg-white rounded-full p-1">
               <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
                 <span className="text-xs font-bold">YS</span>
@@ -356,32 +275,16 @@ const PostDetailPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Add native share option if available */}
             {navigator.share && (
               <button
                 onClick={async () => {
                   const plainTitle = getPlainTextFromHTML(post.title)
-
                   try {
-                    const shareData: ShareData = {
+                    await navigator.share({
                       title: plainTitle,
                       text: plainTitle,
-                      url: shareUrl, // Use the special sharing URL
-                    }
-
-                    if (post.image_url) {
-                      try {
-                        const imageFile = await fetchImageFile(post.image_url)
-                        const testShareData = { ...shareData, files: [imageFile] }
-                        if (navigator.canShare && navigator.canShare(testShareData)) {
-                          shareData.files = [imageFile]
-                        }
-                      } catch (error) {
-                        console.error("Error sharing image:", error)
-                      }
-                    }
-
-                    await navigator.share(shareData)
+                      url: shareUrl,
+                    })
                     onClose()
                   } catch (error) {
                     console.error("Error with native sharing:", error)
@@ -440,66 +343,43 @@ const PostDetailPage: React.FC = () => {
     )
   }
 
-  const absoluteImageUrl = getAbsoluteImageUrl(post.image_url || "")
-
   return (
     <Layout>
-      {/* Hidden iframe for generating sharing HTML */}
-      <iframe ref={iframeRef} style={{ display: "none" }} title="Share Content" />
-
       {post && (
         <Helmet>
           <title>{getPlainTextFromHTML(post.title)}</title>
           <meta name="description" content={getExcerpt(post.content, 160)} />
 
-          {/* Open Graph / Facebook */}
           <meta property="og:type" content="article" />
           <meta property="og:url" content={`${window.location.origin}/post/${post.id}`} />
           <meta property="og:title" content={getPlainTextFromHTML(post.title)} />
           <meta property="og:description" content={getExcerpt(post.content, 160)} />
-          <meta property="og:image" content={absoluteImageUrl} />
-          <meta property="og:image:secure_url" content={absoluteImageUrl} />
-          <meta property="og:image:type" content="image/jpeg" />
+          <meta property="og:image" content={post.image_url} />
+          <meta property="og:image:secure_url" content={post.image_url} />
+          <meta property="og:image:type" content="image/webp" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
           <meta property="og:image:alt" content={getPlainTextFromHTML(post.title)} />
           <meta property="og:site_name" content="The Balance Code Alliance" />
-          <meta property="og:locale" content="en_US" />
 
-          {/* Twitter */}
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:url" content={`${window.location.origin}/post/${post.id}`} />
           <meta name="twitter:title" content={getPlainTextFromHTML(post.title)} />
           <meta name="twitter:description" content={getExcerpt(post.content, 160)} />
-          <meta name="twitter:image" content={absoluteImageUrl} />
+          <meta name="twitter:image" content={post.image_url} />
           <meta name="twitter:image:alt" content={getPlainTextFromHTML(post.title)} />
-
-          {/* WhatsApp specific - force image refresh */}
-          <meta property="og:image:url" content={`${absoluteImageUrl}?v=${new Date().getTime()}`} />
-
-          {/* JSON-LD structured data */}
-          <script type="application/ld+json">
-            {JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Article",
-              headline: getPlainTextFromHTML(post.title),
-              description: getExcerpt(post.content, 160),
-              image: absoluteImageUrl,
-              datePublished: post.created_at,
-              url: `${window.location.origin}/post/${post.id}`,
-            })}
-          </script>
         </Helmet>
       )}
 
-      {/* Preload image for crawlers */}
-      {post.image_url && <link rel="preload" as="image" href={absoluteImageUrl} />}
+      {post?.image_url && (
+        <link rel="preload" as="image" href={post.image_url} />
+      )}
 
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md overflow-hidden transition-colors duration-300">
           {post.image_url && (
             <img
-              src={post.image_url || "/placeholder.svg"}
+              src={post.image_url}
               alt={post.title}
               className="w-full h-64 sm:h-96 object-cover"
             />

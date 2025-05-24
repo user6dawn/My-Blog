@@ -5,7 +5,6 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import GalleryPage from './pages/GalleryPage';
 import PostDetailPage from './pages/PostDetailPage';
-import SharePage from './pages/SharePage';
 import Dashboard from './pages/admin/Dashboard';
 import Login from './pages/admin/Login';
 import Ads from './pages/admin/Ads';
@@ -25,7 +24,6 @@ function App() {
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin/ads" element={<Ads />} />
         <Route path="/admin/upload-gallery" element={<UploadGallery />} />
-        <Route path="/share/:id" element={<SharePage />} /> 
       </Routes>
     </Router>
   );
