@@ -176,14 +176,14 @@ const PostDetailPage: React.FC = () => {
         break
       case "facebook":
         window.open(
-          `https://www.facebook.com/dialog/share?app_id=YOUR_FB_APP_ID&href=${encodeURIComponent(url)}&quote=${encodeURIComponent(plainTitle)}`,
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
           "_blank",
-          "width=550,height=420"
+          "width=626,height=436"
         )
         break
       case "whatsapp":
         window.open(
-          `https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + url)}`,
+          `https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + description + "\n\n" + url)}`,
           "_blank"
         )
         break
