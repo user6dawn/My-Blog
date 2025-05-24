@@ -1,3 +1,5 @@
+"use client"
+
 import { Helmet } from "react-helmet"
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
