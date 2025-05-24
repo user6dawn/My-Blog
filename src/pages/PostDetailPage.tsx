@@ -381,7 +381,7 @@ const PostDetailPage: React.FC = () => {
             <img
               src={post.image_url}
               alt={post.title}
-              className="w-full h-64 sm:h-96 object-cover"
+              className="w-full object-cover"
             />
           )}
 
