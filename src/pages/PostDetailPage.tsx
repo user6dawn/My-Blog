@@ -2,7 +2,7 @@
 
 import { Helmet } from "react-helmet"
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useParams, Link } from "react-router-dom"
 import { supabase } from "../lib/supabase"
 import CommentList from "../components/CommentList"
@@ -24,7 +24,8 @@ const PostDetailPage: React.FC = () => {
   const [liked, setLiked] = useState(false)
   const [isSharing, setIsSharing] = useState(false)
   const [showSharePreview, setShowSharePreview] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const [shareUrl, setShareUrl] = useState("")
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   // Helper function to extract plain text from HTML
   const getPlainTextFromHTML = (html: string) => {
@@ -47,14 +48,6 @@ const PostDetailPage: React.FC = () => {
     if (imageUrl.startsWith("http")) return imageUrl
     if (imageUrl.startsWith("//")) return `https:${imageUrl}`
     return `${window.location.origin}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`
-  }
-
-  // Preload image to ensure it's available
-  const preloadImage = (imageUrl: string) => {
-    if (!imageUrl) return
-    const img = new Image()
-    img.onload = () => setImageLoaded(true)
-    img.src = imageUrl
   }
 
   useEffect(() => {
@@ -89,9 +82,11 @@ const PostDetailPage: React.FC = () => {
         setPost(postData)
         setAds(adsData || [])
 
-        // Preload the image if it exists
-        if (postData?.image_url) {
-          preloadImage(getAbsoluteImageUrl(postData.image_url))
+        // Generate a special sharing URL that will work with WhatsApp
+        if (postData) {
+          // Use a special URL for sharing that includes a timestamp to prevent caching
+          const timestamp = new Date().getTime()
+          setShareUrl(`${window.location.origin}/share/${id}?t=${timestamp}`)
         }
 
         const nestComments = (comments: Comment[]) => {
@@ -126,6 +121,55 @@ const PostDetailPage: React.FC = () => {
     const likedPosts = JSON.parse(localStorage.getItem("likedPosts") || "{}")
     setLiked(likedPosts[id || ""] || false)
   }, [id])
+
+  // Generate a special HTML file for sharing when the post data is available
+  useEffect(() => {
+    if (post && iframeRef.current) {
+      try {
+        const iframeDoc = iframeRef.current.contentDocument
+        if (iframeDoc) {
+          const plainTitle = getPlainTextFromHTML(post.title)
+          const plainDescription = getExcerpt(post.content, 160)
+          const imageUrl = getAbsoluteImageUrl(post.image_url || "")
+
+          // Write the HTML with proper Open Graph tags directly to the iframe
+          iframeDoc.open()
+          iframeDoc.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>${plainTitle}</title>
+              <meta name="description" content="${plainDescription}">
+              
+              <!-- Open Graph / Facebook -->
+              <meta property="og:type" content="article">
+              <meta property="og:url" content="${window.location.origin}/post/${post.id}">
+              <meta property="og:title" content="${plainTitle}">
+              <meta property="og:description" content="${plainDescription}">
+              <meta property="og:image" content="${imageUrl}">
+              <meta property="og:image:width" content="1200">
+              <meta property="og:image:height" content="630">
+              
+              <!-- Twitter -->
+              <meta name="twitter:card" content="summary_large_image">
+              <meta name="twitter:title" content="${plainTitle}">
+              <meta name="twitter:description" content="${plainDescription}">
+              <meta name="twitter:image" content="${imageUrl}">
+            </head>
+            <body>
+              <img src="${imageUrl}" alt="${plainTitle}" style="max-width: 100%;">
+              <h1>${plainTitle}</h1>
+              <p>${plainDescription}</p>
+            </body>
+            </html>
+          `)
+          iframeDoc.close()
+        }
+      } catch (error) {
+        console.error("Error generating sharing HTML:", error)
+      }
+    }
+  }, [post])
 
   const refreshComments = async () => {
     if (!id) return
@@ -193,9 +237,10 @@ const PostDetailPage: React.FC = () => {
   }
 
   const socialMediaShare = (platform: string) => {
-    if (!post) return
+    if (!post || !shareUrl) return
 
-    const url = `${window.location.origin}/post/${post.id}`
+    // Use the special sharing URL instead of the direct post URL
+    const url = shareUrl
     const plainTitle = getPlainTextFromHTML(post.title)
 
     switch (platform) {
@@ -221,11 +266,10 @@ const PostDetailPage: React.FC = () => {
   const SharePreview = ({ onClose }: { onClose: () => void }) => {
     if (!post) return null
 
-    const url = `${window.location.origin}/post/${post.id}`
-
     const copyToClipboard = async () => {
       const plainTitle = getPlainTextFromHTML(post.title)
-      await navigator.clipboard.writeText(`${plainTitle}\n\n${url}`)
+      // Use the special sharing URL for copying
+      await navigator.clipboard.writeText(`${plainTitle}\n\n${shareUrl}`)
       alert("Link copied to clipboard!")
       onClose()
     }
@@ -316,14 +360,13 @@ const PostDetailPage: React.FC = () => {
             {navigator.share && (
               <button
                 onClick={async () => {
-                  const url = `${window.location.origin}/post/${post.id}`
                   const plainTitle = getPlainTextFromHTML(post.title)
 
                   try {
                     const shareData: ShareData = {
                       title: plainTitle,
                       text: plainTitle,
-                      url: url,
+                      url: shareUrl, // Use the special sharing URL
                     }
 
                     if (post.image_url) {
@@ -401,6 +444,9 @@ const PostDetailPage: React.FC = () => {
 
   return (
     <Layout>
+      {/* Hidden iframe for generating sharing HTML */}
+      <iframe ref={iframeRef} style={{ display: "none" }} title="Share Content" />
+
       {post && (
         <Helmet>
           <title>{getPlainTextFromHTML(post.title)}</title>
@@ -456,7 +502,6 @@ const PostDetailPage: React.FC = () => {
               src={post.image_url || "/placeholder.svg"}
               alt={post.title}
               className="w-full h-64 sm:h-96 object-cover"
-              onLoad={() => setImageLoaded(true)}
             />
           )}
 
