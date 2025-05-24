@@ -1,6 +1,6 @@
 "use client"
 
-import { Helmet } from "react-helmet"
+import { Helmet } from "react-helmet-async"
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { useParams, Link } from "react-router-dom"
@@ -166,19 +166,28 @@ const PostDetailPage: React.FC = () => {
 
     const url = shareUrl
     const plainTitle = getPlainTextFromHTML(post.title)
+    const description = getExcerpt(post.content)
 
     switch (platform) {
       case "twitter":
         window.open(
           `https://twitter.com/intent/tweet?text=${encodeURIComponent(plainTitle)}&url=${encodeURIComponent(url)}`,
           "_blank",
+          "width=550,height=420"
         )
         break
       case "facebook":
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank")
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+          "_blank",
+          "width=626,height=436"
+        )
         break
       case "whatsapp":
-        window.open(`https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + url)}`, "_blank")
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + description + "\n\n" + url)}`,
+          "_blank"
+        )
         break
     }
     setShowSharePreview(false)
@@ -282,7 +291,7 @@ const PostDetailPage: React.FC = () => {
                   try {
                     await navigator.share({
                       title: plainTitle,
-                      text: plainTitle,
+                      text: getExcerpt(post.content),
                       url: shareUrl,
                     })
                     onClose()
@@ -350,24 +359,32 @@ const PostDetailPage: React.FC = () => {
           <title>{getPlainTextFromHTML(post.title)}</title>
           <meta name="description" content={getExcerpt(post.content, 160)} />
 
+          {/* Open Graph / Facebook */}
           <meta property="og:type" content="article" />
-          <meta property="og:url" content={`${window.location.origin}/post/${post.id}`} />
+          <meta property="og:url" content={shareUrl} />
           <meta property="og:title" content={getPlainTextFromHTML(post.title)} />
           <meta property="og:description" content={getExcerpt(post.content, 160)} />
-          <meta property="og:image" content={post.image_url} />
-          <meta property="og:image:secure_url" content={post.image_url} />
-          <meta property="og:image:type" content="image/webp" />
-          <meta property="og:image:width" content="1200" />
-          <meta property="og:image:height" content="630" />
-          <meta property="og:image:alt" content={getPlainTextFromHTML(post.title)} />
-          <meta property="og:site_name" content="The Balance Code Alliance" />
+          {post.image_url && (
+            <>
+              <meta property="og:image" content={post.image_url} />
+              <meta property="og:image:secure_url" content={post.image_url} />
+              <meta property="og:image:width" content="1200" />
+              <meta property="og:image:height" content="630" />
+              <meta property="og:image:alt" content={getPlainTextFromHTML(post.title)} />
+            </>
+          )}
 
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:url" content={`${window.location.origin}/post/${post.id}`} />
+          {/* Twitter Card */}
+          <meta name="twitter:card" content={post.image_url ? "summary_large_image" : "summary"} />
+          <meta name="twitter:url" content={shareUrl} />
           <meta name="twitter:title" content={getPlainTextFromHTML(post.title)} />
           <meta name="twitter:description" content={getExcerpt(post.content, 160)} />
-          <meta name="twitter:image" content={post.image_url} />
-          <meta name="twitter:image:alt" content={getPlainTextFromHTML(post.title)} />
+          {post.image_url && (
+            <>
+              <meta name="twitter:image" content={post.image_url} />
+              <meta name="twitter:image:alt" content={getPlainTextFromHTML(post.title)} />
+            </>
+          )}
         </Helmet>
       )}
 
