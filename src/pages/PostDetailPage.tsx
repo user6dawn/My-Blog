@@ -1,6 +1,4 @@
-"use client"
-
-import { Helmet } from "react-helmet-async"
+import { Helmet } from "react-helmet"
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { useParams, Link } from "react-router-dom"
@@ -178,14 +176,14 @@ const PostDetailPage: React.FC = () => {
         break
       case "facebook":
         window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+          `https://www.facebook.com/dialog/share?app_id=YOUR_FB_APP_ID&href=${encodeURIComponent(url)}&quote=${encodeURIComponent(plainTitle)}`,
           "_blank",
-          "width=626,height=436"
+          "width=550,height=420"
         )
         break
       case "whatsapp":
         window.open(
-          `https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + description + "\n\n" + url)}`,
+          `https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + url)}`,
           "_blank"
         )
         break
@@ -398,7 +396,7 @@ const PostDetailPage: React.FC = () => {
             <img
               src={post.image_url}
               alt={post.title}
-              className="w-full object-cover"
+              className="w-full h-64 sm:h-96 object-cover"
             />
           )}
 
