@@ -1,6 +1,8 @@
+'use client'
+
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import '../styles/styles.css';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import NotificationBell from './NotificationBell';
 
 interface LayoutProps {
@@ -10,11 +12,14 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isDark, setIsDark] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      return savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+    return false;
   });
 
-  const location = useLocation();
+  const pathname = usePathname();
 
   const toggleNav = () => {
     setIsNavOpen(!isNavOpen);
@@ -40,7 +45,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   useEffect(() => {
     closeNav();
-  }, [location.pathname]);
+  }, [pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -85,10 +90,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {isNavOpen && (
         <>
           <nav className={`nav ${isNavOpen ? 'open' : ''} ${isDark ? 'bg-black' : 'bg-white'}`}>
-            <Link to="/" className={`nav-link ${isDark ? 'text-white hover:text-emerald-300' : 'text-gray-900 hover:text-indigo-600'}`}>Home</Link>
-            <Link to="/about" className={`nav-link ${isDark ? 'text-white hover:text-emerald-300' : 'text-gray-900 hover:text-indigo-600'}`}>About</Link>
-            <Link to="/contact" className={`nav-link ${isDark ? 'text-white hover:text-emerald-300' : 'text-gray-900 hover:text-indigo-600'}`}>Contact</Link>
-            <Link to="/gallery" className={`nav-link ${isDark ? 'text-white hover:text-emerald-300' : 'text-gray-900 hover:text-indigo-600'}`}>Gallery</Link>
+            <Link href="/" className={`nav-link ${isDark ? 'text-white hover:text-emerald-300' : 'text-gray-900 hover:text-indigo-600'}`}>Home</Link>
+            <Link href="/about" className={`nav-link ${isDark ? 'text-white hover:text-emerald-300' : 'text-gray-900 hover:text-indigo-600'}`}>About</Link>
+            <Link href="/contact" className={`nav-link ${isDark ? 'text-white hover:text-emerald-300' : 'text-gray-900 hover:text-indigo-600'}`}>Contact</Link>
+            <Link href="/gallery" className={`nav-link ${isDark ? 'text-white hover:text-emerald-300' : 'text-gray-900 hover:text-indigo-600'}`}>Gallery</Link>
           </nav>
           <div className={`nav-overlay ${isNavOpen ? 'open' : ''}`} onClick={closeNav} aria-hidden="true" />
         </>
