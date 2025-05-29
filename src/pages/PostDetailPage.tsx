@@ -9,7 +9,7 @@ import CommentList from "../components/CommentList"
 import CommentForm from "../components/CommentForm"
 import AdDisplay from "../components/AdDisplay"
 import type { Post, Comment, Ad } from "../types"
-import { Share2, Home, Heart, X, Twitter, Facebook, LinkIcon } from "lucide-react"
+import { Share2, Home, Heart, X, Twitter, Facebook, LinkIcon, Image as ImageIcon } from "lucide-react"
 import Layout from "../components/Layout"
 
 const PostDetailPage: React.FC = () => {
@@ -156,33 +156,121 @@ const PostDetailPage: React.FC = () => {
     }
   }
 
+  const copyToClipboardWithImage = async () => {
+    if (!post) return;
+    
+    try {
+      const url = `${window.location.origin}/post/${post.id}`;
+      const plainTitle = getPlainTextFromHTML(post.title);
+      
+      // Create rich text with image
+      const htmlContent = `
+        <div style="font-family: sans-serif; max-width: 500px;">
+          <h1 style="font-size: 1.2rem; margin-bottom: 0.5rem;">${plainTitle}</h1>
+          ${post.image_url ? `<img src="${post.image_url}" alt="${plainTitle}" style="max-width: 100%; border-radius: 8px; margin-bottom: 0.5rem;">` : ''}
+          <p style="margin: 0;">Read more: <a href="${url}">${url}</a></p>
+        </div>
+      `;
+      
+      // Modern clipboard API
+      if (navigator.clipboard?.write) {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/plain': new Blob([`${plainTitle}\n\n${post.image_url ? post.image_url + '\n\n' : ''}${url}`], { type: 'text/plain' }),
+            'text/html': new Blob([htmlContent], { type: 'text/html' })
+          })
+        ]);
+        alert('Copied to clipboard with image!');
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = `${plainTitle}\n\n${url}`;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('Copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Copy failed:', error);
+      alert('Could not copy to clipboard');
+    }
+  };
+
   const sharePost = async () => {
-    if (!post) return
-    setShowSharePreview(true)
-  }
+    if (!post) return;
+    
+    try {
+      setIsSharing(true);
+      const url = `${window.location.origin}/post/${post.id}`;
+      const plainTitle = getPlainTextFromHTML(post.title);
+      
+      if (navigator.share) {
+        // Try to share with image file if possible
+        if (post.image_url && navigator.canShare?.({ files: [new File([], 'image.png')] })) {
+          try {
+            const response = await fetch(post.image_url);
+            const blob = await response.blob();
+            const file = new File([blob], 'post-image.png', { type: blob.type });
+            
+            await navigator.share({
+              title: plainTitle,
+              text: `${plainTitle}\n\n${url}`,
+              files: [file],
+            });
+            return;
+          } catch (error) {
+            console.log("Image sharing failed, falling back to text");
+          }
+        }
+        
+        // Standard text sharing fallback
+        await navigator.share({
+          title: plainTitle,
+          text: `${plainTitle}\n\n${url}`,
+          url: url,
+        });
+      } else {
+        // Fallback for non-mobile or unsupported browsers
+        setShowSharePreview(true);
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      setShowSharePreview(true); // Fallback to preview modal
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   const socialMediaShare = (platform: string) => {
-    if (!post || !shareUrl) return
+    if (!post || !shareUrl) return;
 
-    const url = shareUrl
-    const plainTitle = getPlainTextFromHTML(post.title)
+    const url = shareUrl;
+    const plainTitle = getPlainTextFromHTML(post.title);
+    const imageUrl = post.image_url || '';
 
     switch (platform) {
       case "twitter":
         window.open(
           `https://twitter.com/intent/tweet?text=${encodeURIComponent(plainTitle)}&url=${encodeURIComponent(url)}`,
           "_blank",
-        )
-        break
+        );
+        break;
       case "facebook":
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank")
-        break
+        window.open(
+          `https://www.facebook.com/dialog/share?app_id=YOUR_APP_ID&display=popup&href=${encodeURIComponent(url)}&quote=${encodeURIComponent(plainTitle)}`,
+          "_blank"
+        );
+        break;
       case "whatsapp":
-        window.open(`https://wa.me/?text=${encodeURIComponent(plainTitle + "\n\n" + url)}`, "_blank")
-        break
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(`${plainTitle}\n\n${url}`)}`,
+          "_blank"
+        );
+        break;
     }
-    setShowSharePreview(false)
-  }
+    setShowSharePreview(false);
+  };
 
   const SharePreview = ({ onClose }: { onClose: () => void }) => {
     if (!post) return null
@@ -272,6 +360,13 @@ const PostDetailPage: React.FC = () => {
               >
                 <LinkIcon size={16} />
                 <span>Copy Link</span>
+              </button>
+              <button
+                onClick={copyToClipboardWithImage}
+                className="flex items-center justify-center gap-2 p-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
+              >
+                <ImageIcon size={16} />
+                <span>Copy with Image</span>
               </button>
             </div>
 
@@ -365,14 +460,19 @@ const PostDetailPage: React.FC = () => {
             <meta property="og:image:width" content="1200" />
             <meta property="og:image:height" content="630" />
             <meta property="og:image:alt" content={post.title} />
+            <meta property="og:image:type" content="image/webp" />
           </>
         )}
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@YourTwitterHandle" />
+        <meta name="twitter:creator" content="@YourTwitterHandle" />
         <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={excerpt} />
-        {post.image_url && <meta name="twitter:image" content={post.image_url} />}
+        {post.image_url && (
+          <meta name="twitter:image" content={post.image_url} />
+        )}
       </Helmet>
 
       <div className="max-w-4xl mx-auto">
@@ -414,6 +514,15 @@ const PostDetailPage: React.FC = () => {
                   aria-label={`Share ${post.title}`}
                 >
                   {isSharing ? "Sharing..." : <Share2 size={16} />}
+                </button>
+
+                <button
+                  onClick={copyToClipboardWithImage}
+                  className="flex items-center gap-1"
+                  aria-label="Copy with image"
+                >
+                  <ImageIcon size={16} className="text-gray-700 dark:text-gray-300" />
+                  <span>Copy with Image</span>
                 </button>
               </div>
 
