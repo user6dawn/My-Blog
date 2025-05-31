@@ -496,7 +496,7 @@ const PostDetailPage: React.FC = () => {
                 className="flex items-center space-x-2 text-gray-500 hover:text-blue-500"
               >
                 <Share2 size={20} />
-                <span>Share</span>
+                {/* <span>Share</span> */}
               </button>
             </div>
 
