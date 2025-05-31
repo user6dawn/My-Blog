@@ -110,14 +110,32 @@ function Dashboard() {
         imageUrl = await uploadImage(image);
       }
 
-      const { error } = await supabase.from('posts').insert([{
+      const { data, error } = await supabase.from('posts').insert([{
         title,
         content,
         image_url: imageUrl,
         likes: 0
-      }]);
+      }]).select().single();
 
       if (error) throw error;
+
+      // Send notifications to subscribers
+      try {
+        await fetch('/api/notify-subscribers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title,
+            content,
+            postId: data.id,
+          }),
+        });
+      } catch (notifyError) {
+        console.error('Error sending notifications:', notifyError);
+        // Don't block the post creation if notifications fail
+      }
 
       alert('Post created successfully!');
       setTitle('');

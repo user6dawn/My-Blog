@@ -26,13 +26,28 @@ export async function POST(request: Request) {
     client.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
 
     const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+    
+    // Clean the title and get a clean content preview
+    const cleanTitle = stripHtmlTags(title);
+    const cleanContent = stripHtmlTags(content);
+    const contentPreview = cleanContent.length > 150 
+      ? cleanContent.substring(0, 150) + '...'
+      : cleanContent;
 
     for (const { email } of subscribers) {
       await apiInstance.sendTransacEmail({
         sender: { name: 'The Balance Code Alliance', email: process.env.EMAIL_FROM },
         to: [{ email }],
-        subject: `📰 New Post: ${stripHtmlTags(title)}`,
-        htmlContent: `<h2>${title}</h2><p>${content.substring(0, 150)}...</p><p><a href="${blogUrl}">Read more</a></p>`
+        subject: `📰 New Post: ${cleanTitle}`,
+        htmlContent: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #333; font-size: 24px; margin-bottom: 20px;">${cleanTitle}</h1>
+            <p style="color: #666; font-size: 16px; line-height: 1.6;">${contentPreview}</p>
+            <div style="margin-top: 30px;">
+              <a href="${blogUrl}" style="background-color: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Read Full Post</a>
+            </div>
+          </div>
+        `
       });
     }
 
