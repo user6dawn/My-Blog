@@ -1,8 +1,4 @@
 {
-  "/admin/page": "app/admin/page.js",
-  "/about/page": "app/about/page.js",
-  "/admin/dashboard/page": "app/admin/dashboard/page.js",
-  "/admin/upload-gallery/page": "app/admin/upload-gallery/page.js",
   "/page": "app/page.js",
   "/post/[id]/page": "app/post/[id]/page.js"
 }

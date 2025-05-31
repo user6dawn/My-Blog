@@ -57,32 +57,36 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ ad, position }) => {
   if (!ad) {
     return (
       <div className="ad-container w-full overflow-hidden py-2 text-sm text-gray-700">
-        <marquee behavior="scroll" direction="left" scrollamount="6">
-          {fallbackAds.length > 0 ? (
-            fallbackAds.map((item) => (
-              <a
-                key={item.id}
-                href={item.link_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackAdClick(item.id)}
-                className="mx-4 hover:underline"
-              >
-                {item.image_url ? (
-                  <img
-                    src={item.image_url}
-                    alt="Advertisement"
-                    className="max-w-full h-auto object-contain inline-block"
-                  />
-                ) : (
-                  <span>{item.title}</span>
-                )}
-              </a>
-            ))
-          ) : (
-            <span className="mx-4">Advertisement</span>
-          )}
-        </marquee>
+        <div className="overflow-hidden whitespace-nowrap">
+          <div className="inline-block animate-marquee">
+            {fallbackAds.length > 0 ? (
+              fallbackAds.map((item) => (
+                <a
+                  key={item.id}
+                  href={item.link_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackAdClick(item.id)}
+                  className="inline-block mx-6"
+                >
+                  {item.image_url ? (
+                    <img
+                      src={item.image_url}
+                      alt="Advertisement"
+                      className="h-fit inline-block object-contain"
+                    />
+                  ) : (
+                    <span className="text-base">{item.title}</span>
+                  )}
+                </a>
+              ))
+            ) : (
+              <span className="mx-4 text-base">Advertisement</span>
+            )}
+          </div>
+        </div>
+
+
       </div>
     );
   }
