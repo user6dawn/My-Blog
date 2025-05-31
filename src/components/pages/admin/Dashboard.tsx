@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Layout from '@/components/Layout';
-import ReactQuill from 'react-quill';
+import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css';
 import { Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import '@/styles/styles.css';
 
+const ReactQuill = dynamic(() => import('react-quill'), {
+  ssr: false,
+  loading: () => <div className="h-32 bg-gray-100 rounded animate-pulse"></div>,
+});
 
 function Dashboard() {
   const router = useRouter();
