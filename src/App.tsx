@@ -1,14 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import AboutPage from './pages/AboutPage';
-import ContactPage from './pages/ContactPage';
-import GalleryPage from './pages/GalleryPage';
-import PostDetailPage from './pages/PostDetailPage';
-import Dashboard from './pages/admin/Dashboard';
-import Login from './pages/admin/Login';
-import Ads from './pages/admin/Ads';
-import UploadGallery from './pages/admin/UploadGallery';
+import HomePage from '@/components/pages/HomePage';
+import AboutPage from '@/components/pages/AboutPage';
+import ContactPage from '@/components/pages/ContactPage';
+import GalleryPage from '@/components/pages/GalleryPage';
+import PostDetailPage from '@/components/pages/PostDetailPage';
+import Dashboard from '@/components/pages/admin/Dashboard';
+import Login from '@/components/pages/admin/Login';
+import Ads from '@/components/pages/admin/Ads';
+import UploadGallery from '@/components/pages/admin/UploadGallery';
 import './styles/styles.css';
 
 function App() {

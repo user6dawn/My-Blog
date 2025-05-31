@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Post } from '../types';
 import { supabase } from '../lib/supabase';
 import { Heart, Share2, MessageCircle } from 'lucide-react';
@@ -103,7 +103,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, likedPosts, setLikedPosts }) 
               </button>
 
               <Link
-                to={`/post/${post.id}`}
+                href={`/post/${post.id}`}
                 className="flex items-center gap-1"
               >
                 <MessageCircle size={16} />
@@ -111,12 +111,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, likedPosts, setLikedPosts }) 
               </Link>
             </div>
 
-            <Link
-              to={`/post/${post.id}`}
-              className="text-blue-500 dark:text-blue-400 font-medium hover:text-blue-600 dark:hover:text-blue-300"
-            >
-              Read More
-            </Link>
+    <Link href={`/post/${post.id}`} className="text-blue-500">
+      Read More
+    </Link>
           </div>
         </div>
       </div>
