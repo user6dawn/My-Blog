@@ -6,6 +6,13 @@ type Props = {
   params: { id: string }
 }
 
+// Helper function to remove HTML tags
+function stripHtml(html: string) {
+  const tmp = document.createElement('DIV');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+}
+
 export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
@@ -19,13 +26,17 @@ export async function generateMetadata(
     .single()
 
   const previousImages = (await parent).openGraph?.images || []
+  
+  // Clean the title and content
+  const cleanTitle = post?.title ? post.title.replace(/<[^>]*>/g, '') : 'Post Details'
+  const cleanContent = post?.content ? post.content.replace(/<[^>]*>/g, '').substring(0, 160) : 'Read this interesting post'
 
   return {
-    title: post?.title || 'Post Details',
-    description: post?.content?.substring(0, 160) || 'Read this interesting post',
+    title: cleanTitle,
+    description: cleanContent,
     openGraph: {
-      title: post?.title || 'Post Details',
-      description: post?.content?.substring(0, 160) || 'Read this interesting post',
+      title: cleanTitle,
+      description: cleanContent,
       images: [
         ...(post?.image_url ? [post.image_url] : []),
         ...previousImages,
@@ -34,8 +45,8 @@ export async function generateMetadata(
     },
     twitter: {
       card: 'summary_large_image',
-      title: post?.title || 'Post Details',
-      description: post?.content?.substring(0, 160) || 'Read this interesting post',
+      title: cleanTitle,
+      description: cleanContent,
       images: post?.image_url ? [post.image_url] : [],
     },
   }

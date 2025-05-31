@@ -481,26 +481,24 @@ const PostDetailPage: React.FC = () => {
               <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </div>
 
-            <div className="flex items-center space-x-4 mb-6">
-              <button
-                onClick={likePost}
-                className={`flex items-center space-x-2 ${
-                  liked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
-                }`}
-              >
-                <Heart className={liked ? 'fill-current' : ''} size={20} />
-                <span>{post?.likes || 0}</span>
-              </button>
-              <button
-                onClick={() => setShowSharePreview(true)}
-                className="flex items-center space-x-2 text-gray-500 hover:text-blue-500"
-              >
-                <Share2 size={20} />
-                {/* <span>Share</span> */}
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between text-sm text-gray-700 dark:text-gray-300">
+            <div className="flex items-center justify-between mt-6">
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={likePost}
+                  className={`flex items-center space-x-2 ${
+                    liked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
+                  }`}
+                >
+                  <Heart className={liked ? 'fill-current' : ''} size={20} />
+                  <span>{post?.likes || 0}</span>
+                </button>
+                <button
+                  onClick={() => setShowSharePreview(true)}
+                  className="flex items-center space-x-2 text-gray-500 hover:text-blue-500"
+                >
+                  <Share2 size={20} />
+                </button>
+              </div>
               <Link
                 href="/"
                 className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"

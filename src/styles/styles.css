@@ -39,15 +39,15 @@ body {
 }
 
 .header-left {
-  @apply flex flex-col;
+  @apply flex flex-col items-end;
 }
 
 .header-title-large {
-  @apply text-xl font-bold sm:text-2xl;
+  @apply text-xl font-bold sm:text-2xl text-right;
 }
 
 .header-subtitle-small {
-  @apply text-xs block text-center sm:text-left;
+  @apply text-xs block text-right;
 }
 
 .theme-toggle-button {
@@ -61,7 +61,7 @@ body {
 }
 
 .nav {
-  @apply fixed top-0 right-0 z-40 flex flex-col items-start justify-start w-2/3 h-screen pt-20 pl-8 shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out;
+  @apply fixed top-0 right-0 z-40 flex flex-col items-start justify-start h-screen pt-20 pl-8 pr-12 shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out bg-white dark:bg-zinc-900;
 }
 
 .nav.open {
@@ -204,9 +204,20 @@ body {
   }
 }
 
+/* Layout */
+.min-h-screen {
+  @apply flex flex-col;
+  min-height: 100vh;
+}
+
+/* Main content */
+main {
+  @apply flex-1 pt-24 pb-16 px-4 container mx-auto w-full;
+}
+
 /* Footer */
 .footer {
-  @apply mt-8 py-4 text-center text-sm text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800;
+  @apply fixed bottom-0 left-0 right-0 py-4 text-center text-sm text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-black z-10;
 }
 
 /* Notification bell */
