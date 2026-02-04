@@ -17,7 +17,7 @@ const ContactPage: React.FC = () => {
             
             <div className="flex items-center">
               <Mail className="text-blue-600 mr-2" size={20} />
-              <p className="text-gray-900 dark:text-white"><strong>Email:</strong> onyxeblg@gmail.com</p>
+              <p className="text-gray-900 dark:text-white"><strong>Email:</strong> phenomenalafricans@gmail.com</p>
             </div>
           </div>
           
@@ -25,7 +25,7 @@ const ContactPage: React.FC = () => {
           
           <div className="flex flex-wrap gap-4">
             <a 
-              href="https://www.youtube.com/@Onyxenkembu" 
+              href="https://youtube.com/@africa-x6f?si=OKKUsX4ouGYEJbeB" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
@@ -34,7 +34,7 @@ const ContactPage: React.FC = () => {
             </a>
             
             <a 
-              href="https://www.tiktok.com/@onyxenkb?_t=ZM-8v6E9odcU5N&_r=1" 
+              href="https://www.tiktok.com/@africanfame1?_r=1&_t=ZS-93dHLlrYiDR" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center gap-1 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
@@ -43,7 +43,7 @@ const ContactPage: React.FC = () => {
             </a>
             
             <a 
-              href="https://www.facebook.com/share/1FyC5cQQEx/?mibextid=wwXIfr" 
+              href="https://www.facebook.com/share/1CtJjXsZWa/?mibextid=wwXIfr" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"

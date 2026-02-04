@@ -103,7 +103,7 @@ const SharePage: React.FC = () => {
       updateMetaTag("og:url", `${window.location.origin}/post/${post.id}`)
       updateMetaTag("og:title", plainTitle)
       updateMetaTag("og:description", plainDescription)
-      updateMetaTag("og:site_name", "The Balance Code Alliance")
+      updateMetaTag("og:site_name", "Phinominal African Lives")
 
       if (imageUrl) {
         updateMetaTag("og:image", imageUrl)
