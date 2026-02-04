@@ -434,7 +434,7 @@ const PostDetailPage: React.FC = () => {
   return (
     <Layout>
       <Head>
-        <title>{post.title} | The Balance Code Alliance</title>
+        <title>{post.title} | The Phinominal African Lives</title>
         <meta name="description" content={excerpt} />
 
         {/* Open Graph / Facebook */}

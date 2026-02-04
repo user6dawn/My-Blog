@@ -68,10 +68,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <header className={`header ${isDark ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
         <div className="header-left">
           <span className={`header-title-large ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            The Balance Code Alliance
+            The Phinominal African Lives
           </span>
           <span className={`header-subtitle-small ${isDark ? 'text-white' : 'text-gray-700'}`}>
-            Restoring Order. Unlocking Peace. Empowering Lives
+            African stories that remind us who we are and what is possible
           </span>
         </div>
 

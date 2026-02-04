@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         },
         body: JSON.stringify({
           sender: {
-            name: 'The Balance Code Alliance',
+            name: 'The Phinominal African Lives',
             email: process.env.EMAIL_FROM,
           },
           to: batch.map(({ email }) => ({ email })),

@@ -11,15 +11,21 @@ const AboutPage: React.FC = () => {
         
         <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md p-6">
           <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-            Welcome to <strong>The Balance Code Alliance</strong>.
+            Welcome to <strong>The Phinominal African Lives</strong>.
           </h2>
           
           <div className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300">
             <p className="my-4">
-              In a world filled with chaos, confusion, and broken systems, The Balance Code Alliance is a movement dedicated to restoring harmony, order, and purpose through the wisdom of Natural Law.
+Phinominal African Lives is a storytelling platform dedicated to documenting African lives and the lessons they leave behind.
+<br />
+We tell stories of Africans—past and present, famous and everyday—not to idolize them, but to understand the choices they made, the pressures they faced, and the impact they left on others. Some of these lives were loud. Others were quiet. All were human.
+<br />
+In a world driven by trends, noise, and quick judgment, we slow things down. We focus on meaning over popularity, reflection over reaction, and lessons over headlines. Our stories explore courage, failure, resilience, compromise, integrity, and consequence—because real life is complex.
+<br />
+We believe a life is phenomenal not because it was perfect, but because it influenced someone, challenged something, or left a trace worth remembering. If a story helps you reflect, question, or see life differently, then it has done its work.
             </p>
             
-            <p className="my-4">
+            {/* <p className="my-4">
               We believe that true peace, strength, and prosperity come when we align our spiritual, physical, and relational lives with the divine structure that governs all things. By understanding and applying these timeless principles, <strong>you can experience:</strong>
             </p>
             
@@ -56,15 +62,14 @@ const AboutPage: React.FC = () => {
             
             <p className="my-4">
               This is more than just a movement—it is a return to the foundation of life itself.
-            </p>
+            </p> */}
           </div>
           
           <div className="mt-8 text-center">
             <p className="text-xl text-gray-900 dark:text-white">
-              🔥 Are you ready to rediscover balance, purpose, and prosperity?
-            </p>
+<b>If your life has inspired someone, then you are phenomenal—and we celebrate you.</b>            </p>
             <p className="mb-4 text-gray-900 dark:text-white">
-              Join the movement today.
+              <br />Join the movement today.
             </p>
             <Link 
               href="/contact" 
