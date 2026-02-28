@@ -135,17 +135,10 @@ const HomePage: React.FC = () => {
                   />,
                 )
 
-                if ((index + 1) % 2 === 0 && index < posts.length - 1) {
-                  elements.push(
-                    <div key={`ad-mobile-${index}`} className="block md:hidden">
-                      <AdDisplay ad={getRandomAd("between_posts")} position="between_posts" />
-                    </div>,
-                  )
-                }
 
                 if ((index + 1) % 4 === 0 && index < posts.length - 1) {
                   elements.push(
-                    <div key={`ad-desktop-${index}`} className="hidden md:block col-span-2">
+                    <div key={`ad-desktop-${index}`} className="col-span-1 md:col-span-2">
                       <AdDisplay ad={getRandomAd("between_posts")} position="between_posts" />
                     </div>,
                   )
@@ -157,12 +150,9 @@ const HomePage: React.FC = () => {
           )}
         </div>
 
-        <div className="hidden md:block md:w-1/3">
-          <div className="sticky top-24">
+        <div className="w-full md:w-1/3 mt-6 md:mt-0">
+          <div className="md:sticky md:top-24">
             <AdDisplay ad={getRandomAd("sidebar")} position="sidebar" />
-            <div className="mt-6">
-              <AdDisplay ad={getRandomAd("sidebar")} position="sidebar" />
-            </div>
           </div>
         </div>
       </div>

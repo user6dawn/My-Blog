@@ -68,9 +68,17 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ ad, position }) => {
   // If no ad is passed as a prop, display rotating fallback ads
   if (!ad) {
     const currentAd = fallbackAds[currentAdIndex];
+    const nonSidebarHeight = position === 'between_posts' ? '300px' : '100px';
 
     return (
-      <div className="ad-container w-full overflow-hidden py-2 text-sm text-gray-700">
+      <div
+        className={
+          position === 'sidebar'
+            ? 'ad-container w-fit overflow-hidden py-2 text-sm text-gray-700'
+            : 'ad-container w-full overflow-hidden py-2 text-sm text-gray-700 flex items-center justify-center'
+        }
+        style={position === 'sidebar' ? undefined : { height: nonSidebarHeight }}
+      >
         {currentAd ? (
           <a
             key={currentAd.id}
@@ -78,13 +86,18 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ ad, position }) => {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackAdClick(currentAd.id)}
-            className="block mx-6"
+            className={position === 'sidebar' ? 'inline-block' : 'block h-full mx-auto'}
           >
             {currentAd.image_url ? (
               <img
                 src={currentAd.image_url}
                 alt="Advertisement"
-                className="w-full h-[300px] object-cover"
+                className={
+                  position === 'sidebar'
+                    ? 'block w-auto h-auto'
+                    : 'h-full w-auto object-cover mx-auto'
+                }
+                style={position === 'sidebar' ? undefined : { height: '100%' }}
               />
             ) : (
               <span className="text-base">{currentAd.title}</span>
@@ -99,12 +112,17 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ ad, position }) => {
 
   // If an ad is passed, display it
   return (
-    <div className={`ad-container ${position === 'sidebar' ? 'hidden md:block' : ''}`}>
+    <div className="ad-container flex justify-center">
       <div
         className={
           position === 'sidebar'
-            ? 'w-full flex items-center justify-center'
-            : 'w-full h-[300px] flex items-center justify-center'
+            ? 'w-fit mx-auto'
+            : 'w-full overflow-hidden flex items-center justify-center'
+        }
+        style={
+          position === 'sidebar'
+            ? undefined
+            : { height: position === 'between_posts' ? '300px' : '100px' }
         }
       >
         <a
@@ -112,7 +130,7 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ ad, position }) => {
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => trackAdClick(ad.id)}
-          className={position === 'sidebar' ? 'block' : 'block w-full h-full'}
+          className={position === 'sidebar' ? 'inline-block' : 'block w-full h-full'}
         >
           {ad.image_url ? (
             <img
@@ -120,9 +138,10 @@ const AdDisplay: React.FC<AdDisplayProps> = ({ ad, position }) => {
               alt="Advertisement"
               className={
                 position === 'sidebar'
-                  ? 'max-w-full h-auto[300]'
-                  : 'w-full h-full object-cover[300px]'
+                  ? 'block w-auto h-auto'
+                  : 'h-full w-auto object-cover'
               }
+              style={position === 'sidebar' ? undefined : { height: '100%' }}
             />
           ) : (
             <div className="p-4">
