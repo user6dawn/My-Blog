@@ -158,6 +158,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </Link>
 
                 <Link
+                  href="/"
+                  className={`nav-link ${
+                    pathname === '/'
+                      ? (isDark ? 'text-emerald-300' : 'text-blue-600')
+                      : (isDark ? 'text-white hover:text-emerald-300' : 'text-gray-900 hover:text-indigo-600')
+                  }`}
+                >
+                  Blogs Page
+                </Link>
+
+                <Link
                   href="/admin/ads"
                   className={`nav-link ${
                     pathname === '/admin/ads'
@@ -194,10 +205,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <header className={`header ${isDark ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
             <div className="header-left">
               <span className={`header-title-large ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                The Phinominal African Lives
+                Welcome to OnyxeNnaemekaBlog
               </span>
-              <span className={`header-subtitle-small ${isDark ? 'text-white' : 'text-gray-700'}`}>
-                African stories that remind us who we are and what is possible
+              <span className={`header-subtitle-medium ${isDark ? 'text-white' : 'text-gray-700'}`}>
+                Business. Wealth. Health. Life.
               </span>
             </div>
 

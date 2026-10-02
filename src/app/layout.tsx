@@ -5,8 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'The Phinominal African Lives',
-  description: 'African stories that remind us who we are and what is possible.',
+  description: 'Business. Wealth. Health. Life.',
 }
 
 export default function RootLayout({

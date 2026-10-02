@@ -39,15 +39,15 @@ body {
 }
 
 .header-left {
-  @apply flex flex-col items-end;
+  @apply flex flex-col items-start;
 }
 
 .header-title-large {
-  @apply text-xl font-bold sm:text-2xl text-right;
+  @apply text-xl font-bold sm:text-2xl text-left;
 }
 
 .header-subtitle-small {
-  @apply text-xs block text-right;
+  @apply text-xs block text-left;
 }
 
 .theme-toggle-button {
