@@ -205,7 +205,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <header className={`header ${isDark ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
             <div className="header-left">
               <span className={`header-title-large ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                Welcome to OnyxeNnaemekaBlog
+                Welcome to OnyxeNnaemekasBlog
               </span>
               <span className={`header-subtitle-medium ${isDark ? 'text-white' : 'text-gray-700'}`}>
                 Business. Wealth. Health. Life.

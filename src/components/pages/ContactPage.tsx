@@ -5,7 +5,7 @@ import { Mail, Phone, ExternalLink, Copy, Check } from 'lucide-react';
 
 const PHONE_DISPLAY = '+234 704 222 4426';
 const PHONE_LINK = 'tel:+2347042224426';
-const EMAIL = ' Nnaemeka@onyxeNnaemekablog.com';
+const EMAIL = 'onyexblg@gmail.com';
 
 const SOCIALS = [
   {
