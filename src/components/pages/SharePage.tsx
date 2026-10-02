@@ -3,6 +3,7 @@
 import React, { useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
+import "@/styles/styles.css"
 
 // This is a special page that will be used for sharing
 // It will be rendered server-side and will have the proper meta tags
@@ -124,35 +125,41 @@ const SharePage: React.FC = () => {
     }
   }, [post])
 
+  const shell = "min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center px-4 py-10"
+
+  /* ---------- Loading ---------- */
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          fontFamily: "Arial, sans-serif",
-        }}
-      >
-        Loading...
-      </div>
+      <main className={shell}>
+        <div className="w-full max-w-xl animate-pulse motion-reduce:animate-none" aria-busy="true">
+          <div className="aspect-[1200/630] w-full rounded-2xl bg-zinc-200 dark:bg-zinc-800" />
+          <div className="mt-6 h-8 w-3/4 rounded-lg bg-zinc-200 dark:bg-zinc-800" />
+          <div className="mt-4 h-4 w-full rounded bg-zinc-200 dark:bg-zinc-800" />
+          <div className="mt-2 h-4 w-2/3 rounded bg-zinc-200 dark:bg-zinc-800" />
+        </div>
+      </main>
     )
   }
 
+  /* ---------- Not found ---------- */
   if (!post) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          fontFamily: "Arial, sans-serif",
-        }}
-      >
-        Post not found
-      </div>
+      <main className={shell}>
+        <div className="w-full max-w-md text-center">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter leading-tight text-zinc-950 dark:text-white">
+            Post not found
+          </h1>
+          <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-400">
+            This post may have been removed, or the link may be incorrect.
+          </p>
+          <a
+            href="/"
+            className="mt-8 inline-block rounded-full bg-blue-600 px-8 py-3 text-lg font-medium text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+          >
+            Go to home page
+          </a>
+        </div>
+      </main>
     )
   }
 
@@ -161,54 +168,50 @@ const SharePage: React.FC = () => {
   const imageUrl = getAbsoluteImageUrl(post.image_url || "")
 
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "0 auto",
-        padding: "20px",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      {imageUrl && (
-        <img
-          src={imageUrl || "/placeholder.svg"}
-          alt={plainTitle}
-          style={{
-            width: "100%",
-            height: "auto",
-            borderRadius: "8px",
-            marginBottom: "20px",
-          }}
-        />
-      )}
-      <h1
-        style={{
-          fontSize: "24px",
-          marginBottom: "10px",
-          color: "#333",
-        }}
-      >
-        {plainTitle}
-      </h1>
-      <p
-        style={{
-          fontSize: "16px",
-          lineHeight: "1.5",
-          color: "#666",
-          marginBottom: "20px",
-        }}
-      >
-        {plainDescription}
-      </p>
-      <p
-        style={{
-          fontSize: "14px",
-          color: "#999",
-        }}
-      >
-        Redirecting to full post...
-      </p>
-    </div>
+    <main className={shell}>
+      <article className="w-full max-w-xl">
+        <p className="mb-6 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+          The Phinominal African Lives
+        </p>
+
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt={plainTitle}
+            className="block h-auto w-full rounded-2xl bg-zinc-100 shadow-sm dark:bg-zinc-900"
+          />
+        )}
+
+        <h1 className="mt-6 text-3xl md:text-4xl font-extrabold tracking-tighter leading-tight text-zinc-950 dark:text-white">
+          {plainTitle}
+        </h1>
+
+        {plainDescription && (
+          <p className="mt-4 text-lg leading-8 text-zinc-600 dark:text-zinc-400">{plainDescription}</p>
+        )}
+
+        <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 border-t border-zinc-200 pt-6 dark:border-zinc-800">
+          <a
+            href={`/post/${post.id}`}
+            className="rounded-full bg-blue-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+          >
+            Read the full post
+          </a>
+
+          <p
+            className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400"
+            role="status"
+            aria-live="polite"
+          >
+            <span
+              className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-600 motion-reduce:animate-none dark:border-zinc-700 dark:border-t-blue-500"
+              aria-hidden="true"
+            />
+            Opening the post…
+          </p>
+        </div>
+      </article>
+    </main>
   )
 }
 

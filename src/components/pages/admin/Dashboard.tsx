@@ -17,6 +17,7 @@ function Dashboard() {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -26,6 +27,7 @@ function Dashboard() {
   const [editPostId, setEditPostId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
+  const [editVideoUrl, setEditVideoUrl] = useState('');
   const [editImage, setEditImage] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
 
@@ -114,6 +116,7 @@ function Dashboard() {
         title,
         content,
         image_url: imageUrl,
+        video_url: videoUrl.trim() || null,
         likes: 0
       }]).select().single();
 
@@ -140,6 +143,7 @@ function Dashboard() {
       alert('Post created successfully!');
       setTitle('');
       setContent('');
+      setVideoUrl('');
       setImage(null);
       setImagePreview(null);
       fetchPosts();
@@ -194,6 +198,7 @@ function Dashboard() {
     setEditPostId(post.id);
     setEditTitle(post.title);
     setEditContent(post.content);
+    setEditVideoUrl(post.video_url || '');
     setEditImagePreview(post.image_url || null);
     setEditImage(null);
     setEditModalOpen(true);
@@ -218,6 +223,7 @@ function Dashboard() {
           title: editTitle,
           content: editContent,
           image_url: imageUrl,
+          video_url: editVideoUrl.trim() || null,
         })
         .eq('id', editPostId);
 
@@ -235,22 +241,8 @@ function Dashboard() {
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+        <div className="mb-8">
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <div className="space-x-4">
-            <Link href="/admin/ads" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-              Manage Ads
-            </Link>
-            <Link href="/admin/upload-gallery" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
-              Manage Gallery
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-            >
-              Logout
-            </button>
-          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -281,6 +273,19 @@ function Dashboard() {
                 formats={quillFormats}
                 placeholder="Write your post content..."
                 className="bg-white min-h-[200px]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                YouTube Video Link (Optional)
+              </label>
+              <input
+                type="url"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>
 
@@ -393,6 +398,17 @@ function Dashboard() {
                   formats={quillFormats}
                   placeholder="Edit post content..."
                   className="bg-white min-h-[200px]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">YouTube Video Link (Optional)</label>
+                <input
+                  type="url"
+                  value={editVideoUrl}
+                  onChange={(e) => setEditVideoUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
 

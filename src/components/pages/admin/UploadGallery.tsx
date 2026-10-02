@@ -158,16 +158,8 @@ const UploadGallery: React.FC = () => {
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+        <div className="mb-8">
           <h1 className="text-2xl font-bold">Manage Gallery</h1>
-          <div className="space-x-4">
-            <Link href="/admin/dashboard" className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
-              Back to Dashboard
-            </Link>
-            <Link href="/gallery" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-              View Gallery
-            </Link>
-          </div>
         </div>
 
         {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}

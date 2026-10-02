@@ -136,14 +136,8 @@ const Ads: React.FC = () => {
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+        <div className="mb-8">
           <h1 className="text-2xl font-bold">Ads Management</h1>
-          <Link
-            href="/admin/dashboard"
-            className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
-          >
-            Back to Dashboard
-          </Link>
         </div>
 
         {error && (

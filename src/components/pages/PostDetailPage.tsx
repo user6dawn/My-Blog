@@ -42,6 +42,17 @@ const PostDetailPage: React.FC = () => {
     return plainText.length > maxLength ? plainText.substring(0, maxLength) + "..." : plainText
   }
 
+  const getYouTubeEmbedUrl = (videoUrl?: string) => {
+    if (!videoUrl) return null
+
+    const trimmedUrl = videoUrl.trim()
+    const match = trimmedUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i)
+
+    if (!match) return null
+
+    return `https://www.youtube.com/embed/${match[1]}`
+  }
+
   useEffect(() => {
     const fetchPostDetails = async () => {
       if (!id) return
@@ -49,7 +60,7 @@ const PostDetailPage: React.FC = () => {
       try {
         const { data: postData, error: postError } = await supabase
           .from("posts")
-          .select("id, title, content, image_url, likes, created_at")
+          .select("id, title, content, image_url, video_url, likes, created_at")
           .eq("id", id)
           .single()
 
@@ -430,6 +441,7 @@ const PostDetailPage: React.FC = () => {
   const currentShareUrl = `${window.location.origin}/post/${post.id}`;
   const plainTextContent = post.content.replace(/<[^>]*>/g, "");
   const excerpt = plainTextContent.substring(0, 160);
+  const embedVideoUrl = getYouTubeEmbedUrl(post.video_url);
 
   return (
     <Layout>
@@ -472,6 +484,20 @@ const PostDetailPage: React.FC = () => {
               alt={post.title}
               className="w-full h-64 sm:h-96 object-cover"
             />
+          )}
+
+          {embedVideoUrl && (
+            <div className="px-4 pt-4 sm:px-6">
+              <div className="overflow-hidden rounded-lg border border-gray-200 bg-black">
+                <iframe
+                  src={embedVideoUrl}
+                  title={post.title}
+                  className="aspect-video w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </div>
           )}
 
           <div className="p-6 text-gray-800 dark:text-gray-100 transition-colors duration-300">

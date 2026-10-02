@@ -1,4 +1,4 @@
-// File: C:\Users\DELL\Downloads\blog next router\src\app\gallery\page.tsx
+// File: C:\Users\DELL\Downloads\projects\My-Blog\src\app\gallery\page.tsx
 import * as entry from '../../../../src/app/gallery/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

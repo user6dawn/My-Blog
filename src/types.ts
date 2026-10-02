@@ -3,6 +3,7 @@ export interface Post {
   title: string;
   content: string;
   image_url?: string;
+  video_url?: string;
   likes: number;
   created_at: string;
   comment_count?: number;

@@ -1,1 +1,29 @@
-{}
+{
+  "app\\admin\\page.tsx -> @/components/pages/admin/Login": {
+    "id": "app\\admin\\page.tsx -> @/components/pages/admin/Login",
+    "files": [
+      "static/css/_app-pages-browser_src_components_pages_admin_Login_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_pages_admin_Login_tsx.js"
+    ]
+  },
+  "app\\admin\\upload-gallery\\page.tsx -> @/components/pages/admin/UploadGallery": {
+    "id": "app\\admin\\upload-gallery\\page.tsx -> @/components/pages/admin/UploadGallery",
+    "files": [
+      "static/css/_app-pages-browser_src_components_pages_admin_UploadGallery_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_pages_admin_UploadGallery_tsx.js"
+    ]
+  },
+  "app\\gallery\\page.tsx -> @/components/pages/GalleryPage": {
+    "id": "app\\gallery\\page.tsx -> @/components/pages/GalleryPage",
+    "files": [
+      "static/css/_app-pages-browser_src_components_pages_GalleryPage_tsx.css",
+      "static/chunks/_app-pages-browser_src_components_pages_GalleryPage_tsx.js"
+    ]
+  },
+  "components\\pages\\admin\\Dashboard.tsx -> react-quill": {
+    "id": "components\\pages\\admin\\Dashboard.tsx -> react-quill",
+    "files": [
+      "static/chunks/_app-pages-browser_node_modules_react-quill_lib_index_js.js"
+    ]
+  }
+}
