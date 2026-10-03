@@ -1,16 +1,1 @@
-{
-  "app\\admin\\page.tsx -> @/components/pages/admin/Login": {
-    "id": "app\\admin\\page.tsx -> @/components/pages/admin/Login",
-    "files": [
-      "static/css/_app-pages-browser_src_components_pages_admin_Login_tsx.css",
-      "static/chunks/_app-pages-browser_src_components_pages_admin_Login_tsx.js"
-    ]
-  },
-  "app\\gallery\\page.tsx -> @/components/pages/GalleryPage": {
-    "id": "app\\gallery\\page.tsx -> @/components/pages/GalleryPage",
-    "files": [
-      "static/css/_app-pages-browser_src_components_pages_GalleryPage_tsx.css",
-      "static/chunks/_app-pages-browser_src_components_pages_GalleryPage_tsx.js"
-    ]
-  }
-}
+{}

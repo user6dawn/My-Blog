@@ -27,7 +27,7 @@ const AboutPage: React.FC = () => {
             About us
           </h1>
           <h2 className="mt-8 text-2xl md:text-4xl font-bold tracking-tight leading-tight text-zinc-950 dark:text-white">
-          Welcome to OnyxeNnaemekasBlog
+          Welcome to OnyxeNnaemekasBlog 
           </h2>
         </header>
 
